@@ -1,0 +1,19 @@
+version: '3'
+services:
+  esid_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+#    ports:
+#      - "443:443"
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/go/src/legato_server
+#    tests:
+#      build:
+#        context: .
+#        dockerfile: Dockerfile.dev
+#      volumes:
+#        - .:/go/src/legato_server
+#      command: ["go", "test", "./..."]

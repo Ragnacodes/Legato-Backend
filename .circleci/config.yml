@@ -1,0 +1,64 @@
+version: 2.1
+jobs:
+  build-and-push-to-dockerhub:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - run:
+          name: Setup VirtualEnv
+          command: |
+            echo 'export TAG=0.0.1-beta.3' >> $BASH_ENV
+            echo 'export IMAGE_NAME=legato_server' >> $BASH_ENV
+      - setup_remote_docker
+      - run:
+          name: Build Image
+          command: docker build -t $DOCKER_LOGIN/$IMAGE_NAME:$TAG .
+      - run:
+          name: Push Docker image
+          command: |
+            echo $DOCKER_PASSWORD | docker login -u $DOCKER_LOGIN --password-stdin
+            docker push $DOCKER_LOGIN/$IMAGE_NAME:$TAG
+  pull-images-run:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - run:
+          name: Fix ssh Could not resolve hostname
+          command: |
+            ssh-keyscan 37.152.111.127 >> ~/.ssh/known_hosts
+      - add_ssh_keys:
+          fingerprints:
+            - "a5:16:1d:51:21:41:18:60:14:4d:23:d0:74:f1:4b:ae"
+      - run:
+          name: Setup VirtualEnv
+          command: |
+            echo 'export TAG=0.0.1-beta.3' >> $BASH_ENV
+            echo 'export IMAGE_NAME=legato_server' >> $BASH_ENV
+      - run:
+          name: Run Project
+          command: |
+            ssh ubuntu@37.152.111.127 "
+              cd  legato_server/
+              sudo echo $DOCKER_PASSWORD | sudo docker login -u $DOCKER_LOGIN --password-stdin
+              sudo docker pull $DOCKER_LOGIN/$IMAGE_NAME:$TAG
+              sudo ./terminate.sh
+              sudo rm -f env.sh
+              echo "export TAG=$TAG" >> env.sh
+              sudo ./translate.sh
+              sudo docker-compose up -d --build legato_server"
+
+workflows:
+  deploy:
+    jobs:
+      - build-and-push-to-dockerhub:
+          filters:
+            branches:
+              only: master
+      - pull-images-run:
+          filters:
+            branches:
+              only: master
+          requires:
+            - build-and-push-to-dockerhub

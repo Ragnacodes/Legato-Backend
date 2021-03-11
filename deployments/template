@@ -1,0 +1,14 @@
+FROM magstream/legato_server:$TAG
+
+# For AWS S3 Bucket (Later)
+# RUN mkdir ./.aws
+# COPY ./.aws/credentials ./.aws/
+
+# For SSL/TLS Certification (Later)
+# COPY server.key .
+# COPY server.crt .
+# EXPOSE 443
+
+EXPOSE 8080
+
+CMD ["app_name"]
