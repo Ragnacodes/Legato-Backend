@@ -1,9 +1,10 @@
-package authenticate
+package middleware
 
 import (
+	"context"
+	"legato_server/authenticate"
 	"legato_server/domain"
 	"legato_server/models"
-	"context"
 	"net/http"
 )
 
@@ -15,7 +16,7 @@ type contextKey struct {
 	name string
 }
 
-func GqlgenAuthMiddleware(u domain.UserUseCase) func(http.Handler) http.Handler {
+func AuthMiddleware(u domain.UserUseCase) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := context.WithValue(r.Context(), responseWriterCtxKey, &w)
@@ -38,7 +39,7 @@ func GqlgenAuthMiddleware(u domain.UserUseCase) func(http.Handler) http.Handler 
 			}
 
 			//validate jwt token
-			claim, err := CheckToken(tokenStr)
+			claim, err := authenticate.CheckToken(tokenStr)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusForbidden)
 				r = r.WithContext(ctx)
