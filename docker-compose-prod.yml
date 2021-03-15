@@ -3,15 +3,18 @@ services:
   legato_server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: deployments/prod/Dockerfile
+    command: [ "go", "run", "main.go" ]
     ports:
       - "443:443"
+    depends_on:
+      - database
   database:
     image: "postgres"
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: legato_db
+      POSTGRES_PASSWORD: legato
+      POSTGRES_DB: legatodb
+      POSTGRES_USER: legato
       POSTGRES_HOST: database.legato
       POSTGRES_PORT: 5432
     ports:
@@ -21,4 +24,3 @@ networks:
   default:
     external:
       name: legato_default
-

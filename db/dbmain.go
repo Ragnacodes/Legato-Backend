@@ -15,7 +15,7 @@ type LegatoDB struct {
 }
 
 func Connect() (*LegatoDB, error) {
-	args := fmt.Sprintf("host=%s port=%s user=admin dbname=legato_db password=admin sslmode=disable",
+	args := fmt.Sprintf("host=%s port=%s user=legato dbname=legatodb password=legato sslmode=disable",
 		env.ENV.DatabaseHost, env.ENV.DatabasePort)
 	db, err := gorm.Open("postgres", args)
 	if err != nil {
