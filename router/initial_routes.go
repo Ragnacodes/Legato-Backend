@@ -11,13 +11,13 @@ var initialRoutesGroups = groupRoute{
 	routes{
 		route{
 			"Ping Pong Test",
-			"GET",
+			GET,
 			"/ping",
 			ping,
 		},
 		route{
 			"Get Default User",
-			"GET",
+			GET,
 			"/auth/admin",
 			getDefaultUser,
 		},

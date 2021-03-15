@@ -5,6 +5,18 @@ import (
 	"legato_server/domain"
 )
 
+// Define methods as an integer.
+type Method int
+
+// Method enums
+// POST, GET, PUT, DELETE methods.
+const (
+	POST   Method = iota
+	GET    Method = iota
+	PUT    Method = iota
+	DELETE Method = iota
+)
+
 // Each route is a single api.
 // name may use in logging and testing.
 // method is an enum of request methods.
@@ -12,7 +24,7 @@ import (
 // handlerFunc is gin.HandlerFunc that gets *gin.Context.
 type route struct {
 	name        string
-	method      string
+	method      Method
 	pattern     string
 	handlerFunc gin.HandlerFunc
 }
@@ -54,16 +66,16 @@ func NewRouter(res *Resolver) *gin.Engine {
 	for _, routers := range legatoRoutesGroups {
 		for _, route := range routers.routes {
 			switch route.method {
-			case "GET":
+			case GET:
 				r.GET(route.pattern, route.handlerFunc)
 				break
-			case "POST":
+			case POST:
 				r.POST(route.pattern, route.handlerFunc)
 				break
-			case "PUT":
+			case PUT:
 				r.PUT(route.pattern, route.handlerFunc)
 				break
-			case "DELETE":
+			case DELETE:
 				r.DELETE(route.pattern, route.handlerFunc)
 				break
 			}
