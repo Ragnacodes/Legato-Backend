@@ -1,9 +1,9 @@
 package legatoDb
 
 import (
-	"legato_server/env"
 	"fmt"
 	_ "github.com/lib/pq"
+	"legato_server/env"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -15,9 +15,11 @@ type LegatoDB struct {
 }
 
 func Connect() (*LegatoDB, error) {
-	args := fmt.Sprintf("host=%s port=%s user=legato dbname=legatodb password=legato sslmode=disable",
-		env.ENV.DatabaseHost, env.ENV.DatabasePort)
-	db, err := gorm.Open("postgres", args)
+	db, err := gorm.Open("postgres", fmt.Sprintf(
+		"host=%s port=%s user=legato dbname=legatodb password=legato sslmode=disable",
+		env.ENV.DatabaseHost, env.ENV.DatabasePort,
+	))
+
 	if err != nil {
 		log.Println("Error in connecting to the postgres database")
 		log.Fatal(err)
@@ -35,16 +37,6 @@ func Connect() (*LegatoDB, error) {
 	log.Println("Connected to the database and created the tables")
 
 	return &dbObj, nil
-}
-
-type ReciptRecord struct {
-	UUID          int64
-	PrinterSerial string
-	// TODO: Add the keys
-}
-
-func (s *ReciptRecord) String() string {
-	return fmt.Sprintf("ReciptRecord<%v>", s)
 }
 
 // createSchema creates database schema for Printer and ReciptRecord models.

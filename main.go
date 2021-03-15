@@ -33,7 +33,7 @@ func init() {
 }
 
 func main() {
-
+	// resolvers include all of our use cases
 	resolvers := router.Resolver{
 		UserUseCase: userUseCase,
 	}
