@@ -1,0 +1,28 @@
+version: '3'
+services:
+  legato_server:
+    build:
+      context: .
+      dockerfile: deployments/dev/Dockerfile
+    command: [ "go", "run", "main.go" ]
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+  #    tests:
+  #      build:
+  #        context: .
+  #        dockerfile: Dockerfile.dev
+  #      volumes:
+  #        - .:/go/src/legato_server
+  #      command: ["go", "test", "./..."]
+  database:
+    image: "postgres"
+    environment:
+      POSTGRES_PASSWORD: legato
+      POSTGRES_DB: legatodb
+      POSTGRES_USER: legato
+      POSTGRES_HOST: database.legato
+      POSTGRES_PORT: 5432
+    ports:
+      - "5431:5432"
