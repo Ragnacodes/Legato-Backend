@@ -1,8 +1,10 @@
 package router
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"legato_server/domain"
+	"legato_server/middleware"
 )
 
 // Define methods as an integer.
@@ -54,29 +56,33 @@ var resolvers *Resolver
 // Use all of your scenarios for the server here in legatoRoutesGroups
 var legatoRoutesGroups = groupRoutes{
 	initialRoutesGroups,
+	authRoutesGroup,
 }
 
 // NewRouter get the resolvers and create *gin.Engine that can handle all
 // of the request and responses.
 func NewRouter(res *Resolver) *gin.Engine {
+	resolvers = res
+
 	r := gin.Default()
 
-	resolvers = res
+	// Setup middlewares
+	r.Use(middleware.AuthMiddleware(&resolvers.UserUseCase))
 
 	for _, routers := range legatoRoutesGroups {
 		for _, route := range routers.routes {
 			switch route.method {
 			case GET:
-				r.GET(route.pattern, route.handlerFunc)
+				r.GET(fmt.Sprintf("/api/%s", route.pattern), route.handlerFunc)
 				break
 			case POST:
-				r.POST(route.pattern, route.handlerFunc)
+				r.POST(fmt.Sprintf("/api/%s", route.pattern), route.handlerFunc)
 				break
 			case PUT:
-				r.PUT(route.pattern, route.handlerFunc)
+				r.PUT(fmt.Sprintf("/api/%s", route.pattern), route.handlerFunc)
 				break
 			case DELETE:
-				r.DELETE(route.pattern, route.handlerFunc)
+				r.DELETE(fmt.Sprintf("/api/%s", route.pattern), route.handlerFunc)
 				break
 			}
 		}
