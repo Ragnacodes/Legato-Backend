@@ -3,8 +3,8 @@ package legatoDb
 import (
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
+	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 	"strings"
 	"time"
@@ -20,35 +20,41 @@ type User struct {
 	Email     string
 	Password  string
 	LastLogin time.Time
-	FirstName string
-	LastName  string
-	Gender    string
 }
 
 func (u *User) String() string {
-	return fmt.Sprintf("User: %v", u)
+	return fmt.Sprintf("User: %+v", *u)
 }
 
 func (edb *LegatoDB) AddUser(u User) error {
+	var user *User
+
+	// Encode the user password
 	if pw, err := bcrypt.GenerateFromPassword([]byte(u.Password), 0); err != nil {
 		return err
 	} else {
 		u.Password = string(pw)
 	}
 
-	user := &User{}
+	// Check unique username
+	user = &User{}
 	edb.db.Where(&User{Username: u.Username}).First(&user)
 	if user.Username == u.Username {
 		return errors.New("this username is already taken")
 	}
 
+	// Check unique user email
 	user = &User{}
 	edb.db.Where(&User{Email: u.Email}).First(&user)
 	if user.Email == u.Email {
 		return errors.New("this email is already taken")
 	}
 
-	edb.db.NewRecord(u) // => returns `true` as primary key is blank
+	// Set initial values for new user
+	u.UserID = uuid.NewV4()
+	u.LastLogin = time.Now()
+
+	edb.db.NewRecord(u)
 	edb.db.Create(&u)
 
 	return nil

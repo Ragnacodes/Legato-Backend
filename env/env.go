@@ -44,5 +44,5 @@ func LoadEnv() {
 		DatabasePort: envDatabasePort,
 	}
 
-	log.Printf("Environment Variables is Loaded: %v\n", ENV)
+	log.Printf("Environment Variables is Loaded: %+v\n", ENV)
 }
