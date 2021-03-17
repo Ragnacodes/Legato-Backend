@@ -8,21 +8,17 @@ import (
 
 func NewUserToUserEntity(newUser models.NewUser) appdb.User {
 	u := appdb.User{}
-	u.FirstName = newUser.FirstName
-	u.LastName = newUser.LastName
 	u.Username = strings.ToLower(newUser.Username)
+	u.Email = strings.ToLower(newUser.Email)
 	u.Password = newUser.Password
 
 	return u
 }
 
-func UserEntityToUser(ue appdb.User) models.User {
-	u := models.User{}
-	u.FirstName = ue.FirstName
-	u.LastName = ue.LastName
+func UserEntityToUser(ue appdb.User) models.UserInfo {
+	u := models.UserInfo{}
 	u.Email = strings.ToLower(ue.Email)
 	u.Username = strings.ToLower(ue.Username)
-	u.Gender = ue.Gender
 
-	return u
+ 	return u
 }
