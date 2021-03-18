@@ -2,8 +2,8 @@ FROM  golang:1.13.9-stretch
 
 WORKDIR $GOPATH/src/legato_server
 
-COPY ../go.mod .
+COPY . .
+
 RUN go get -d -v ./...
 
-COPY ../.. .
 RUN go install -v ./...
