@@ -6,7 +6,7 @@ import (
 )
 
 // A testing scenario
-var initialRoutesGroups = groupRoute{
+var initialRG = routeGroup{
 	"Initial routers",
 	routes{
 		route{

@@ -9,9 +9,9 @@ import (
 
 const Authorization = "Authorization"
 
-// authRoutesGroup includes all of the routes that is related to
+// authRG includes all of the routes that is related to
 // signing up or authorizing a user.
-var authRoutesGroup = groupRoute{
+var authRG = routeGroup{
 	name: "Authentication",
 	routes: routes{
 		route{
