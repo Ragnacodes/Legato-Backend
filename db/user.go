@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 	"strings"
 	"time"
@@ -12,11 +11,11 @@ import (
 
 type User struct {
 	gorm.Model
-	UserID    uuid.UUID
 	Username  string
 	Email     string
 	Password  string
 	LastLogin time.Time
+	Scenarios []Scenario
 }
 
 func (u *User) String() string {
@@ -48,7 +47,6 @@ func (ldb *LegatoDB) AddUser(u User) error {
 	}
 
 	// Set initial values for new user
-	u.UserID = uuid.NewV4()
 	u.LastLogin = time.Now()
 
 	ldb.db.NewRecord(u)
@@ -86,4 +84,11 @@ func (ldb *LegatoDB) FetchAllUsers() ([]User, error) {
 	}
 
 	return users, nil
+}
+
+func (edb *LegatoDB) GetUserScenarios(u *User) ([]Scenario, error) {
+	var scenarios []Scenario
+	edb.db.Model(&u).Association("Scenarios").Find(&scenarios)
+
+	return scenarios, nil
 }
