@@ -31,6 +31,6 @@ func ping(c *gin.Context) {
 }
 
 func getDefaultUser(c *gin.Context) {
-	user, _ := resolvers.UserUseCase.GetUserByUsername("admin")
+	user, _ := resolvers.UserUseCase.GetUserByUsername("legato")
 	c.JSON(http.StatusOK, user)
 }
