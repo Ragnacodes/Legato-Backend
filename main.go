@@ -7,7 +7,9 @@ import (
 	"legato_server/domain"
 	"legato_server/env"
 	"legato_server/router"
+	"legato_server/scenario/webhook"
 	"legato_server/user/usecase"
+	"log"
 	"time"
 )
 
@@ -34,6 +36,36 @@ func init() {
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
 
+	// Test single scenario
+	testScenario()
+}
+
+func testScenario() {
+	log.Println("---------------------------")
+	log.Println("Testing Scenario mode")
+
+	var events []webhook.Event
+	events = []webhook.Event{
+		{
+			Name: "This is event number 1",
+		},
+		{
+			Name: "This is event number 2",
+		},
+	}
+
+	handler := webhook.Handler{
+		Events: events,
+	}
+
+	wh := &webhook.Webhook{
+		Name:    "Webhook 1",
+		Handler: handler,
+	}
+
+	log.Println(wh.Name)
+	wh.Observe()
+	log.Println("---------------------------")
 }
 
 func main() {
