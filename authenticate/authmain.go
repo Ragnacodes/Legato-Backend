@@ -1,13 +1,13 @@
 package authenticate
 
 import (
-	legatoDb "legato_server/db"
-	"legato_server/models"
 	"crypto/rand"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
+	legatoDb "legato_server/db"
+	"legato_server/models"
 	"time"
 )
 
@@ -91,10 +91,12 @@ func Refresh(tokenStr string) (t Token, e error) {
 		return t, errors.New("internal server error")
 	}
 
+	// TODO: discuss @masoud about setting this time
 	// Ensure that a new token is not issued until enough time has elapsed
-	if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Second {
-		return t, errors.New("bad request time")
-	}
+	//log.Println(time.Unix(claims.ExpiresAt, 0).Sub(time.Now()))
+	//if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Hour {
+	//	return t, errors.New("bad request time")
+	//}
 
 	expirationTime := time.Now().Add(30 * time.Minute)
 	claims.ExpiresAt = expirationTime.Unix()

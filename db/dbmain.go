@@ -15,21 +15,26 @@ type LegatoDB struct {
 }
 
 func Connect() (*LegatoDB, error) {
-	db, err := gorm.Open("postgres", fmt.Sprintf(
-		"host=%s port=%s user=legato dbname=legatodb password=legato sslmode=disable",
-		env.ENV.DatabaseHost, env.ENV.DatabasePort,
-	))
+	config := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		env.ENV.DatabaseHost,
+		env.ENV.DatabasePort,
+		env.ENV.DatabaseUsername,
+		env.ENV.DatabaseName,
+		env.ENV.DatabasePassword,
+	)
 
+	db, err := gorm.Open("postgres", config)
 	if err != nil {
 		log.Println("Error in connecting to the postgres database")
 		log.Fatal(err)
 	}
 
-	dbObj := LegatoDB{}
-
+	// Create LegatoDB instance
 	//defer db.Close() // TODO: what should happen to this?
+	dbObj := LegatoDB{}
 	dbObj.db = db
 
+	// Call createSchema to create all of our tables
 	err = createSchema(dbObj.db)
 	if err != nil {
 		return nil, err
@@ -39,7 +44,8 @@ func Connect() (*LegatoDB, error) {
 	return &dbObj, nil
 }
 
-// createSchema creates database schema for Printer and ReciptRecord models.
+// createSchema creates database schema (tables and ...)
+// for all of our models.
 func createSchema(db *gorm.DB) error {
 	db.AutoMigrate(User{})
 

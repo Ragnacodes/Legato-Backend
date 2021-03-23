@@ -1,9 +1,13 @@
 package router
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"legato_server/domain"
+	"legato_server/middleware"
 )
+
+const API = "api"
 
 // Define methods as an integer.
 type Method int
@@ -32,16 +36,16 @@ type route struct {
 // routes is an array of route.
 type routes []route
 
-// groupRoute is each single separated scenario of apis.
+// routeGroup is each single separated scenario of apis.
 // name is the scenario name and we can use it in testing and logging.
 // routes is array of related apis to that scenario.
-type groupRoute struct {
+type routeGroup struct {
 	name   string
 	routes routes
 }
 
-// groupRoutes includes all of the scenarios in our app.
-type groupRoutes []groupRoute
+// routeGroups includes many scenarios of app.
+type routeGroups []routeGroup
 
 // Resolver includes all of our use cases to handle requests
 type Resolver struct {
@@ -52,31 +56,37 @@ type Resolver struct {
 var resolvers *Resolver
 
 // Use all of your scenarios for the server here in legatoRoutesGroups
-var legatoRoutesGroups = groupRoutes{
-	initialRoutesGroups,
+var legatoRoutesGroups = routeGroups{
+	initialRG,
+	authRG,
 }
 
 // NewRouter get the resolvers and create *gin.Engine that can handle all
 // of the request and responses.
 func NewRouter(res *Resolver) *gin.Engine {
+	resolvers = res
+
 	r := gin.Default()
 
-	resolvers = res
+	// Setup middlewares
+	r.Use(middleware.AuthMiddleware(&resolvers.UserUseCase))
 
 	for _, routers := range legatoRoutesGroups {
 		for _, route := range routers.routes {
+			pattern := fmt.Sprintf("/%s/%s", API, route.pattern)
+
 			switch route.method {
 			case GET:
-				r.GET(route.pattern, route.handlerFunc)
+				r.GET(pattern, route.handlerFunc)
 				break
 			case POST:
-				r.POST(route.pattern, route.handlerFunc)
+				r.POST(pattern, route.handlerFunc)
 				break
 			case PUT:
-				r.PUT(route.pattern, route.handlerFunc)
+				r.PUT(pattern, route.handlerFunc)
 				break
 			case DELETE:
-				r.DELETE(route.pattern, route.handlerFunc)
+				r.DELETE(pattern, route.handlerFunc)
 				break
 			}
 		}
