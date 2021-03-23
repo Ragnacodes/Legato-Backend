@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/spf13/viper"
+	"legato_server/authenticate"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
 	"legato_server/env"
@@ -15,6 +16,9 @@ var userUseCase domain.UserUseCase
 func init() {
 	// Load environment variables
 	env.LoadEnv()
+
+	// Generate random jwt key
+	authenticate.GenerateRandomKey()
 
 	// Connect to database
 	appDB, err := legatoDb.Connect()

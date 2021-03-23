@@ -10,9 +10,6 @@ import (
 	"time"
 )
 
-const FEMALE = "Female"
-const MALE = "Male"
-
 type User struct {
 	gorm.Model
 	UserID    uuid.UUID

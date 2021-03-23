@@ -46,7 +46,7 @@ func Login(cred models.UserCredential, user legatoDb.User) (t Token, e error) {
 	// Check Password
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(cred.Password))
 	if err != nil {
-		return Token{}, errors.New("unauthorized, wrong password")
+		return Token{}, errors.New("wrong password")
 	}
 
 	expirationTime := time.Now().Add(30 * time.Minute)
