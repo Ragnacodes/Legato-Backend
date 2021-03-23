@@ -1,9 +1,10 @@
-FROM  golang:1.13.9-stretch
+FROM golang:1.15-stretch
 
-WORKDIR $GOPATH/src/legato_server
+RUN apt update && apt upgrade -y && \
+    make openssh-client
 
-COPY . .
+WORKDIR /usr/src/app
+COPY . . 
 
-RUN go get -d -v ./...
-
-RUN go install -v ./...
+# Get dependancies - will also be cached if we won't change mod/sum
+RUN go mod download
