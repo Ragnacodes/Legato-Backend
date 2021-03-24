@@ -11,8 +11,8 @@ type Scenario struct {
 	UserID uint
 }
 
-func (edb *LegatoDB) AddScenario(scenario *Scenario) error {
-	edb.db.Create(scenario)
+func (ldb *LegatoDB) AddScenario(scenario *Scenario) error {
+	ldb.db.Create(scenario)
 
 	return nil
 }
