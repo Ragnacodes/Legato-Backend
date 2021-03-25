@@ -7,6 +7,7 @@ services:
     command: [ "go", "run", "main.go" ]
     ports:
       - "8080:8080"
+    container_name: legato_server
     depends_on:
       - database
   #    tests:
@@ -26,3 +27,4 @@ services:
       POSTGRES_PORT: 5432
     ports:
       - "5431:5432"
+    container_name: legato_database
