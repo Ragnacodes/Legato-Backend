@@ -72,6 +72,7 @@ func NewRouter(res *Resolver) *gin.Engine {
 
 	// Setup middlewares
 	r.Use(middleware.AuthMiddleware(&resolvers.UserUseCase))
+	r.Use(middleware.CORSMiddleware())
 
 	for _, routers := range legatoRoutesGroups {
 		for _, route := range routers.routes {
