@@ -3,7 +3,7 @@ package usecase
 import (
 	legatoDb "legato_server/db"
 	"legato_server/domain"
-	"legato_server/scenario"
+	"legato_server/services"
 	"log"
 	"time"
 )
@@ -25,29 +25,30 @@ func (s scenarioUseCase) AddUserScenario() error {
 }
 
 func (s scenarioUseCase) TestScenario() {
+
 	log.Println("---------------------------")
 	log.Println("Testing Scenario mode")
 
 	// Define events
-	event1 := scenario.NewHttpEvent("Event number 1")
-	event2 := scenario.NewHttpEvent("Event number 2")
-	event3 := scenario.NewHttpEvent("Event number 3")
-	events := []scenario.Event{
-		&event1,
-		&event2,
-		&event3,
-	}
-
-	// Create handler
-	handler := scenario.NewWebhookHandler("My Webhook")
+	root :=
+		services.NewWebhook("First Webhook", []services.Service{
+			services.NewHttp("Http Event 1", []services.Service{
+				services.NewHttp("Http Event 2", []services.Service{
+					services.NewHttp("Http Event 3", []services.Service{}),
+					services.NewHttp("Http Event 4", []services.Service{}),
+					services.NewHttp("Http Event 5", []services.Service{}),
+				}),
+			}),
+		})
 
 	// Create scenario
-	ns := scenario.Scenario{
-		Name:    "My first scenario",
-		Handler: &handler,
-		Events:  events,
+	ns := legatoDb.Scenario{
+		Name: "My first scenario",
+		Root: root,
 	}
 
 	// Start the scenario
-	ns.Start()
+	log.Println("Going to start the scenario...")
+	_ = ns.Start()
+	log.Println("---------------------------")
 }

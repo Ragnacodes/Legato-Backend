@@ -2,17 +2,22 @@ package legatoDb
 
 import (
 	"gorm.io/gorm"
+	"legato_server/services"
 )
 
+// Each Scenario describes a schema that includes Handler and Events.
+// Name is the title of that Scenario.
+// Root is the first Service of the schema that start the scenario.
 type Scenario struct {
 	gorm.Model
-	//Name   string `gorm:"unique"`
-	Name   string
 	UserID uint
+	Name   string
+	Root   services.Service `gorm:"-"`
 }
 
-func (ldb *LegatoDB) AddScenario(scenario *Scenario) error {
-	ldb.db.Create(scenario)
+// To Start scenario
+func (s *Scenario) Start() error {
+	s.Root.Execute()
 
 	return nil
 }
