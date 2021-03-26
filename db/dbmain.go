@@ -14,6 +14,7 @@ type LegatoDB struct {
 	db *gorm.DB
 }
 
+
 func Connect() (*LegatoDB, error) {
 	config := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
 		env.ENV.DatabaseHost,
@@ -49,6 +50,7 @@ func Connect() (*LegatoDB, error) {
 func createSchema(db *gorm.DB) error {
 	db.AutoMigrate(User{})
 	db.AutoMigrate(Scenario{})
+	db.AutoMigrate(Service{})
 
 	return nil
 }
