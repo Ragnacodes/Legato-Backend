@@ -22,6 +22,7 @@ func (s *Scenario) String() string {
 	return fmt.Sprintf("(@Scenario: %+v)", *s)
 }
 
+// Scenario methods
 // To Start scenario
 func (s *Scenario) Start() error {
 	s.Root.Execute()
@@ -29,7 +30,10 @@ func (s *Scenario) Start() error {
 	return nil
 }
 
-func (ldb *LegatoDB) AddScenario(s *Scenario) error {
+// Scenario database
+func (ldb *LegatoDB) AddScenario(u *User, s *Scenario) error {
+	s.UserID = u.ID
+
 	ldb.db.Create(&s)
 	ldb.db.Save(&s)
 

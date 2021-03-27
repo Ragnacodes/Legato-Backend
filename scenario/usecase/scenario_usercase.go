@@ -3,6 +3,8 @@ package usecase
 import (
 	legatoDb "legato_server/db"
 	"legato_server/domain"
+	"legato_server/models"
+	"legato_server/scenario/helper"
 	"legato_server/services"
 	"log"
 	"time"
@@ -20,7 +22,15 @@ func NewScenarioUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Sce
 	}
 }
 
-func (s scenarioUseCase) AddUserScenario() error {
+func (s scenarioUseCase) AddScenario(u *models.UserInfo, ns *models.NewScenario) error {
+	user, _ := s.db.GetUserByUsername(u.Username)
+	scenario := helper.NewScenarioToScenarioEntity(*ns)
+
+	err := s.db.AddScenario(&user, &scenario)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

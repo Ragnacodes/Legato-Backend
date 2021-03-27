@@ -1,6 +1,8 @@
 package domain
 
+import "legato_server/models"
+
 type ScenarioUseCase interface {
-	AddUserScenario() error
+	AddScenario(u *models.UserInfo, ns *models.NewScenario) error
 	TestScenario()
 }

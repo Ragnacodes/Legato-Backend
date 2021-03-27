@@ -38,13 +38,14 @@ func init() {
 	_ = userUseCase.CreateDefaultUser()
 
 	// Test single scenario
-	scenarioUseCase.TestScenario()
+	//scenarioUseCase.TestScenario()
 }
 
 func main() {
 	// resolvers include all of our use cases
 	resolvers := router.Resolver{
-		UserUseCase: userUseCase,
+		UserUseCase:     userUseCase,
+		ScenarioUseCase: scenarioUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()
