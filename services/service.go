@@ -31,4 +31,3 @@ func Postpone(s Service) {
 func NextService(s Service) {
 	s.Next()
 }
-

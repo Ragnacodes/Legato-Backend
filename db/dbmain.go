@@ -49,6 +49,8 @@ func Connect() (*LegatoDB, error) {
 func createSchema(db *gorm.DB) error {
 	db.AutoMigrate(User{})
 	db.AutoMigrate(Scenario{})
-
+	db.AutoMigrate(Service{})
+	db.AutoMigrate(Webhook{})
+	
 	return nil
 }
