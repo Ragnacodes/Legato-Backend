@@ -17,3 +17,18 @@ type Service interface {
 	Post()
 	Next()
 }
+
+//basic implemetation of service interface for services struct
+
+func Execution(s Service) {
+	s.Execute()
+}
+
+func Postpone(s Service) {
+	s.Post()
+}
+
+func NextService(s Service) {
+	s.Next()
+}
+

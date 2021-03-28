@@ -3,14 +3,16 @@ package services
 import (
 	"log"
 	"time"
+	"github.com/satori/go.uuid"
 )
 
-type Webhook struct {
-	Model
+type WebhookService struct{
+	*Model
+	WebhookID uuid.UUID
 }
 
 func NewWebhook(name string, children []Service) Service {
-	var w Webhook
+	var w WebhookService
 	w.Type = "webhook"
 	w.Name = name
 	w.Children = children
@@ -18,9 +20,8 @@ func NewWebhook(name string, children []Service) Service {
 	return w
 }
 
-func (w Webhook) Execute() {
+func (w WebhookService) Execute() {
 	log.Printf("Executing %s node: %s\n", "webhook", w.Name)
-
 	// Listen to trigger
 	i := 0
 	for i < 5 {
@@ -32,13 +33,14 @@ func (w Webhook) Execute() {
 	w.Next()
 }
 
-func (w Webhook) Post() {
+func (w WebhookService) Post() {
 	log.Printf("Executing %s node in background: %s\n", "webhook", w.Name)
 }
 
-func (w Webhook) Next() {
+func (w WebhookService) Next() {
 	children := w.Children
 	for _, node := range children {
+
 		node.Execute()
 	}
 }

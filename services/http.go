@@ -6,7 +6,7 @@ import (
 )
 
 type Http struct {
-	Model
+	*Model
 }
 
 func NewHttp(name string, children []Service) Service {
