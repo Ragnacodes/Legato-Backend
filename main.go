@@ -14,6 +14,7 @@ import (
 
 var userUseCase domain.UserUseCase
 var scenarioUseCase domain.ScenarioUseCase
+var WebhookUseCase domain.WebhookUseCase
 
 func init() {
 	// Load environment variables

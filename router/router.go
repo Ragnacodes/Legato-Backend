@@ -51,6 +51,7 @@ type routeGroups []routeGroup
 type Resolver struct {
 	UserUseCase     domain.UserUseCase
 	ScenarioUseCase domain.ScenarioUseCase
+	WebhookUseCase  domain.WebhookUseCase
 }
 
 // This Resolver includes all of our use cases so we can handle incoming requests
