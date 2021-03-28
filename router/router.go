@@ -62,6 +62,7 @@ var legatoRoutesGroups = routeGroups{
 	initialRG,
 	authRG,
 	scenarioRG,
+	webhookRG,
 }
 
 // NewRouter get the resolvers and create *gin.Engine that can handle all

@@ -11,39 +11,19 @@ import (
 
 const Webhook = "Webhook"
 
-// authRG includes all of the routes that is related to
-// signing up or authorizing a user.
 var webhookRG = routeGroup{
 	name: "Webhook",
 	routes: routes{
 		route{
 			"Create Webhook",
 			POST,
-			"services/webhook/create/",
+			"create/webhook",
 			handleNewWebhook,
 		},
 		route{
 			"Webhook",
-			GET,
-			"services/webhook/:webhookid",
-			handleWebhookData,
-		},
-		route{
-			"Webhook",
 			POST,
-			"services/webhook/:webhookid",
-			handleWebhookData,
-		},
-		route{
-			"Webhook",
-			PUT,
-			"services/webhook/:webhookid",
-			handleWebhookData,
-		},
-		route{
-			"Webhook",
-			DELETE,
-			"services/webhook/:webhookid",
+			"services/webhook/:webhookid/",
 			handleWebhookData,
 		},
 	},
@@ -52,19 +32,22 @@ var webhookRG = routeGroup{
 func handleWebhookData(c *gin.Context) {
 	  
 	param := c.Param("webhookid")
+	
 	if !IsValidUUID(param) {
 		c.JSON(400,gin.H{"message":"bad request"})
+		return
 	}
 	exists, err := resolvers.WebhookUseCase.WebhookExistOr404(param)
 	if !exists||err!=nil{
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "no webhook with this id",
-		})
+		c.JSON(http.StatusBadRequest,
+		gin.H{"message": "no webhook with this id",},
+		)
+		return
 	}
 	webhookData := make(map[string]interface{})
 	err = json.NewDecoder(c.Request.Body).Decode(&webhookData)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(http.StatusNotFound, gin.H{
 			"message": err.Error(),
 		})
 	}

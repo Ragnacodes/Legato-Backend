@@ -7,7 +7,7 @@ import (
 )
 
 type WebhookService struct{
-	*Model
+	Model
 	WebhookID uuid.UUID
 }
 
