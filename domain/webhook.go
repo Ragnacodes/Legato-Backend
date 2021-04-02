@@ -2,9 +2,11 @@ package domain
 
 import (
 	"legato_server/models"
+	"legato_server/db"
 )
 
 type WebhookUseCase interface {
-	CreateNewWebhook(name string) (models.WebhookUrl, error)
-	WebhookExistOr404(ids string) (bool, error)
+	Create(name string) (models.WebhookUrl, error)
+	Exists(ids string) (legatoDb.Webhook, error)
+	Update(ids string, vals map[string]interface{}) error
 }

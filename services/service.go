@@ -1,10 +1,12 @@
 package services
 
+import "legato_server/db"
 // Model is the base model for every services.
 // Each service should have this Model struct as an embedded struct.
 type Model struct {
 	Name     string
 	Type     string
+	dbChildren []legatoDb.Service
 	Children []Service
 }
 
@@ -13,21 +15,19 @@ type Model struct {
 // Post runs the related actions in the background thread.
 // Next runs the next node(s)
 type Service interface {
-	Execute()
+	Execute(attrs ...interface{})
 	Post()
-	Next()
+	Next(atrrs ...interface{})
 }
 
-//basic implemetation of service interface for services struct
 
-func Execution(s Service) {
-	s.Execute()
-}
-
-func Postpone(s Service) {
-	s.Post()
-}
-
-func NextService(s Service) {
-	s.Next()
+func entityToService(service legatoDb.Service) Service{
+	switch service.Type{
+	case "webhook":
+		return NewWebhook(service.Name, service.Children)
+	case "http":
+		return NewHttp(service.Name, service.Children)
+	default:
+		return nil
+	}
 }

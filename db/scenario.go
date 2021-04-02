@@ -2,7 +2,7 @@ package legatoDb
 
 import (
 	"gorm.io/gorm"
-	"legato_server/services"
+	
 )
 
 // Each Scenario describes a schema that includes Handler and Events.
@@ -12,12 +12,11 @@ type Scenario struct {
 	gorm.Model
 	UserID uint
 	Name   string
-	Root   services.Service `gorm:"-"`
+	
 }
 
 // To Start scenario
 func (s *Scenario) Start() error {
-	s.Root.Execute()
-
+	
 	return nil
 }

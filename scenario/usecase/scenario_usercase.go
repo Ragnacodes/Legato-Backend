@@ -3,7 +3,7 @@ package usecase
 import (
 	legatoDb "legato_server/db"
 	"legato_server/domain"
-	"legato_server/services"
+	// "legato_server/services"
 	"log"
 	"time"
 )
@@ -30,21 +30,20 @@ func (s scenarioUseCase) TestScenario() {
 	log.Println("Testing Scenario mode")
 
 	// Define events
-	root :=
-		services.NewWebhook("First Webhook", []services.Service{
-			services.NewHttp("Http Event 1", []services.Service{
-				services.NewHttp("Http Event 2", []services.Service{
-					services.NewHttp("Http Event 3", []services.Service{}),
-					services.NewHttp("Http Event 4", []services.Service{}),
-					services.NewHttp("Http Event 5", []services.Service{}),
-				}),
-			}),
-		})
+	// root :=
+	// 	services.NewWebhook("First Webhook", []services.Service{
+	// 		services.NewHttp("Http Event 1", []services.Service{
+	// 			services.NewHttp("Http Event 2", []services.Service{
+	// 				services.NewHttp("Http Event 3", []services.Service{}),
+	// 				services.NewHttp("Http Event 4", []services.Service{}),
+	// 				services.NewHttp("Http Event 5", []services.Service{}),
+	// 			}),
+	// 		}),
+	// 	})
 
 	// Create scenario
 	ns := legatoDb.Scenario{
 		Name: "My first scenario",
-		Root: root,
 	}
 
 	// Start the scenario

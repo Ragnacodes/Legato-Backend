@@ -19,6 +19,7 @@ const (
 	GET    Method = iota
 	PUT    Method = iota
 	DELETE Method = iota
+	PATCH  Method = iota
 )
 
 // Each route is a single api.

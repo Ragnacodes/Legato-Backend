@@ -21,22 +21,31 @@ func NewWebhookUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Webh
 	}
 }
 
-func (w *WebhookUseCase) CreateNewWebhook(name string) (models.WebhookUrl, error){
+func (w *WebhookUseCase) Create(name string) (models.WebhookUrl, error){
 	wh, err := w.db.CreateWebhook(name)
 	if err!=nil{
-		return models.WebhookUrl{WebhookUrl: ""}, err
+		return models.WebhookUrl{}, err
 	}
 	return models.WebhookUrl{WebhookUrl: wh.String()}, nil 
 }
 
-func (w *WebhookUseCase) WebhookExistOr404(ids string) (bool, error){
+func (w *WebhookUseCase) Exists(ids string) (legatoDb.Webhook, error){
 	id, err := uuid.FromString(ids)
 	if err!=nil{
-		return false, err
+		return legatoDb.Webhook{}, err
 	}
-	_, err = w.db.GetWebhookByUUID(id)
+	wh, err := w.db.GetWebhookByUUID(id)
 	if err!=nil{
-		return false, err
+		return legatoDb.Webhook{}, err
 	}
-	return true, nil
+	return wh, nil
+}
+
+func (w *WebhookUseCase) Update(ids string, vals map[string]interface{}) error{
+	id, err := uuid.FromString(ids)
+	if err!=nil{
+		return  err
+	}
+	w.db.UpdateWebhook(id, vals)
+	return nil
 }
