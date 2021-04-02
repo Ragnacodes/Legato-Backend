@@ -85,10 +85,3 @@ func (ldb *LegatoDB) FetchAllUsers() ([]User, error) {
 
 	return users, nil
 }
-
-func (ldb *LegatoDB) GetUserScenarios(u *User) ([]Scenario, error) {
-	var scenarios []Scenario
-	ldb.db.Model(&u).Association("Scenarios").Find(&scenarios)
-
-	return scenarios, nil
-}

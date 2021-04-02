@@ -13,6 +13,7 @@ type Scenario struct {
 	gorm.Model
 	UserID        uint
 	Name          string
+	IsActive      bool
 	RootServiceID *uint
 	RootService   *Service         `gorm:"RootServiceID:"`
 	Root          services.Service `gorm:"-"`
@@ -38,6 +39,15 @@ func (ldb *LegatoDB) AddScenario(u *User, s *Scenario) error {
 	ldb.db.Save(&s)
 
 	return nil
+}
+
+func (ldb *LegatoDB) GetUserScenarios(u *User) ([]Scenario, error) {
+	user, _ := ldb.GetUserByUsername(u.Username)
+
+	var scenarios []Scenario
+	ldb.db.Model(&user).Association("Scenarios").Find(&scenarios)
+
+	return scenarios, nil
 }
 
 func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {

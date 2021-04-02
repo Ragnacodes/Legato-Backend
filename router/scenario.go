@@ -3,7 +3,6 @@ package router
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"legato_server/middleware"
 	"legato_server/models"
 	"net/http"
 )
@@ -14,30 +13,27 @@ var scenarioRG = routeGroup{
 		route{
 			name:        "Add a user scenario",
 			method:      POST,
-			pattern:     "scenarios",
+			pattern:     "/users/:username/scenarios",
 			handlerFunc: addScenario,
+		},
+		route{
+			name:        "Get user scenarios",
+			method:      GET,
+			pattern:     "/users/:username/scenarios",
+			handlerFunc: getUserScenarios,
 		},
 	},
 }
 
 func addScenario(c *gin.Context) {
+	username := c.Param("username")
+
 	newScenario := models.NewScenario{}
 	_ = c.BindJSON(&newScenario)
 
-	// Get the user
-	rawData := c.MustGet(middleware.UserKey)
-	if rawData == nil {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied",
-		})
-		return
-	}
-
-	loginUser := rawData.(*models.UserInfo)
+	// Authenticate
+	loginUser := checkAuth(c, []string{username})
 	if loginUser == nil {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied",
-		})
 		return
 	}
 
@@ -53,4 +49,25 @@ func addScenario(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "scenario created successfully.",
 	})
+}
+
+func getUserScenarios(c *gin.Context) {
+	username := c.Param("username")
+
+	// Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	// Get scenarios
+	briefUserScenarios, err := resolvers.ScenarioUseCase.GetUserScenarios(loginUser)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch user scenarios: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, briefUserScenarios)
 }

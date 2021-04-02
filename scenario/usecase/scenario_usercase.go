@@ -62,3 +62,18 @@ func (s scenarioUseCase) TestScenario() {
 	_ = ns.Start()
 	log.Println("---------------------------")
 }
+
+func (s scenarioUseCase) GetUserScenarios(u *models.UserInfo) ([]models.BriefScenario, error) {
+	user := converter.UserInfoToUserDb(*u)
+	scenarios, err := s.db.GetUserScenarios(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	var briefScenarios []models.BriefScenario
+	for _, scenario := range scenarios {
+		briefScenarios = append(briefScenarios, converter.ScenarioDbToBriefScenario(scenario))
+	}
+
+	return briefScenarios, nil
+}
