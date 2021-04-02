@@ -75,3 +75,13 @@ func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {
 
 	return sc, nil
 }
+
+func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID string, updatedScenario Scenario) error {
+	s, _ := ldb.GetUserScenarioById(u, scenarioID)
+	err := ldb.db.Model(&s).Updates(updatedScenario).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

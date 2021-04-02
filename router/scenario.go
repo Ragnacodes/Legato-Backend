@@ -23,6 +23,12 @@ var scenarioRG = routeGroup{
 			handlerFunc: getUserScenarios,
 		},
 		route{
+			name:        "update a single scenarios",
+			method:      POST,
+			pattern:     "/users/:username/scenarios/:scenario_id",
+			handlerFunc: updateScenario,
+		},
+		route{
 			name:        "Get all of details of a single scenarios",
 			method:      GET,
 			pattern:     "/users/:username/scenarios/:scenario_id",
@@ -98,4 +104,31 @@ func getFullScenario(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, scenario)
+}
+
+func updateScenario(c *gin.Context) {
+	username := c.Param("username")
+	scenarioId := c.Param("scenario_id")
+
+	updatedScenario := models.BriefScenario{}
+	_ = c.BindJSON(&updatedScenario)
+
+	// Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	// Update that scenario
+	err := resolvers.ScenarioUseCase.UpdateUserScenarioById(loginUser, scenarioId, updatedScenario)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not update this scenario: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "update scenario successfully",
+	})
 }

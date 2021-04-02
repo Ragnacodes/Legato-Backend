@@ -37,3 +37,11 @@ func ScenarioDbToFullScenario(s legatoDb.Scenario) models.FullScenario {
 
 	return fs
 }
+
+func BriefServiceToServiceDb(bs models.BriefScenario) legatoDb.Scenario {
+	s := legatoDb.Scenario{}
+	s.Name = bs.Name
+	s.IsActive = bs.IsActive
+
+	return s
+}

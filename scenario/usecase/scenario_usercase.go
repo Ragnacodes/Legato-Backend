@@ -92,3 +92,16 @@ func (s scenarioUseCase) GetUserScenarioById(u *models.UserInfo, scenarioId stri
 
 	return fullScenario, nil
 }
+
+func (s scenarioUseCase) UpdateUserScenarioById(u *models.UserInfo, scenarioId string, us models.BriefScenario) error {
+	user := converter.UserInfoToUserDb(*u)
+
+	updatedScenario := converter.BriefServiceToServiceDb(us)
+
+	err := s.db.UpdateUserScenarioById(&user, scenarioId, updatedScenario)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
