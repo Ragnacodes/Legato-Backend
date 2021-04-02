@@ -27,3 +27,13 @@ func ScenarioDbToBriefScenario(s legatoDb.Scenario) models.BriefScenario {
 
 	return bs
 }
+
+func ScenarioDbToFullScenario(s legatoDb.Scenario) models.FullScenario {
+	fs := models.FullScenario{}
+	fs.ID = s.ID
+	fs.Name = s.Name
+	fs.IsActive = s.IsActive
+	fs.Graph = ServiceDbToService(s.RootService)
+
+	return fs
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"legato_server/services"
+	"log"
 )
 
 // Each Scenario describes a schema that includes Handler and Events.
@@ -48,6 +49,21 @@ func (ldb *LegatoDB) GetUserScenarios(u *User) ([]Scenario, error) {
 	ldb.db.Model(&user).Association("Scenarios").Find(&scenarios)
 
 	return scenarios, nil
+}
+
+func (ldb *LegatoDB) GetUserScenarioById(u *User, scenarioId string) (Scenario, error) {
+	var sc Scenario
+	err := ldb.db.
+		Where(&Scenario{UserID: u.ID}).
+		Where("id = ?", scenarioId).
+		Preload("RootService").Find(&sc).Error
+	if err != nil {
+		return Scenario{}, err
+	}
+
+	log.Println(sc.String())
+
+	return sc, nil
 }
 
 func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {

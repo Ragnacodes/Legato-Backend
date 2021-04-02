@@ -77,3 +77,18 @@ func (s scenarioUseCase) GetUserScenarios(u *models.UserInfo) ([]models.BriefSce
 
 	return briefScenarios, nil
 }
+
+func (s scenarioUseCase) GetUserScenarioById(u *models.UserInfo, scenarioId string) (models.FullScenario, error) {
+	user := converter.UserInfoToUserDb(*u)
+	scenario, err := s.db.GetUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return models.FullScenario{}, err
+	}
+
+	// Load the whole graph
+	scenario.RootService, _ = s.db.GetServicesGraph(scenario.RootService)
+
+	fullScenario := converter.ScenarioDbToFullScenario(scenario)
+
+	return fullScenario, nil
+}

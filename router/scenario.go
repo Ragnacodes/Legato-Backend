@@ -22,6 +22,12 @@ var scenarioRG = routeGroup{
 			pattern:     "/users/:username/scenarios",
 			handlerFunc: getUserScenarios,
 		},
+		route{
+			name:        "Get all of details of a single scenarios",
+			method:      GET,
+			pattern:     "/users/:username/scenarios/:scenario_id",
+			handlerFunc: getFullScenario,
+		},
 	},
 }
 
@@ -70,4 +76,26 @@ func getUserScenarios(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, briefUserScenarios)
+}
+
+func getFullScenario(c *gin.Context) {
+	username := c.Param("username")
+	scenarioId := c.Param("scenario_id")
+
+	//Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	// Get single scenario details
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, scenarioId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, scenario)
 }
