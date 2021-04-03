@@ -16,5 +16,5 @@ type FullScenario struct {
 	ID       uint    `json:"id"`
 	Name     string  `json:"name"`
 	IsActive bool    `json:"is_active"`
-	Graph    Service `json:"tree"`
+	Graph    *Service `json:"graph"`
 }

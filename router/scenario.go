@@ -110,7 +110,7 @@ func updateScenario(c *gin.Context) {
 	username := c.Param("username")
 	scenarioId := c.Param("scenario_id")
 
-	updatedScenario := models.BriefScenario{}
+	updatedScenario := models.FullScenario{}
 	_ = c.BindJSON(&updatedScenario)
 
 	// Auth
@@ -128,7 +128,16 @@ func updateScenario(c *gin.Context) {
 		return
 	}
 
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, scenarioId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "update scenario successfully",
+		"message":  "update scenario successfully",
+		"scenario": scenario,
 	})
 }

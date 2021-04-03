@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"legato_server/services"
 	"log"
+	"strconv"
 )
 
 // Each Scenario describes a schema that includes Handler and Events.
@@ -34,6 +35,7 @@ func (s *Scenario) Start() error {
 
 // Scenario database
 func (ldb *LegatoDB) AddScenario(u *User, s *Scenario) error {
+	log.Println(s.String())
 	s.UserID = u.ID
 
 	ldb.db.Create(&s)
@@ -61,8 +63,6 @@ func (ldb *LegatoDB) GetUserScenarioById(u *User, scenarioId string) (Scenario, 
 		return Scenario{}, err
 	}
 
-	log.Println(sc.String())
-
 	return sc, nil
 }
 
@@ -77,11 +77,9 @@ func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {
 }
 
 func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID string, updatedScenario Scenario) error {
-	s, _ := ldb.GetUserScenarioById(u, scenarioID)
-	err := ldb.db.Model(&s).Updates(updatedScenario).Error
-	if err != nil {
-		return err
-	}
+	sid, _ :=  strconv.Atoi(scenarioID)
+	updatedScenario.ID = uint(sid)
+	ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&updatedScenario)
 
 	return nil
 }

@@ -3,8 +3,8 @@ package legatoDb
 import (
 	"errors"
 	"fmt"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
@@ -49,8 +49,8 @@ func (ldb *LegatoDB) AddUser(u User) error {
 	// Set initial values for new user
 	u.LastLogin = time.Now()
 
-	ldb.db.NewRecord(u)
 	ldb.db.Create(&u)
+	ldb.db.Save(u)
 
 	return nil
 }

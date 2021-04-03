@@ -18,6 +18,10 @@ func (s *Service) String() string {
 }
 
 func (ldb *LegatoDB) GetServicesGraph(root *Service) (*Service, error) {
+	if root == nil {
+		return nil, nil
+	}
+
 	err := ldb.db.Preload("Children").Find(&root).Error
 	if err != nil {
 		return nil, err
