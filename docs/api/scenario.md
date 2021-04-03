@@ -40,7 +40,13 @@ To create new scenarios.
 - Response
     ```json
     {
-        "message": "scenario created successfully."
+        "message": "scenario created successfully.",
+        "scenario": {
+          "id": 22,
+          "name": "test title for scenario",
+          "is_active": true,
+          "nodes": []
+        }
     }
     ```
 

@@ -22,16 +22,16 @@ func NewScenarioUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Sce
 	}
 }
 
-func (s scenarioUseCase) AddScenario(u *models.UserInfo, ns *models.NewScenario) error {
+func (s scenarioUseCase) AddScenario(u *models.UserInfo, ns *models.NewScenario) (models.BriefScenario, error) {
 	user, _ := s.db.GetUserByUsername(u.Username)
 	scenario := converter.NewScenarioToScenarioDb(*ns)
 
 	err := s.db.AddScenario(&user, &scenario)
 	if err != nil {
-		return err
+		return models.BriefScenario{}, err
 	}
 
-	return nil
+	return converter.ScenarioDbToBriefScenario(scenario), nil
 }
 
 func (s scenarioUseCase) TestScenario() {
