@@ -35,7 +35,7 @@ To login and get the access token.
     ```
 
 ### /api/auth/refresh `POST`
-to refresh the access token by set it in the request's header.
+To refresh the access token by set it in the request's header.
 - Header
     - `Authorization` = `access_token`
 - Response
@@ -47,7 +47,7 @@ to refresh the access token by set it in the request's header.
 
 
 ### /api/auth/protected `GET`
-to test that only authorized users could see this page.
+To test that only authorized users could see this page.
 > This api is for testing purposes, and it returns all of existing users.
 - Header
     - `Authorization` = `access_token`
