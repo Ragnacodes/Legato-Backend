@@ -13,6 +13,7 @@ func ServiceDbToService(service *legatoDb.Service) *models.Service {
 	var s models.Service
 	s.Name = service.Name
 	s.Type = service.Type
+	s.Position = models.Position{X: service.Position.X, Y: service.Position.Y}
 	s.Data = struct{}{}
 
 	if len(service.Children) == 0 {
@@ -35,6 +36,7 @@ func ServiceToServiceDb(service *models.Service) legatoDb.Service {
 	var s legatoDb.Service
 	s.Name = service.Name
 	s.Type = service.Type
+	s.Position = legatoDb.Position{X: service.Position.X, Y: service.Position.Y}
 	//s.Data = struct{}{}
 
 	if len(service.Children) == 0 {

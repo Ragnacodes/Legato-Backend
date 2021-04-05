@@ -5,12 +5,20 @@ import (
 	"gorm.io/gorm"
 )
 
+type Position struct {
+	gorm.Model
+	ServiceID *uint
+	X         int
+	Y         int
+}
+
 type Service struct {
 	gorm.Model
 	Name     string
 	Type     string
 	ParentID *uint
 	Children []Service `gorm:"foreignkey:ParentID"`
+	Position Position
 }
 
 func (s *Service) String() string {
@@ -22,7 +30,7 @@ func (ldb *LegatoDB) GetServicesGraph(root *Service) (*Service, error) {
 		return nil, nil
 	}
 
-	err := ldb.db.Preload("Children").Find(&root).Error
+	err := ldb.db.Preload("Children").Preload("Position").Find(&root).Error
 	if err != nil {
 		return nil, err
 	}

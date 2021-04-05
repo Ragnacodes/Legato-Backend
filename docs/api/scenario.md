@@ -68,6 +68,10 @@ To get all the scenario details including the service tree.
                     "name": "Event 1",
                     "type": "http",
                     "children": [],
+                    "position": {
+                       "x": 100,
+                       "y": 0
+                    },
                     "data": {}
                 },
                 {
@@ -78,24 +82,44 @@ To get all the scenario details including the service tree.
                             "name": "First Http child",
                             "type": "http",
                             "children": [],
+                            "position": {
+                                "x": 200,
+                                "y": 12
+                            },
                             "data": {}
                         },
                         {
                             "name": "Event 4",
                             "type": "http",
                             "children": [],
+                           "position": {
+                               "x": 0,
+                               "y": 13
+                           },
                             "data": {}
                         },
                         {
                             "name": "Event 5",
                             "type": "http",
                             "children": [],
+                           "position": {
+                               "x": 100,
+                               "y": 0
+                           },
                             "data": {}
                         }
                     ],
+                    "position": {
+                       "x": 200,
+                       "y": 12
+                    },
                     "data": {}
                 }
             ],
+           "position": {
+               "x": 200,
+               "y": 12
+           },
             "data": {}
         }
     }
@@ -118,15 +142,27 @@ To update user scenario.
                     "name": "Event 1",
                     "type": "http",
                     "children": [],
+                    "position": {
+                      "x": 0,
+                      "y": 13
+                    },
                     "data": {}
                 },
                 {
                     "name": "Event 2",
                     "type": "http",
                     "children": [],
+                    "position": {
+                      "x": 0,
+                      "y": 0
+                    },
                     "data": {}
                 }
             ],
+            "position": {
+            "x": 100,
+            "y": 13
+            },
             "data": {}
         }
     }
@@ -147,15 +183,27 @@ To update user scenario.
                         "name": "Event 1",
                         "type": "http",
                         "children": [],
+                        "position": {
+                          "x": 0,
+                          "y": 13
+                        },
                         "data": {}
                     },
                     {
                         "name": "Event 2",
                         "type": "http",
                         "children": [],
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
                         "data": {}
                     }
                 ],
+                "position": {
+                "x": 100,
+                "y": 13
+                },
                 "data": {}
             }
         }
