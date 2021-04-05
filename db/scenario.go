@@ -15,7 +15,7 @@ type Scenario struct {
 	gorm.Model
 	UserID        uint
 	Name          string
-	IsActive      bool
+	IsActive      *bool
 	RootServiceID *uint
 	RootService   *Service         `gorm:"RootServiceID:"`
 	Root          services.Service `gorm:"-"`
