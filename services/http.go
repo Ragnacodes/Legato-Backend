@@ -2,7 +2,6 @@ package services
 
 import (
 	"log"
-	"legato_server/db"
 	"time"
 )
 
@@ -10,11 +9,11 @@ type Http struct {
 	Model
 }
 
-func NewHttp(name string, children []legatoDb.Service) Service {
+func NewHttp(name string, children []Service) Service {
 	var h Http
 	h.Type = "http"
 	h.Name = name
-	h.dbChildren = children
+	h.Children = children
 	return h
 }
 
@@ -30,9 +29,8 @@ func (h Http) Post() {
 }
 
 func (h Http) Next(attrs ...interface{}) {
-	children := h.dbChildren
+	children := h.Children
 	for _, node := range children {
-		child := entityToService(node)
-		child.Execute(attrs...)
+		node.Execute(attrs...)
 	}
 }

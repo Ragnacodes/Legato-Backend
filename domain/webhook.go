@@ -6,7 +6,7 @@ import (
 )
 
 type WebhookUseCase interface {
-	Create(name string) (models.WebhookUrl, error)
-	Exists(ids string) (legatoDb.Webhook, error)
+	Create(name string) (models.WebhookUrl)
+	Exists(ids string) (*legatoDb.Webhook, error)
 	Update(ids string, vals map[string]interface{}) error
 }

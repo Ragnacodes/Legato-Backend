@@ -41,7 +41,7 @@ func init() {
 	_ = userUseCase.CreateDefaultUser()
 
 	// Test single scenario
-	scenarioUseCase.TestScenario()
+	// go scenarioUseCase.TestScenario()
 }
 
 func main() {

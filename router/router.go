@@ -84,6 +84,9 @@ func NewRouter(res *Resolver) *gin.Engine {
 			case GET:
 				r.GET(pattern, route.handlerFunc)
 				break
+			case PATCH:
+				r.PATCH(pattern, route.handlerFunc)
+				break
 			case POST:
 				r.POST(pattern, route.handlerFunc)
 				break

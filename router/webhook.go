@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"legato_server/models"
 	"legato_server/db"
-	"legato_server/services"
 	"net/http"
 	"regexp"
 	"github.com/gin-gonic/gin"
@@ -21,19 +20,19 @@ var webhookRG = routeGroup{
 		route{
 			"Create Webhook",
 			POST,
-			"services/webhook/",
+			"services/webhook",
 			handleNewWebhook,
 		},
 		route{
 			"Webhook",
 			POST,
-			"services/webhook/:webhookid/",
+			"services/webhook/:webhookid",
 			handleWebhookData,
 		},
 		route{
-			"Create Webhook",
+			"Update Webhook",
 			PATCH,
-			"services/webhook/:webhookid/",
+			"services/webhook/:webhookid",
 			handleUpdateWebhook,
 		},
 	},
@@ -46,7 +45,7 @@ func handleWebhookData(c *gin.Context) {
 	wh, err := webhookExists(param)
 	if err!= nil{
 		c.JSON(http.StatusBadRequest,
-			gin.H{"message": err,},
+			gin.H{"message": err.Error(),},
 			)
 			return
 	}
@@ -54,6 +53,7 @@ func handleWebhookData(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusForbidden,gin.H{
 			"message": "webhook is not enabled",
 		})
+		return
 	}
 	webhookData := make(map[string]interface{})
 	err = json.NewDecoder(c.Request.Body).Decode(&webhookData)
@@ -61,25 +61,20 @@ func handleWebhookData(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": err.Error(),
 		})
+		return
 	}
 	fmt.Println("webhook with id ", param)
 	fmt.Println("got payload: ")
 	for k, v := range webhookData {
 		fmt.Printf("%s : %v\n", k, v)
 	}
-
-	services.NewWebhook(wh.Service.Name, wh.Service.Children).Next(webhookData)
+	wh.Next(webhookData)
 }
 
 func handleNewWebhook(c *gin.Context){
 	req := models.NewWebhook{}
 	c.BindJSON(req)
-	url, err := resolvers.WebhookUseCase.Create(req.Name)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-	}
+	url := resolvers.WebhookUseCase.Create(req.Name)
 	c.JSON(http.StatusOK, url)
 }
 
@@ -105,20 +100,24 @@ func handleUpdateWebhook(c *gin.Context){
 			"message": err.Error(),
 		})
 	}
-	resolvers.WebhookUseCase.Update(param, dataMap)
+	err = resolvers.WebhookUseCase.Update(param, dataMap)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError,
+			gin.H{"message": err.Error()})
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "updated successfully",
 	})
 }
 
-func webhookExists(WebhookID string) (legatoDb.Webhook, error){
+func webhookExists(WebhookID string) (*legatoDb.Webhook, error){
 	
 	if !IsValidUUID(WebhookID) {
-		return legatoDb.Webhook{},errors.New("bad request")
+		return &legatoDb.Webhook{},errors.New("bad request")
 	}
 	wh, err := resolvers.WebhookUseCase.Exists(WebhookID)
 	if err!=nil{
-		return legatoDb.Webhook{},errors.New("no webhook with this id")
+		return &legatoDb.Webhook{},err
 	}
 	return wh, nil 
 } 

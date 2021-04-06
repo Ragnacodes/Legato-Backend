@@ -6,14 +6,16 @@ import (
 	"legato_server/env"
 	"github.com/jinzhu/gorm"
 	"github.com/satori/go.uuid"
+	"log"
 )
 
 const Type string = "webhook"
 
 type Webhook struct {
-	Service Service `gorm:"foreignKey:ID"`
+	gorm.Model
 	WebhookID uuid.UUID
 	Enable bool `gorm:"default:False"`
+	Service Service `gorm:"polymorphic:Owner;"`
 }
 
 func (w *Webhook) BeforeCreate(tx *gorm.DB) (err error){
@@ -26,32 +28,55 @@ func (w *Webhook) String() string {
 }
 
 
-func (ldb *LegatoDB) CreateWebhook(name string) (Webhook, error) {
-	sr := Service{Name : name, Type : Type}
-	wh := Webhook{Service: sr}
-	ldb.db.Create(&wh)
-	return wh, nil
+func (ldb *LegatoDB) CreateWebhook(name string) *Webhook {
+	wh := Webhook{Service:  Service{Name : name}}
+	ldb.Db.Create(&wh)
+	return &wh
 }
 
 
-func (ldb *LegatoDB) UpdateWebhook(uuid uuid.UUID, vals map[string]interface{}) {
+func (ldb *LegatoDB) UpdateWebhook(uuid uuid.UUID, vals map[string]interface{}) error{
+	var err error 
 	for key, value := range vals{
 		if key == "name" {
 			var wh Webhook
-			ldb.db.Model(&Webhook{}).Where("WebhookID = ?", uuid).First(&wh)
+			err = ldb.Db.Model(&Webhook{}).Where(&Webhook{WebhookID: uuid}).First(&wh).Error
 			wh.Service.Name = value.(string)
-			ldb.db.Save(&wh)
+			ldb.Db.Save(&wh)
 		}
-		ldb.db.Model(&Webhook{}).Where("WebhookID = ?", uuid).Update(key, value)
+		err = ldb.Db.Model(&Webhook{}).Where(&Webhook{WebhookID: uuid}).Update(key, value).Error
 	}
+	if err!=nil{
+		return err
+	}
+	return nil
 } 
 
-func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (Webhook, error) {
+func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (*Webhook, error) {
 	webhook := Webhook{}
-	ldb.db.Where(&Webhook{WebhookID: uuid}).First(&webhook)
+	ldb.Db.Where(&Webhook{WebhookID: uuid}).First(&webhook)
 	if webhook.WebhookID != uuid {
-		return Webhook{}, errors.New("webhook obj does not exist")
+		return &Webhook{}, errors.New("webhook obj does not exist")
 	}
+	return &webhook, nil
+}
 
-	return webhook, nil
+//implement Service Interface for Webhook
+
+func (w *Webhook) Execute(attrs ...interface{}) {
+	log.Printf("Executing %s node: %s\n", "webhook", w.Service.Name)
+	w.Enable = true
+	legatoDb.Db.Save(&w)
+	w.Post()
+}
+
+func (w *Webhook) Post() {
+	log.Printf("Executing %s node in background: %s\n", "webhook", w.Service.Name)
+}
+
+func (w *Webhook) Next(attrs ...interface{}) {
+	///Next function is not working ???!!
+	for _, node := range w.Service.Children {
+		node.LoadOwner().Execute()
+	}
 }
