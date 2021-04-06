@@ -13,6 +13,8 @@ type LegatoDB struct {
 	db *gorm.DB
 }
 
+var legatoDb LegatoDB
+
 func Connect() (*LegatoDB, error) {
 	config := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
 		env.ENV.DatabaseHost,
@@ -30,17 +32,16 @@ func Connect() (*LegatoDB, error) {
 
 	// Create LegatoDB instance
 	//defer db.Close() // TODO: what should happen to this?
-	dbObj := LegatoDB{}
-	dbObj.db = db
+	legatoDb.db = db
 
 	// Call createSchema to create all of our tables
-	err = createSchema(dbObj.db)
+	err = createSchema(legatoDb.db)
 	if err != nil {
 		return nil, err
 	}
 	log.Println("Connected to the database and created the tables")
 
-	return &dbObj, nil
+	return &legatoDb, nil
 }
 
 // createSchema creates database schema (tables and ...)
@@ -50,6 +51,5 @@ func createSchema(db *gorm.DB) error {
 	_ = db.AutoMigrate(Scenario{})
 	_ = db.AutoMigrate(Service{})
 	_ = db.AutoMigrate(Position{})
-
 	return nil
 }

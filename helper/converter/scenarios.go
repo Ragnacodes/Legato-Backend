@@ -20,7 +20,7 @@ func ScenarioDbToBriefScenario(s legatoDb.Scenario) models.BriefScenario {
 	bs.IsActive = s.IsActive
 
 	if s.RootService != nil {
-		bs.DigestNodes = []string{s.RootService.Type}
+		bs.DigestNodes = []string{}
 	} else {
 		bs.DigestNodes = []string{}
 	}

@@ -5,8 +5,6 @@ import (
 	"legato_server/domain"
 	"legato_server/helper/converter"
 	"legato_server/models"
-	"legato_server/services"
-	"log"
 	"time"
 )
 
@@ -32,35 +30,6 @@ func (s scenarioUseCase) AddScenario(u *models.UserInfo, ns *models.NewScenario)
 	}
 
 	return converter.ScenarioDbToBriefScenario(scenario), nil
-}
-
-func (s scenarioUseCase) TestScenario() {
-
-	log.Println("---------------------------")
-	log.Println("Testing Scenario mode")
-
-	// Define events
-	root :=
-		services.NewWebhook("First Webhook", []services.Service{
-			services.NewHttp("Http Event 1", []services.Service{
-				services.NewHttp("Http Event 2", []services.Service{
-					services.NewHttp("Http Event 3", []services.Service{}),
-					services.NewHttp("Http Event 4", []services.Service{}),
-					services.NewHttp("Http Event 5", []services.Service{}),
-				}),
-			}),
-		})
-
-	// Create scenario
-	ns := legatoDb.Scenario{
-		Name: "My first scenario",
-		Root: root,
-	}
-
-	// Start the scenario
-	log.Println("Going to start the scenario...")
-	_ = ns.Start()
-	log.Println("---------------------------")
 }
 
 func (s scenarioUseCase) GetUserScenarios(u *models.UserInfo) ([]models.BriefScenario, error) {
@@ -104,4 +73,30 @@ func (s scenarioUseCase) UpdateUserScenarioById(u *models.UserInfo, scenarioId s
 	}
 
 	return nil
+}
+
+func (s scenarioUseCase) TestScenario() {
+	//time.Sleep(1500 * time.Millisecond)
+	//log.Println("---------------------------")
+	//log.Println("Testing Scenario mode")
+	//
+	////Create some Webhooks
+	//child := legatoDb.Webhook{Service:legatoDb.Service{Name :"abc"}}
+	//s.db.Db.Save(&child)
+	//root := legatoDb.Webhook{Service: legatoDb.Service{Name: "fuck",
+	//	Children: []legatoDb.Service{child.Service}}}
+	//s.db.Db.Create(&root)
+	//
+	//// Create scenario
+	//println(root.Service.Name)
+	//ns := legatoDb.Scenario{
+	//	Name: "My first scenario",
+	//	RootService: &root.Service,
+	//}
+	//log.Println("hi")
+	//sc := s.db.CreateScenario(ns)
+	//// Start the scenario
+	//log.Println("Going to start the scenario...")
+	//_ = sc.Start()
+	//log.Println("---------------------------")
 }

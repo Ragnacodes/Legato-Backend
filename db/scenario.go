@@ -25,15 +25,6 @@ func (s *Scenario) String() string {
 	return fmt.Sprintf("(@Scenario: %+v)", *s)
 }
 
-// Scenario methods
-// To Start scenario
-func (s *Scenario) Start() error {
-	s.Root.Execute()
-
-	return nil
-}
-
-// Scenario database
 func (ldb *LegatoDB) AddScenario(u *User, s *Scenario) error {
 	log.Println(s.String())
 	s.UserID = u.ID
@@ -76,10 +67,18 @@ func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {
 	return sc, nil
 }
 
+
 func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID string, updatedScenario Scenario) error {
 	sid, _ :=  strconv.Atoi(scenarioID)
 	updatedScenario.ID = uint(sid)
 	ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&updatedScenario)
 
+	return nil
+}
+
+
+// Scenario methods
+// To Start scenario
+func (s *Scenario) Start() error {
 	return nil
 }
