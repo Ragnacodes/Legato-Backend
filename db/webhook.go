@@ -3,8 +3,8 @@ package legatoDb
 import (
 	"errors"
 	"fmt"
-	"github.com/jinzhu/gorm"
 	"github.com/satori/go.uuid"
+	"gorm.io/gorm"
 	"log"
 )
 

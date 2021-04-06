@@ -3,6 +3,7 @@ package legatoDb
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"legato_server/services"
 )
 
 type Position struct {
