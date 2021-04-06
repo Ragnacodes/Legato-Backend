@@ -13,7 +13,7 @@ type Model struct {
 // Post runs the related actions in the background thread.
 // Next runs the next node(s)
 type Service interface {
-	Execute()
+	Execute(attrs ...interface{})
 	Post()
-	Next()
+	Next(atrrs ...interface{})
 }
