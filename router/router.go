@@ -19,6 +19,7 @@ const (
 	GET    Method = iota
 	PUT    Method = iota
 	DELETE Method = iota
+	PATCH  Method = iota
 )
 
 // Each route is a single api.
@@ -51,6 +52,7 @@ type routeGroups []routeGroup
 type Resolver struct {
 	UserUseCase     domain.UserUseCase
 	ScenarioUseCase domain.ScenarioUseCase
+	WebhookUseCase  domain.WebhookUseCase
 }
 
 // This Resolver includes all of our use cases so we can handle incoming requests
@@ -61,6 +63,7 @@ var legatoRoutesGroups = routeGroups{
 	initialRG,
 	authRG,
 	scenarioRG,
+	webhookRG,
 }
 
 // NewRouter get the resolvers and create *gin.Engine that can handle all
@@ -81,6 +84,9 @@ func NewRouter(res *Resolver) *gin.Engine {
 			switch route.method {
 			case GET:
 				r.GET(pattern, route.handlerFunc)
+				break
+			case PATCH:
+				r.PATCH(pattern, route.handlerFunc)
 				break
 			case POST:
 				r.POST(pattern, route.handlerFunc)

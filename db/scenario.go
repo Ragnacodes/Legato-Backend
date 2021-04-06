@@ -78,7 +78,9 @@ func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID string, updatedS
 
 
 // Scenario methods
+
 // To Start scenario
 func (s *Scenario) Start() error {
+	s.RootService.LoadOwner().Execute()
 	return nil
 }
