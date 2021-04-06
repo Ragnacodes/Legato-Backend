@@ -1,9 +1,8 @@
 package legatoDb
 
 import (
-	// "fmt"
 	"log"
-
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -14,8 +13,14 @@ type Scenario struct {
 	gorm.Model
 	UserID uint
 	Name   string
-	RootID int 
-	Root Service `gorm:"foreignKey:RootID"`
+	RootServiceID *uint
+	RootService   *Service         `gorm:"RootServiceID:"`
+	Root          services.Service `gorm:"-"`
+}
+
+func (s *Scenario) String() string {
+	return fmt.Sprintf("(@Scenario: %+v)", *s)
+
 }
 
 func(l *LegatoDB) CreateScenario(sc Scenario) *Scenario{
@@ -25,7 +30,24 @@ func(l *LegatoDB) CreateScenario(sc Scenario) *Scenario{
 // To Start scenario
 func (s *Scenario) Start() error {
 	log.Printf("Scenario root %s is Executing:", s.Root.Name)
-	s.Root.LoadOwner().Execute()
+	s.RootService.LoadOwner().Execute()
 	return nil
 }
 
+
+func (ldb *LegatoDB) AddScenario(s *Scenario) error {
+	ldb.db.Create(&s)
+	ldb.db.Save(&s)
+
+	return nil
+}
+
+func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {
+	var sc Scenario
+	err := ldb.db.Where(&Scenario{Name: name, UserID: u.ID}).Preload("RootService").Find(&sc).Error
+	if err != nil {
+		return Scenario{}, err
+	}
+
+	return sc, nil
+}

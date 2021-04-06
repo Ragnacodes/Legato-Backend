@@ -60,3 +60,4 @@ func (ldb *LegatoDB) AppendChildren(parent *Service, children []Service) {
 	parent.Children = append(parent.Children, children...)
 	ldb.Db.Save(&parent)
 }
+

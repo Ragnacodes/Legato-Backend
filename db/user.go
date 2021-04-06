@@ -19,7 +19,7 @@ type User struct {
 }
 
 func (u *User) String() string {
-	return fmt.Sprintf("User: %+v", *u)
+	return fmt.Sprintf("(@User: %+v)", *u)
 }
 
 func (ldb *LegatoDB) AddUser(u User) error {
