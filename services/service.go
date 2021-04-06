@@ -1,13 +1,5 @@
 package services
 
-// Model is the base model for every services.
-// Each service should have this Model struct as an embedded struct.
-type Model struct {
-	Name     string
-	Type     string
-	Children []Service
-}
-
 // Service contains details about provided service.
 // Execute runs the related action in the main thread.
 // Post runs the related actions in the background thread.
@@ -15,5 +7,5 @@ type Model struct {
 type Service interface {
 	Execute(attrs ...interface{})
 	Post()
-	Next(atrrs ...interface{})
+	Next(attrs ...interface{})
 }

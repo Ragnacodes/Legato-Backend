@@ -1,9 +1,9 @@
 package legatoDb
 
 import (
-	"log"
 	"fmt"
 	"gorm.io/gorm"
+	"legato_server/services"
 )
 
 // Each Scenario describes a schema that includes Handler and Events.
@@ -20,20 +20,12 @@ type Scenario struct {
 
 func (s *Scenario) String() string {
 	return fmt.Sprintf("(@Scenario: %+v)", *s)
-
 }
 
-func(l *LegatoDB) CreateScenario(sc Scenario) *Scenario{
-	l.Db.Create(&sc)
+func(ldb *LegatoDB) CreateScenario(sc Scenario) *Scenario{
+	ldb.db.Create(&sc)
 	return &sc
 }
-// To Start scenario
-func (s *Scenario) Start() error {
-	log.Printf("Scenario root %s is Executing:", s.Root.Name)
-	s.RootService.LoadOwner().Execute()
-	return nil
-}
-
 
 func (ldb *LegatoDB) AddScenario(s *Scenario) error {
 	ldb.db.Create(&s)
@@ -50,4 +42,12 @@ func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {
 	}
 
 	return sc, nil
+}
+
+// Scenario methods
+
+// To Start scenario
+func (s *Scenario) Start() error {
+	s.RootService.LoadOwner().Execute()
+	return nil
 }

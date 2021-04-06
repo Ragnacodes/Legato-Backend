@@ -11,7 +11,7 @@ import (
 )
 
 type LegatoDB struct {
-	Db *gorm.DB
+	db *gorm.DB
 }
 
 var legatoDb LegatoDB
@@ -33,10 +33,10 @@ func Connect() (*LegatoDB, error) {
 
 	// Create LegatoDB instance
 	//defer db.Close() // TODO: what should happen to this?
-	legatoDb.Db = db
+	legatoDb.db = db
 
 	// Call createSchema to create all of our tables
-	err = createSchema(legatoDb.Db)
+	err = createSchema(legatoDb.db)
 	if err != nil {
 		return nil, err
 	}
@@ -45,10 +45,11 @@ func Connect() (*LegatoDB, error) {
 	return &legatoDb, nil
 }
 
-func (l *LegatoDB) Close() error{
-	if err:=l.Db.Close(); err!=nil{
+func (ldb *LegatoDB) Close() error{
+	if err:= ldb.db.Close(); err!=nil{
 		return err
 	}
+
 	return nil
 }
 
@@ -64,7 +65,7 @@ func createSchema(db *gorm.DB) error {
 }
 
 
-func (l *LegatoDB)DeleteCreatedEntities() func() {
+func (ldb *LegatoDB)DeleteCreatedEntities() func() {
     type entity struct {
         table   string
         keyname string
@@ -74,18 +75,18 @@ func (l *LegatoDB)DeleteCreatedEntities() func() {
     hookName := "cleanupHook"
 
     // Setup the onCreate Hook
-    l.Db.Callback().Create().After("gorm:create").Register(hookName, func(scope *gorm.Scope) {
+    ldb.db.Callback().Create().After("gorm:create").Register(hookName, func(scope *gorm.Scope) {
         fmt.Printf("Inserted entities of %s with %s=%v\n", scope.TableName(), scope.PrimaryKey(), scope.PrimaryKeyValue())
         entries = append(entries, entity{table: scope.TableName(), keyname: scope.PrimaryKey(), key: scope.PrimaryKeyValue()})
     })
     return func() {
         // Remove the hook once we're done
-        defer l.Db.Callback().Create().Remove(hookName)
+        defer ldb.db.Callback().Create().Remove(hookName)
         // Find out if the current db object is already a transaction
-        _, inTransaction := l.Db.CommonDB().(*sql.Tx)
-        tx := l.Db
+        _, inTransaction := ldb.db.CommonDB().(*sql.Tx)
+        tx := ldb.db
         if !inTransaction {
-            tx = l.Db.Begin()
+            tx = ldb.db.Begin()
         }
         // Loop from the end. It is important that we delete the entries in the
         // reverse order of their insertion

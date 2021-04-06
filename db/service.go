@@ -20,7 +20,7 @@ func (s *Service) String() string {
 }
 
 func (ldb *LegatoDB) GetServicesGraph(root *Service) (*Service, error) {
-	err := ldb.Db.Preload("Children").Find(&root).Error
+	err := ldb.db.Preload("Children").Find(&root).Error
 	if err != nil {
 		return nil, err
 	}
@@ -47,17 +47,17 @@ func (ldb *LegatoDB) GetServicesGraph(root *Service) (*Service, error) {
 func (s *Service) LoadOwner() services.Service{
 	var wh Webhook
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id = %d", s.OwnerType, s.OwnerID)
-	err := legatoDb.Db.Raw(query).Scan(&wh).Error
+	err := legatoDb.db.Raw(query).Scan(&wh).Error
 	if err!=nil{
-		print(err)
-		return nil
+		panic(err)
 	}
+
 	return &wh
 }
 
 
 func (ldb *LegatoDB) AppendChildren(parent *Service, children []Service) {
 	parent.Children = append(parent.Children, children...)
-	ldb.Db.Save(&parent)
+	ldb.db.Save(&parent)
 }
 
