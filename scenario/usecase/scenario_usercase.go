@@ -41,7 +41,7 @@ func (s scenarioUseCase)TestScenario(){
 	println(root.Service.Name)
 	ns := legatoDb.Scenario{
 		Name: "My first scenario",
-		Root: root.Service,
+		RootService: &root.Service,
 	}
 	log.Println("hi")
 	sc := s.db.CreateScenario(ns)

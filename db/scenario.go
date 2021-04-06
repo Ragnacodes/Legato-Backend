@@ -15,7 +15,6 @@ type Scenario struct {
 	Name   string
 	RootServiceID *uint
 	RootService   *Service         `gorm:"RootServiceID:"`
-	Root          services.Service `gorm:"-"`
 }
 
 func (s *Scenario) String() string {
@@ -29,22 +28,22 @@ func(l *LegatoDB) CreateScenario(sc Scenario) *Scenario{
 }
 // To Start scenario
 func (s *Scenario) Start() error {
-	log.Printf("Scenario root %s is Executing:", s.Root.Name)
+	log.Printf("Scenario root %s is Executing:", s.RootService.Name)
 	s.RootService.LoadOwner().Execute()
 	return nil
 }
 
 
 func (ldb *LegatoDB) AddScenario(s *Scenario) error {
-	ldb.db.Create(&s)
-	ldb.db.Save(&s)
+	ldb.Db.Create(&s)
+	ldb.Db.Save(&s)
 
 	return nil
 }
 
 func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {
 	var sc Scenario
-	err := ldb.db.Where(&Scenario{Name: name, UserID: u.ID}).Preload("RootService").Find(&sc).Error
+	err := ldb.Db.Where(&Scenario{Name: name, UserID: u.ID}).Preload("RootService").Find(&sc).Error
 	if err != nil {
 		return Scenario{}, err
 	}
