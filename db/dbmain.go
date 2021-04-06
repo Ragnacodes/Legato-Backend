@@ -3,11 +3,10 @@ package legatoDb
 import (
 	"fmt"
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"legato_server/env"
 	"log"
-	"database/sql"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 type LegatoDB struct {
@@ -25,7 +24,7 @@ func Connect() (*LegatoDB, error) {
 		env.ENV.DatabasePassword,
 	)
 
-	db, err := gorm.Open("postgres", config)
+	db, err := gorm.Open(postgres.Open(config), &gorm.Config{})
 	if err != nil {
 		log.Println("Error in connecting to the postgres database")
 		log.Fatal(err)
@@ -45,22 +44,14 @@ func Connect() (*LegatoDB, error) {
 	return &legatoDb, nil
 }
 
-func (ldb *LegatoDB) Close() error{
-	if err:= ldb.db.Close(); err!=nil{
-		return err
-	}
-
-	return nil
-}
-
 // createSchema creates database schema (tables and ...)
 // for all of our models.
 func createSchema(db *gorm.DB) error {
-	db.AutoMigrate(User{})
-	db.AutoMigrate(Scenario{})
-	db.AutoMigrate(Service{})
-	db.AutoMigrate(Webhook{})
-	
+	_ = db.AutoMigrate(User{})
+	_ = db.AutoMigrate(Scenario{})
+	_ = db.AutoMigrate(Service{})
+	_ = db.AutoMigrate(Position{})
+  _ = db.AutoMigrate(Webhook{})
 	return nil
 }
 

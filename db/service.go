@@ -2,9 +2,15 @@ package legatoDb
 
 import (
 	"fmt"
-	"legato_server/services"
 	"gorm.io/gorm"
 )
+
+type Position struct {
+	gorm.Model
+	ServiceID *uint
+	X         int
+	Y         int
+}
 
 type Service struct {
 	gorm.Model
@@ -13,6 +19,8 @@ type Service struct {
 	OwnerType	string
 	ParentID *uint
 	Children []Service `gorm:"foreignkey:ParentID"`
+	Position Position
+
 }
 
 func (s *Service) String() string {
@@ -20,7 +28,11 @@ func (s *Service) String() string {
 }
 
 func (ldb *LegatoDB) GetServicesGraph(root *Service) (*Service, error) {
-	err := ldb.db.Preload("Children").Find(&root).Error
+	if root == nil {
+		return nil, nil
+	}
+
+	err := ldb.db.Preload("Children").Preload("Position").Find(&root).Error
 	if err != nil {
 		return nil, err
 	}
@@ -60,4 +72,3 @@ func (ldb *LegatoDB) AppendChildren(parent *Service, children []Service) {
 	parent.Children = append(parent.Children, children...)
 	ldb.db.Save(&parent)
 }
-
