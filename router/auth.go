@@ -94,12 +94,32 @@ func refresh(c *gin.Context) {
 
 // protectedPage is a test api for getting all of the user details
 func protectedPage(c *gin.Context) {
+	loginUser := checkAuth(c, nil)
+	if loginUser == nil {
+		return
+	}
+
+	users, _ := resolvers.UserUseCase.GetAllUsers()
+	c.JSON(http.StatusOK, users)
+}
+
+/*
+	Helper functions
+*/
+
+// checkAuth was written because of DRY (Don't Repeat Yourself).
+// Each time it authenticate the user and handle the errors that might occur.
+// validUsers is list of usernames that the api is accessible for them.
+// nil validUsers means that any authenticated user can use api.
+// Return the logged in user.
+func checkAuth(c *gin.Context, validUsers []string) *models.UserInfo {
+	// Get the user
 	rawData := c.MustGet(middleware.UserKey)
 	if rawData == nil {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "access denied",
 		})
-		return
+		return nil
 	}
 
 	loginUser := rawData.(*models.UserInfo)
@@ -107,9 +127,24 @@ func protectedPage(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "access denied",
 		})
-		return
+		return nil
 	}
 
-	users, _ := resolvers.UserUseCase.GetAllUsers()
-	c.JSON(http.StatusOK, users)
+	// Check if validUsers is nil
+	// If it is nil it means any authenticated user is accepted.
+	if validUsers == nil {
+		return loginUser
+	}
+	// If it isn't, Check if the user has access.
+	for _, validUser := range validUsers {
+		if loginUser.Username == validUser {
+			return loginUser
+		}
+	}
+
+	// If the api is not accessible
+	c.JSON(http.StatusForbidden, gin.H{
+		"message": "access denied: can not add scenario for this user",
+	})
+	return nil
 }

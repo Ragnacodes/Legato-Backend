@@ -4,8 +4,8 @@ import (
 	"legato_server/authenticate"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
+	"legato_server/helper/converter"
 	"legato_server/models"
-	"legato_server/user/helper"
 	"log"
 	"time"
 )
@@ -30,7 +30,7 @@ func NewUserUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.UserUse
 
 // Register new user and add it in our database
 func (u *userUseCase) RegisterNewUser(nu models.NewUser) error {
-	err := u.db.AddUser(helper.NewUserToUserEntity(nu))
+	err := u.db.AddUser(converter.NewUserToUserDb(nu))
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func (u *userUseCase) Login(cred models.UserCredential) (t string, e error) {
 // Returns user that has the email address
 func (u *userUseCase) GetUserByEmail(s string) (user models.UserInfo, e error) {
 	ue, err := u.db.GetUserByEmail(s)
-	user = helper.UserEntityToUser(ue)
+	user = converter.UserDbToUser(ue)
 	if err != nil {
 		return models.UserInfo{}, err
 	}
@@ -72,7 +72,7 @@ func (u *userUseCase) GetUserByEmail(s string) (user models.UserInfo, e error) {
 // Returns user that has the username
 func (u *userUseCase) GetUserByUsername(s string) (user models.UserInfo, e error) {
 	ue, err := u.db.GetUserByUsername(s)
-	user = helper.UserEntityToUser(ue)
+	user = converter.UserDbToUser(ue)
 	if err != nil {
 		return models.UserInfo{}, err
 	}
@@ -88,7 +88,7 @@ func (u *userUseCase) GetAllUsers() (users []*models.UserInfo, e error) {
 	}
 
 	for _, u := range us {
-		user := helper.UserEntityToUser(u)
+		user := converter.UserDbToUser(u)
 		users = append(users, &user)
 	}
 

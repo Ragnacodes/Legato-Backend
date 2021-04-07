@@ -21,9 +21,9 @@ func NewWebhookUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Webh
 	}
 }
 
-func (w *WebhookUseCase) Create(name string) (models.WebhookUrl){
+func (w *WebhookUseCase) Create(name string) models.WebhookUrl {
 	wh := w.db.CreateWebhook(name)
-	return models.WebhookUrl{WebhookUrl: wh.String()} 
+	return models.WebhookUrl{WebhookUrl: wh.WebhookID.String()}
 }
 
 func (w *WebhookUseCase) Exists(ids string) (*legatoDb.Webhook, error){

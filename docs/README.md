@@ -2,6 +2,7 @@
 
 ### APIs
 - [Authentication](api/auth.md)
+- [Scenario](api/scenario.md)
 - [Webhook](api/webhook.md)
 
 ### Defaults

@@ -3,8 +3,8 @@ package legatoDb
 import (
 	"errors"
 	"fmt"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
@@ -34,14 +34,14 @@ func (ldb *LegatoDB) AddUser(u User) error {
 
 	// Check unique username
 	user = &User{}
-	ldb.Db.Where(&User{Username: u.Username}).First(&user)
+	ldb.db.Where(&User{Username: u.Username}).First(&user)
 	if user.Username == u.Username {
 		return errors.New("this username is already taken")
 	}
 
 	// Check unique user email
 	user = &User{}
-	ldb.Db.Where(&User{Email: u.Email}).First(&user)
+	ldb.db.Where(&User{Email: u.Email}).First(&user)
 	if user.Email == u.Email {
 		return errors.New("this email is already taken")
 	}
@@ -49,15 +49,15 @@ func (ldb *LegatoDB) AddUser(u User) error {
 	// Set initial values for new user
 	u.LastLogin = time.Now()
 
-	ldb.Db.NewRecord(u)
-	ldb.Db.Create(&u)
+	ldb.db.Create(&u)
+	ldb.db.Save(u)
 
 	return nil
 }
 
 func (ldb *LegatoDB) GetUserByUsername(username string) (User, error) {
 	user := User{}
-	ldb.Db.Where(&User{Username: strings.ToLower(username)}).First(&user)
+	ldb.db.Where(&User{Username: strings.ToLower(username)}).First(&user)
 	if user.Username != username {
 		return User{}, errors.New("username does not exist")
 	}
@@ -67,7 +67,7 @@ func (ldb *LegatoDB) GetUserByUsername(username string) (User, error) {
 
 func (ldb *LegatoDB) GetUserByEmail(email string) (User, error) {
 	user := User{}
-	ldb.Db.Where(&User{Email: strings.ToLower(email)}).First(&user)
+	ldb.db.Where(&User{Email: strings.ToLower(email)}).First(&user)
 	if user.Email != email {
 		return User{}, errors.New("email does not exist")
 	}
@@ -77,17 +77,11 @@ func (ldb *LegatoDB) GetUserByEmail(email string) (User, error) {
 
 func (ldb *LegatoDB) FetchAllUsers() ([]User, error) {
 	var users []User
-	ldb.Db.Find(&users)
+	ldb.db.Find(&users)
 
 	if len(users) <= 0 {
 		return users, errors.New("there is no user")
 	}
 
 	return users, nil
-}
-
-func (ldb *LegatoDB) GetUserScenarios(u *User) ([]Scenario, error) {
-	var scenarios []Scenario
-	ldb.Db.Model(&u).Association("Scenarios").Find(&scenarios)
-	return scenarios, nil
 }

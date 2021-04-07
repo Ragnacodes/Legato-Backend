@@ -3,14 +3,13 @@ package router
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-	"legato_server/models"
+	"github.com/gin-gonic/gin"
 	"legato_server/db"
+	"legato_server/models"
+	"log"
 	"net/http"
 	"regexp"
-	"github.com/gin-gonic/gin"
 )
-
 
 const Webhook = "Webhook"
 
@@ -39,18 +38,17 @@ var webhookRG = routeGroup{
 }
 
 func handleWebhookData(c *gin.Context) {
-	  
 	param := c.Param("webhookid")
 
 	wh, err := webhookExists(param)
-	if err!= nil{
+	if err != nil {
 		c.JSON(http.StatusBadRequest,
-			gin.H{"message": err.Error(),},
-			)
-			return
+			gin.H{"message": err.Error()},
+		)
+		return
 	}
-	if !wh.Enable {
-		c.AbortWithStatusJSON(http.StatusForbidden,gin.H{
+	if !wh.IsEnable {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 			"message": "webhook is not enabled",
 		})
 		return
@@ -63,17 +61,17 @@ func handleWebhookData(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println("webhook with id ", param)
-	fmt.Println("got payload: ")
+	log.Println("webhook with id ", param)
+	log.Println("got payload: ")
 	for k, v := range webhookData {
-		fmt.Printf("%s : %v\n", k, v)
+		log.Printf("%s : %v\n", k, v)
 	}
 	wh.Next(webhookData)
 }
 
-func handleNewWebhook(c *gin.Context){
+func handleNewWebhook(c *gin.Context) {
 	req := models.NewWebhook{}
-	c.BindJSON(req)
+	_ = c.BindJSON(req)
 	url := resolvers.WebhookUseCase.Create(req.Name)
 	c.JSON(http.StatusOK, url)
 }
@@ -83,15 +81,14 @@ func IsValidUUID(uuid string) bool {
     return r.MatchString(uuid)
 }
 
-
-func handleUpdateWebhook(c *gin.Context){
+func handleUpdateWebhook(c *gin.Context) {
 	param := c.Param("webhookid")
 	_, err := webhookExists(param)
-	if err!= nil{
+	if err != nil {
 		c.JSON(http.StatusBadRequest,
-			gin.H{"message": err,},
-			)
-			return
+			gin.H{"message": err},
+		)
+		return
 	}
 	dataMap := make(map[string]interface{})
 	err = json.NewDecoder(c.Request.Body).Decode(&dataMap)
@@ -110,14 +107,13 @@ func handleUpdateWebhook(c *gin.Context){
 	})
 }
 
-func webhookExists(WebhookID string) (*legatoDb.Webhook, error){
-	
+func webhookExists(WebhookID string) (*legatoDb.Webhook, error) {
 	if !IsValidUUID(WebhookID) {
-		return &legatoDb.Webhook{},errors.New("bad request")
+		return &legatoDb.Webhook{}, errors.New("bad request")
 	}
 	wh, err := resolvers.WebhookUseCase.Exists(WebhookID)
-	if err!=nil{
-		return &legatoDb.Webhook{},err
+	if err != nil {
+		return &legatoDb.Webhook{}, err
 	}
-	return wh, nil 
-} 
+	return wh, nil
+}
