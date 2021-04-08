@@ -38,6 +38,12 @@ var authRG = routeGroup{
 			"auth/protected",
 			protectedPage,
 		},
+		route{
+			"Get logged in user",
+			GET,
+			"auth/user",
+			getLoggedInUser,
+		},
 	},
 }
 
@@ -94,13 +100,26 @@ func refresh(c *gin.Context) {
 
 // protectedPage is a test api for getting all of the user details
 func protectedPage(c *gin.Context) {
-	loginUser := checkAuth(c, nil)
-	if loginUser == nil {
+	loggedInUser := checkAuth(c, nil)
+	if loggedInUser == nil {
 		return
 	}
 
 	users, _ := resolvers.UserUseCase.GetAllUsers()
 	c.JSON(http.StatusOK, users)
+}
+
+// getLoggedInUser will get the token in the header.
+// Returns loggedInUser
+func getLoggedInUser(c *gin.Context) {
+	loggedInUser := checkAuth(c, nil)
+	if loggedInUser == nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": loggedInUser,
+	})
 }
 
 /*
