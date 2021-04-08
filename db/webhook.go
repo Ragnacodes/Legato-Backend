@@ -75,6 +75,7 @@ func (ldb *LegatoDB)GetUserWebhooks(u *User) ([]Webhook, error){
 	var webhooks []Webhook
 	for _, s := range services {
 		if w, ok := s.LoadOwner().(Webhook); ok{
+			w.Service.Name = s.Name
 			webhooks = append(webhooks, w)
 		}
 	}
