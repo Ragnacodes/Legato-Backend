@@ -16,6 +16,7 @@ type User struct {
 	Password  string
 	LastLogin time.Time
 	Scenarios []Scenario
+	Services []Service
 }
 
 func (u *User) String() string {

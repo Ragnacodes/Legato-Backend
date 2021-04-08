@@ -21,7 +21,7 @@ type Service struct {
 	ParentID *uint
 	Children []Service `gorm:"foreignkey:ParentID"`
 	Position Position
-
+	UserID int
 }
 
 func (s *Service) String() string {
@@ -65,7 +65,7 @@ func (s *Service) LoadOwner() services.Service{
 		panic(err)
 	}
 
-	return &wh
+	return wh
 }
 
 

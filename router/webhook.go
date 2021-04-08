@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"fmt"
 )
 
 const Webhook = "Webhook"
@@ -19,20 +20,26 @@ var webhookRG = routeGroup{
 		route{
 			"Create Webhook",
 			POST,
-			"services/webhook",
+			"/users/:username/services/webhook",
 			handleNewWebhook,
 		},
 		route{
 			"Webhook",
 			POST,
-			"services/webhook/:webhookid",
+			"/services/webhook/:webhookid",
 			handleWebhookData,
 		},
 		route{
 			"Update Webhook",
 			PATCH,
-			"services/webhook/:webhookid",
+			"/users/:username/services/webhook/:webhookid",
 			handleUpdateWebhook,
+		},
+		route{
+			"List Webhook",
+			GET,
+			"/users/:username/services/webhook/",
+			getUserWebhookList,
 		},
 	},
 }
@@ -70,10 +77,21 @@ func handleWebhookData(c *gin.Context) {
 }
 
 func handleNewWebhook(c *gin.Context) {
+	username := c.Param("username")
 	req := models.NewWebhook{}
-	_ = c.BindJSON(req)
-	url := resolvers.WebhookUseCase.Create(req.Name)
-	c.JSON(http.StatusOK, url)
+	_ = c.BindJSON(&req)
+
+	// Authenticate
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+	// Add scenario
+	wehhookInfo := resolvers.WebhookUseCase.Create(loginUser, req.Name)
+	
+	c.JSON(http.StatusOK, wehhookInfo)
+	return
+	 
 }
 
 func IsValidUUID(uuid string) bool {
@@ -81,7 +99,30 @@ func IsValidUUID(uuid string) bool {
     return r.MatchString(uuid)
 }
 
-func handleUpdateWebhook(c *gin.Context) {
+func getUserWebhookList(c *gin.Context){
+	username := c.Param("username")
+	// Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+	// Get Webhooks
+	userWebhooks, err := resolvers.WebhookUseCase.List(loginUser)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch user webhooks: %s", err),
+		})
+		return
+	}
+	if userWebhooks == nil{
+		c.JSON(http.StatusOK, gin.H{})
+		return
+	}
+	c.JSON(http.StatusOK, userWebhooks)
+	return
+}
+
+func handleUpdateWebhook(c *gin.Context){
 	param := c.Param("webhookid")
 	_, err := webhookExists(param)
 	if err != nil {

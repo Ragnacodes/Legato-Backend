@@ -3,7 +3,6 @@ package legatoDb
 import (
 	"fmt"
 	"gorm.io/gorm"
-	"legato_server/services"
 	"log"
 	"strconv"
 )
@@ -67,7 +66,7 @@ func (ldb *LegatoDB) GetUserScenarioById(u *User, scenarioId string) (Scenario, 
 
 func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {
 	var sc Scenario
-	err := ldb.Db.Where(&Scenario{Name: name, UserID: u.ID}).Preload("RootService").Find(&sc).Error
+	err := ldb.db.Where(&Scenario{Name: name, UserID: u.ID}).Preload("RootService").Find(&sc).Error
 	if err != nil {
 		return Scenario{}, err
 	}
@@ -81,14 +80,5 @@ func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID string, updatedS
 	updatedScenario.ID = uint(sid)
 	ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&updatedScenario)
 
-	return nil
-}
-
-
-// Scenario methods
-
-// To Start scenario
-func (s *Scenario) Start() error {
-	s.RootService.LoadOwner().Execute()
 	return nil
 }

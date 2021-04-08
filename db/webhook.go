@@ -3,9 +3,11 @@ package legatoDb
 import (
 	"errors"
 	"fmt"
+	"legato_server/env"
+	"log"
+
 	"github.com/satori/go.uuid"
 	"gorm.io/gorm"
-	"log"
 )
 
 const webhookType string = "webhook"
@@ -26,9 +28,15 @@ func (w *Webhook) String() string {
 	return fmt.Sprintf("(@Webhooks: %+v)", *w)
 }
 
-func (ldb *LegatoDB) CreateWebhook(name string) *Webhook {
-	wh := Webhook{Service: Service{Name: name}}
+func (w *Webhook) GetURL() string {
+	return fmt.Sprintf("%s:%s/api/services/webhook/%v", env.ENV.WebHost, env.ENV.ServingPort, w.WebhookID)
+}
+
+func (ldb *LegatoDB) CreateWebhook(u *User, name string) *Webhook {
+	wh := Webhook{Service: Service{Name: name, UserID: int(u.ID)}}
 	ldb.db.Create(&wh)
+	u.Services = append(u.Services, wh.Service)
+	ldb.db.Save(&u)
 	return &wh
 }
 
@@ -58,9 +66,26 @@ func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (*Webhook, error) {
 	return &webhook, nil
 }
 
+func (ldb *LegatoDB)GetUserWebhooks(u *User) ([]Webhook, error){
+	user, _ := ldb.GetUserByUsername(u.Username)
+
+	var services []Service
+	ldb.db.Model(&user).Where("owner_type = ?", "webhooks").Association("Services").Find(&services)
+	
+	var webhooks []Webhook
+	for _, s := range services {
+		if w, ok := s.LoadOwner().(Webhook); ok{
+			webhooks = append(webhooks, w)
+		}
+	}
+
+	return webhooks, nil
+}
+
+
 // Service Interface for Webhook
 
-func (w *Webhook) Execute(...interface{}) {
+func (w Webhook) Execute(...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
 		panic(err)
@@ -73,11 +98,11 @@ func (w *Webhook) Execute(...interface{}) {
 	w.Next()
 }
 
-func (w *Webhook) Post() {
+func (w Webhook) Post() {
 	log.Printf("Executing %s node in background: %s\n", "webhook", w.Service.Name)
 }
 
-func (w *Webhook) Next(...interface{}) {
+func (w Webhook) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&w).Error
 	if err != nil {
 		panic(err)
