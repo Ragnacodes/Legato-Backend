@@ -87,11 +87,9 @@ func handleNewWebhook(c *gin.Context) {
 		return
 	}
 	// Add scenario
-	wehhookInfo := resolvers.WebhookUseCase.Create(loginUser, req.Name)
+	webhookInfo := resolvers.WebhookUseCase.Create(loginUser, req.Name)
 	
-	c.JSON(http.StatusOK, wehhookInfo)
-	return
-	 
+	c.JSON(http.StatusOK, webhookInfo)
 }
 
 func IsValidUUID(uuid string) bool {
@@ -101,11 +99,13 @@ func IsValidUUID(uuid string) bool {
 
 func getUserWebhookList(c *gin.Context){
 	username := c.Param("username")
+
 	// Auth
 	loginUser := checkAuth(c, []string{username})
 	if loginUser == nil {
 		return
 	}
+
 	// Get Webhooks
 	userWebhooks, err := resolvers.WebhookUseCase.List(loginUser)
 	if err != nil {
@@ -114,6 +114,7 @@ func getUserWebhookList(c *gin.Context){
 		})
 		return
 	}
+
 	if userWebhooks == nil{
 		c.JSON(http.StatusOK, gin.H{})
 		return
@@ -131,18 +132,24 @@ func handleUpdateWebhook(c *gin.Context){
 		)
 		return
 	}
+
 	dataMap := make(map[string]interface{})
 	err = json.NewDecoder(c.Request.Body).Decode(&dataMap)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": err.Error(),
 		})
+		return
 	}
+
 	err = resolvers.WebhookUseCase.Update(param, dataMap)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError,
-			gin.H{"message": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "updated successfully",
 	})

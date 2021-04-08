@@ -59,7 +59,7 @@ func addScenario(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "scenario created successfully.",
+		"message":  "scenario created successfully.",
 		"scenario": createdScenario,
 	})
 }
@@ -82,7 +82,9 @@ func getUserScenarios(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, briefUserScenarios)
+	c.JSON(http.StatusOK, gin.H{
+		"scenarios": briefUserScenarios,
+	})
 }
 
 func getFullScenario(c *gin.Context) {
@@ -104,7 +106,9 @@ func getFullScenario(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, scenario)
+	c.JSON(http.StatusOK, gin.H{
+		"scenario": scenario,
+	})
 }
 
 func updateScenario(c *gin.Context) {

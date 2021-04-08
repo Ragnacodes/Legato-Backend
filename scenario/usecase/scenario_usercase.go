@@ -40,6 +40,7 @@ func (s scenarioUseCase) GetUserScenarios(u *models.UserInfo) ([]models.BriefSce
 	}
 
 	var briefScenarios []models.BriefScenario
+	briefScenarios = []models.BriefScenario{}
 	for _, scenario := range scenarios {
 		briefScenarios = append(briefScenarios, converter.ScenarioDbToBriefScenario(scenario))
 	}

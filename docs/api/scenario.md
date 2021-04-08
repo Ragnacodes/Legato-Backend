@@ -6,26 +6,28 @@ To get all the user scenarios.
     - `Authorization` = `access_token`
 - Response
     ```json
-    [
-        {
-            "id": 1,
-            "name": "my favorite scenario2",
-            "is_active": true,
-            "nodes": []
-        },
-        {
-            "id": 3,
-            "name": "amin scenario",
-            "is_active": false,
-            "nodes": []
-        },
-        {
-            "id": 14,
-            "name": "my favorite scenario",
-            "is_active": true,
-            "nodes": []
-        }
-    ]
+    {
+        "scenarios": [
+            {
+                "id": 1,
+                "name": "my favorite scenario2",
+                "is_active": true,
+                "nodes": []
+            },
+            {
+                "id": 3,
+                "name": "amin scenario",
+                "is_active": false,
+                "nodes": []
+            },
+            {
+                "id": 14,
+                "name": "my favorite scenario",
+                "is_active": true,
+                "nodes": []
+            }
+        ]
+    }
     ```
 
 ### /api/users/:username/scenarios `POST`
@@ -57,70 +59,72 @@ To get all the scenario details including the service tree.
  - Response
      ```json
     {
-        "id": 1,
-        "name": "my favorite scenario2",
-        "is_active": true,
-        "graph": {
-            "name": "My initial webhook",
-            "type": "webhook",
-            "children": [
-                {
-                    "name": "Event 1",
-                    "type": "http",
-                    "children": [],
-                    "position": {
-                       "x": 100,
-                       "y": 0
+        "scenario": {
+            "id": 1,
+            "name": "my favorite scenario2",
+            "is_active": true,
+            "graph": {
+                "name": "My initial webhook",
+                "type": "webhook",
+                "children": [
+                    {
+                        "name": "Event 1",
+                        "type": "http",
+                        "children": [],
+                        "position": {
+                           "x": 100,
+                           "y": 0
+                        },
+                        "data": {}
                     },
-                    "data": {}
-                },
-                {
-                    "name": "Event 2",
-                    "type": "http",
-                    "children": [
-                        {
-                            "name": "First Http child",
-                            "type": "http",
-                            "children": [],
-                            "position": {
-                                "x": 200,
-                                "y": 12
+                    {
+                        "name": "Event 2",
+                        "type": "http",
+                        "children": [
+                            {
+                                "name": "First Http child",
+                                "type": "http",
+                                "children": [],
+                                "position": {
+                                    "x": 200,
+                                    "y": 12
+                                },
+                                "data": {}
                             },
-                            "data": {}
+                            {
+                                "name": "Event 4",
+                                "type": "http",
+                                "children": [],
+                               "position": {
+                                   "x": 0,
+                                   "y": 13
+                               },
+                                "data": {}
+                            },
+                            {
+                                "name": "Event 5",
+                                "type": "http",
+                                "children": [],
+                               "position": {
+                                   "x": 100,
+                                   "y": 0
+                               },
+                                "data": {}
+                            }
+                        ],
+                        "position": {
+                           "x": 200,
+                           "y": 12
                         },
-                        {
-                            "name": "Event 4",
-                            "type": "http",
-                            "children": [],
-                           "position": {
-                               "x": 0,
-                               "y": 13
-                           },
-                            "data": {}
-                        },
-                        {
-                            "name": "Event 5",
-                            "type": "http",
-                            "children": [],
-                           "position": {
-                               "x": 100,
-                               "y": 0
-                           },
-                            "data": {}
-                        }
-                    ],
-                    "position": {
-                       "x": 200,
-                       "y": 12
-                    },
-                    "data": {}
-                }
-            ],
-           "position": {
-               "x": 200,
-               "y": 12
-           },
-            "data": {}
+                        "data": {}
+                    }
+                ],
+               "position": {
+                   "x": 200,
+                   "y": 12
+               },
+                "data": {}
+            }
         }
     }
      ```

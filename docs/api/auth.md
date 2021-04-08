@@ -66,27 +66,29 @@ To test that only authorized users could see this page.
 - Header
     - `Authorization` = `access_token`
  - Response
-     ```json
-    [
-        {
-            "email": "legato@gmail.com",
-            "username": "legato"
-        },
-        {
-            "email": "sedaqi@gmail.com",
-            "username": "insomnia"
-        },
-        {
-            "email": "amin@gmail.com",
-            "username": "amin"
-        },
-        {
-            "email": "amir@gmail.com",
-            "username": "amir"
-        },
-        {
-            "email": "ahmad@gmail.com",
-            "username": "ahmad"
-        }
-    ]
-     ```
+    ```json
+    {
+       "users": [
+            {
+                "email": "legato@gmail.com",
+                "username": "legato"
+            },
+            {
+                "email": "sedaqi@gmail.com",
+                "username": "insomnia"
+            },
+            {
+                "email": "amin@gmail.com",
+                "username": "amin"
+            },
+            {
+                "email": "amir@gmail.com",
+                "username": "amir"
+            },
+            {
+                "email": "ahmad@gmail.com",
+                "username": "ahmad"
+            }
+        ]
+    }
+    ```

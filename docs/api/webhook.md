@@ -4,30 +4,33 @@
 To create a webhook.
 - Header
     - `Authorization` = `access_token`
+    
 - Request
+    ```json
     {
         "name" : "my first webhook"
     }
-   
+    ```
+
 - Response
     ```json
     {
         "enable" : false,
         "name" : "my first webhook",
-        "url": "http://127.0.0.1:8080/api/services/webhook/8bb33bc6-6957-4ded-b448-f12a52e613de",
+        "url": "http://127.0.0.1:8080/api/services/webhook/8bb33bc6-6957-4ded-b448-f12a52e613de"
     }
     ```
 
 ### /api/services/webhook/:uuid `POST`
 To send request to webhook endpoint.
-### Notice that you should enable your webhook before using this api
+> Notice that you should enable your webhook before using this api
 - Request
     any arbitrary data
 
 - Response
     200 ok
 
-### /users/:username/services/webhook/:webhookid `PATCH`
+### /api/users/:username/services/webhook/:webhookid `PATCH`
 to make your webhook active or change its name, this is the api to update your webhook.
 - Header
     - `Authorization` = `access_token`
@@ -39,6 +42,7 @@ to make your webhook active or change its name, this is the api to update your w
         "name" : "af"
     }
     ```
+  
 - Response
     200 ok
     ```json
@@ -47,7 +51,7 @@ to make your webhook active or change its name, this is the api to update your w
     }
     ```
     
-### /users/:username/services/webhook/
+### /api/users/:username/services/webhook/ `GET`
 to get list of all user webhooks 
 - Header
     - `Authorization` = `access_token`
@@ -70,6 +74,6 @@ to get list of all user webhooks
             "url": "http://localhost:8080/api/services/webhook/ab1aa571-052a-4bba-990a-855d2e43acdd",
             "name": "my third webhook",
             "active": true
-        },
+        }
     ]
     ```

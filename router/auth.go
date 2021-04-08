@@ -106,7 +106,9 @@ func protectedPage(c *gin.Context) {
 	}
 
 	users, _ := resolvers.UserUseCase.GetAllUsers()
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, gin.H{
+		"users": users,
+	})
 }
 
 // getLoggedInUser will get the token in the header.
