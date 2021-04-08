@@ -45,6 +45,20 @@ To refresh the access token by set it in the request's header.
     }
     ```
 
+### /api/auth/user `GET`
+To get logged in user.
+- Header
+    - `Authorization` = `access_token`
+- Response
+    ```json
+    {
+        "user": {
+            "email": "legato@gmail.com",
+            "username": "legato"
+        }
+    }
+    ```
+
 
 ### /api/auth/protected `GET`
 To test that only authorized users could see this page.
