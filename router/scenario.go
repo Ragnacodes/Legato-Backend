@@ -3,7 +3,7 @@ package router
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"legato_server/models"
+	"legato_server/api"
 	"net/http"
 )
 
@@ -40,7 +40,7 @@ var scenarioRG = routeGroup{
 func addScenario(c *gin.Context) {
 	username := c.Param("username")
 
-	newScenario := models.NewScenario{}
+	newScenario := api.NewScenario{}
 	_ = c.BindJSON(&newScenario)
 
 	// Authenticate
@@ -115,7 +115,7 @@ func updateScenario(c *gin.Context) {
 	username := c.Param("username")
 	scenarioId := c.Param("scenario_id")
 
-	updatedScenario := models.FullScenario{}
+	updatedScenario := api.FullScenario{}
 	_ = c.BindJSON(&updatedScenario)
 
 	// Auth

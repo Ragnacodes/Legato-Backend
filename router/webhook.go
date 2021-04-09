@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"legato_server/api"
 	"legato_server/db"
-	"legato_server/models"
 	"log"
 	"net/http"
 	"regexp"
@@ -78,7 +78,7 @@ func handleWebhookData(c *gin.Context) {
 
 func handleNewWebhook(c *gin.Context) {
 	username := c.Param("username")
-	req := models.NewWebhook{}
+	req := api.NewWebhook{}
 	_ = c.BindJSON(&req)
 
 	// Authenticate

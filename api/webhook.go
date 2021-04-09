@@ -1,4 +1,4 @@
-package models
+package api
 
 type WebhookInfo struct {
 	WebhookUrl  string `json:"url"`

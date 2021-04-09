@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"legato_server/api"
 	"legato_server/middleware"
-	"legato_server/models"
 	"net/http"
 )
 
@@ -49,7 +49,7 @@ var authRG = routeGroup{
 
 // signup creates new users
 func signup(c *gin.Context) {
-	newUser := models.NewUser{}
+	newUser := api.NewUser{}
 	_ = c.BindJSON(&newUser)
 
 	err := resolvers.UserUseCase.RegisterNewUser(newUser)
@@ -67,7 +67,7 @@ func signup(c *gin.Context) {
 
 // login is for authorizing and generating access token
 func login(c *gin.Context) {
-	userCredentials := models.UserCredential{}
+	userCredentials := api.UserCredential{}
 	_ = c.BindJSON(&userCredentials)
 
 	token, err := resolvers.UserUseCase.Login(userCredentials)
@@ -133,7 +133,7 @@ func getLoggedInUser(c *gin.Context) {
 // validUsers is list of usernames that the api is accessible for them.
 // nil validUsers means that any authenticated user can use api.
 // Return the logged in user.
-func checkAuth(c *gin.Context, validUsers []string) *models.UserInfo {
+func checkAuth(c *gin.Context, validUsers []string) *api.UserInfo {
 	// Get the user
 	rawData := c.MustGet(middleware.UserKey)
 	if rawData == nil {
@@ -143,7 +143,7 @@ func checkAuth(c *gin.Context, validUsers []string) *models.UserInfo {
 		return nil
 	}
 
-	loginUser := rawData.(*models.UserInfo)
+	loginUser := rawData.(*api.UserInfo)
 	if loginUser == nil {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "access denied",

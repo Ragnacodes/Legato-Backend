@@ -1,11 +1,11 @@
 package usecase
 
 import (
+	"legato_server/api"
 	"legato_server/authenticate"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
 	"legato_server/helper/converter"
-	"legato_server/models"
 	"log"
 	"time"
 )
@@ -29,7 +29,7 @@ func NewUserUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.UserUse
 }
 
 // Register new user and add it in our database
-func (u *userUseCase) RegisterNewUser(nu models.NewUser) error {
+func (u *userUseCase) RegisterNewUser(nu api.NewUser) error {
 	err := u.db.AddUser(converter.NewUserToUserDb(nu))
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func (u *userUseCase) RegisterNewUser(nu models.NewUser) error {
 
 // Login the user
 // return the access token
-func (u *userUseCase) Login(cred models.UserCredential) (t string, e error) {
+func (u *userUseCase) Login(cred api.UserCredential) (t string, e error) {
 	// Check username validation
 	expectedUser, err := u.db.GetUserByUsername(cred.Username)
 	if err != nil {
@@ -59,29 +59,29 @@ func (u *userUseCase) Login(cred models.UserCredential) (t string, e error) {
 }
 
 // Returns user that has the email address
-func (u *userUseCase) GetUserByEmail(s string) (user models.UserInfo, e error) {
+func (u *userUseCase) GetUserByEmail(s string) (user api.UserInfo, e error) {
 	ue, err := u.db.GetUserByEmail(s)
 	user = converter.UserDbToUser(ue)
 	if err != nil {
-		return models.UserInfo{}, err
+		return api.UserInfo{}, err
 	}
 
 	return user, nil
 }
 
 // Returns user that has the username
-func (u *userUseCase) GetUserByUsername(s string) (user models.UserInfo, e error) {
+func (u *userUseCase) GetUserByUsername(s string) (user api.UserInfo, e error) {
 	ue, err := u.db.GetUserByUsername(s)
 	user = converter.UserDbToUser(ue)
 	if err != nil {
-		return models.UserInfo{}, err
+		return api.UserInfo{}, err
 	}
 
 	return user, nil
 }
 
 // Returns a list of all of our users in database
-func (u *userUseCase) GetAllUsers() (users []*models.UserInfo, e error) {
+func (u *userUseCase) GetAllUsers() (users []*api.UserInfo, e error) {
 	us, err := u.db.FetchAllUsers()
 	if err != nil {
 		return users, err
@@ -95,13 +95,13 @@ func (u *userUseCase) GetAllUsers() (users []*models.UserInfo, e error) {
 	return users, nil
 }
 
-func (u *userUseCase) RefreshUserToken(at string) (models.RefreshToken, error) {
+func (u *userUseCase) RefreshUserToken(at string) (api.RefreshToken, error) {
 	t, err := authenticate.Refresh(at)
 	if err != nil {
-		return models.RefreshToken{}, err
+		return api.RefreshToken{}, err
 	}
 
-	return models.RefreshToken{RefreshToken: t.TokenString}, nil
+	return api.RefreshToken{RefreshToken: t.TokenString}, nil
 }
 
 // This is for testing purposes

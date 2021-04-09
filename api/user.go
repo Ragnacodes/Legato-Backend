@@ -1,4 +1,4 @@
-package models
+package api
 
 type NewUser struct {
 	Username  string `json:"username"`

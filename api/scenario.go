@@ -1,4 +1,4 @@
-package models
+package api
 
 type NewScenario struct {
 	Name     string `json:"name"`
@@ -13,8 +13,8 @@ type BriefScenario struct {
 }
 
 type FullScenario struct {
-	ID       uint    `json:"id"`
-	Name     string  `json:"name"`
+	ID       uint     `json:"id"`
+	Name     string   `json:"name"`
 	IsActive *bool    `json:"is_active"`
 	Graph    *Service `json:"graph"`
 }

@@ -14,22 +14,23 @@ const webhookType string = "webhook"
 
 type Webhook struct {
 	gorm.Model
-	WebhookID uuid.UUID
-	IsEnable  bool    `gorm:"default:False"`
-	Service   Service `gorm:"polymorphic:Owner;"`
-}
-
-func (w *Webhook) BeforeCreate(tx *gorm.DB) (err error) {
-	w.WebhookID = uuid.NewV4()
-	return nil
+	Token    uuid.UUID
+	IsEnable bool    `gorm:"default:False"`
+	Service  Service `gorm:"polymorphic:Owner;"`
 }
 
 func (w *Webhook) String() string {
 	return fmt.Sprintf("(@Webhooks: %+v)", *w)
 }
 
+
+func (w *Webhook) BeforeCreate(tx *gorm.DB) (err error) {
+	w.Token = uuid.NewV4()
+	return nil
+}
+
 func (w *Webhook) GetURL() string {
-	return fmt.Sprintf("%s:%s/api/services/webhook/%v", env.ENV.WebHost, env.ENV.ServingPort, w.WebhookID)
+	return fmt.Sprintf("%s:%s/api/services/webhook/%v", env.ENV.WebHost, env.ENV.ServingPort, w.Token)
 }
 
 func (ldb *LegatoDB) CreateWebhook(u *User, name string) *Webhook {
@@ -45,11 +46,11 @@ func (ldb *LegatoDB) UpdateWebhook(uuid uuid.UUID, vals map[string]interface{}) 
 	for key, value := range vals {
 		if key == "name" {
 			var wh Webhook
-			err = ldb.db.Model(&Webhook{}).Where(&Webhook{WebhookID: uuid}).First(&wh).Error
+			err = ldb.db.Model(&Webhook{}).Where(&Webhook{Token: uuid}).First(&wh).Error
 			wh.Service.Name = value.(string)
 			ldb.db.Save(&wh)
 		}
-		err = ldb.db.Model(&Webhook{}).Where(&Webhook{WebhookID: uuid}).Update(key, value).Error
+		err = ldb.db.Model(&Webhook{}).Where(&Webhook{Token: uuid}).Update(key, value).Error
 	}
 	if err != nil {
 		return err
@@ -59,8 +60,8 @@ func (ldb *LegatoDB) UpdateWebhook(uuid uuid.UUID, vals map[string]interface{}) 
 
 func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (*Webhook, error) {
 	webhook := Webhook{}
-	ldb.db.Where(&Webhook{WebhookID: uuid}).First(&webhook)
-	if webhook.WebhookID != uuid {
+	ldb.db.Where(&Webhook{Token: uuid}).First(&webhook)
+	if webhook.Token != uuid {
 		return &Webhook{}, errors.New("webhook obj does not exist")
 	}
 	return &webhook, nil
@@ -93,6 +94,7 @@ func (w Webhook) Execute(...interface{}) {
 	}
 
 	log.Printf("Executing %s node: %s\n", "webhook", w.Service.Name)
+
 	w.IsEnable = true
 	legatoDb.db.Save(&w)
 
