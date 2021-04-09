@@ -175,7 +175,6 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 }
 
 // Service Interface for Webhook
-
 func (w Webhook) Execute(...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
