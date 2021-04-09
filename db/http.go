@@ -18,6 +18,43 @@ func (h *Http) String() string {
 	return fmt.Sprintf("(@Http: %+v)", *h)
 }
 
+// Database methods
+func (ldb *LegatoDB) CreateHttp(u *User, name string, url string, method string) *Http {
+	h := Http{
+		Service: Service{Name: name, UserID: int(u.ID)},
+		Url:     url,
+		Method:  method,
+	}
+
+	ldb.db.Create(&h)
+	u.Services = append(u.Services, h.Service)
+	ldb.db.Save(&h)
+
+	return &h
+}
+
+func (ldb *LegatoDB) UpdateHttp(id string, values map[string]interface{}) (err error) {
+	//for key, value := range values {
+	//	if key == "name" {
+	//		var wh Webhook
+	//		err = ldb.db.Model(&Http{}).Where(&Http{Token: uuid}).First(&wh).Error
+	//		wh.Service.Name = value.(string)
+	//		ldb.db.Save(&wh)
+	//	}
+	//	err = ldb.db.Model(&Http{}).Where(&Http{Token: uuid}).Update(key, value).Error
+	//}
+	//
+	//if err != nil {
+	//	return err
+	//}
+
+	return nil
+}
+
+func (ldb *LegatoDB) GetHttpByID(id string) (*Http, error) {
+	return nil, nil
+}
+
 // Service Interface for Http
 func (h Http) Execute(...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&h).Error
