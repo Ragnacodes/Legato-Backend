@@ -43,14 +43,15 @@ func (ldb *LegatoDB) CreateWebhook(u *User, name string) *Webhook {
 
 func (ldb *LegatoDB) UpdateWebhook(uuid uuid.UUID, vals map[string]interface{}) error {
 	var err error
+	wh, _  := ldb.GetWebhookByUUID(uuid)
 	for key, value := range vals {
-		if key == "name" {
-			var wh Webhook
-			err = ldb.db.Model(&Webhook{}).Where(&Webhook{Token: uuid}).First(&wh).Error
-			wh.Service.Name = value.(string)
-			ldb.db.Save(&wh)
+		if key == "enable"{
+			key = "IsEnable"
 		}
-		err = ldb.db.Model(&Webhook{}).Where(&Webhook{Token: uuid}).Update(key, value).Error
+		if key == "name" {
+			wh.Service.Name = value.(string)
+			ldb.db.Save(&wh.Service)
+		}else{err = ldb.db.Model(&wh).Update(key, value).Error}
 	}
 	if err != nil {
 		return err
@@ -60,7 +61,7 @@ func (ldb *LegatoDB) UpdateWebhook(uuid uuid.UUID, vals map[string]interface{}) 
 
 func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (*Webhook, error) {
 	webhook := Webhook{}
-	ldb.db.Where(&Webhook{Token: uuid}).First(&webhook)
+	ldb.db.Where(&Webhook{Token: uuid}).Preload("Service").First(&webhook)
 	if webhook.Token != uuid {
 		return &Webhook{}, errors.New("webhook obj does not exist")
 	}

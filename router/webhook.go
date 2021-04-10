@@ -124,6 +124,11 @@ func getUserWebhookList(c *gin.Context){
 }
 
 func handleUpdateWebhook(c *gin.Context){
+	username := c.Param("username")
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
 	param := c.Param("webhookid")
 	_, err := webhookExists(param)
 	if err != nil {
@@ -135,6 +140,9 @@ func handleUpdateWebhook(c *gin.Context){
 
 	dataMap := make(map[string]interface{})
 	err = json.NewDecoder(c.Request.Body).Decode(&dataMap)
+	for k, v := range dataMap {
+		log.Printf("%s : %v\n", k, v)
+	}
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": err.Error(),
