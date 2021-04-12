@@ -37,6 +37,12 @@ get the connection token.
 
 ### /api/user/connection/access/token/urls `POST`
 get you access url for apps you shod send token_type to back .if token_type = "spotify" redirect to spotify access url . other app is git discord google
+Request
+    ```json
+    {
+        "token_type": "discord"
+    }
+    ```
 - Response
     ```json
     {
@@ -85,18 +91,18 @@ get the connection token.
     ```
 ### /api/users/connection/update/token/name `PUT`
 update name of a token with id
-Request
-    ```json
-    {
-        "name": "git1",
-        "id": 1
-    }
-    ```
-- Response
-    ```json
-    {
-         "message": "update token successfully"
-    }
+    Request
+        ```json
+        {
+            "name": "git1",
+            "id": 1
+        }
+        ```
+-   Response
+        ```json
+        {
+            "message": "update token successfully"
+        }
     ```
 ### /api/users/:username/connection/check/token `POST`
 get a id and check if there is a token with this id for a user return correct token
@@ -114,7 +120,7 @@ get a id and check if there is a token with this id for a user return correct to
     }
     ```
 
-### /api/users/:username/connection/update/token/token `put`
+### /api/users/:username/connection/update/token/token `PUT`
 get the connection token.
 - Request
     ```json
@@ -130,8 +136,8 @@ get the connection token.
     ```
 
 
-### /api/users/:username/connection/update/token/token `put`
-get the connection token.
+### /api/users/:username/connection/delete/token `POST`
+delete the connection .
 - Request
     ```json
     {
