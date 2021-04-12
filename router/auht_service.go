@@ -16,7 +16,7 @@ var ConnectionRG = routeGroup{
 		route{
 			"token url",
 			POST,
-			"users/connection/access/url",
+			"user/connection/access/token/urls",
 			connection_auth_url,
 		},
 		route{
