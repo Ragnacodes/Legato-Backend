@@ -32,11 +32,12 @@ func ServiceDbToService(service *legatoDb.Service) *api.Service {
 	return &s
 }
 
-func ServiceToServiceDb(service *api.Service) legatoDb.Service {
+func ServiceToServiceDb(service *api.Service, userID uint) legatoDb.Service {
 	var s legatoDb.Service
 	s.Name = service.Name
 	s.OwnerType = service.Type
 	s.Position = legatoDb.Position{X: service.Position.X, Y: service.Position.Y}
+	s.UserID = userID
 	//s.Data = struct{}{}
 
 	if len(service.Children) == 0 {
@@ -46,7 +47,7 @@ func ServiceToServiceDb(service *api.Service) legatoDb.Service {
 
 	var children []legatoDb.Service
 	for _, child := range service.Children {
-		childSubGraph := ServiceToServiceDb(&child)
+		childSubGraph := ServiceToServiceDb(&child, userID)
 		children = append(children, childSubGraph)
 	}
 

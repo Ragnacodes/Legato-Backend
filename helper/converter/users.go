@@ -17,6 +17,7 @@ func NewUserToUserDb(newUser api.NewUser) legatoDb.User {
 
 func UserDbToUser(ue legatoDb.User) api.UserInfo {
 	u := api.UserInfo{}
+	u.ID = ue.ID
 	u.Email = strings.ToLower(ue.Email)
 	u.Username = strings.ToLower(ue.Username)
 

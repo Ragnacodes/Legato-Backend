@@ -13,3 +13,11 @@ func WebhookDbToWebhookInfo(s legatoDb.Webhook) api.WebhookInfo {
 
 	return wh
 }
+
+func WebhookToWebhookDb(s api.WebhookInfo) legatoDb.Webhook {
+	var wh legatoDb.Webhook
+	wh.Service.Name = s.Name
+	wh.IsEnable = s.IsEnable
+
+	return wh
+}

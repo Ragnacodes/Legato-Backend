@@ -11,6 +11,7 @@ type RefreshToken struct {
 }
 
 type UserInfo struct {
+	ID        uint
 	Email     string `json:"email"`
 	Username  string `json:"username"`
 }

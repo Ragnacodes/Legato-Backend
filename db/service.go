@@ -21,7 +21,7 @@ type Service struct {
 	ParentID *uint
 	Children []Service `gorm:"foreignkey:ParentID"`
 	Position Position
-	UserID int
+	UserID uint
 }
 
 func (s *Service) String() string {

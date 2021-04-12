@@ -38,13 +38,13 @@ func ScenarioDbToFullScenario(s legatoDb.Scenario) api.FullScenario {
 	return fs
 }
 
-func FullScenarioToScenarioDb(fs api.FullScenario) legatoDb.Scenario {
+func FullScenarioToScenarioDb(fs api.FullScenario, userID uint) legatoDb.Scenario {
 	s := legatoDb.Scenario{}
 	s.Name = fs.Name
 	s.IsActive = fs.IsActive
 	// Graph
 	if fs.Graph != nil {
-		root := ServiceToServiceDb(fs.Graph)
+		root := ServiceToServiceDb(fs.Graph, userID)
 		s.RootService = &root
 	} else {
 		s.RootService = nil

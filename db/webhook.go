@@ -34,7 +34,7 @@ func (w *Webhook) GetURL() string {
 }
 
 func (ldb *LegatoDB) CreateWebhook(u *User, name string) *Webhook {
-	wh := Webhook{Service: Service{Name: name, UserID: int(u.ID)}}
+	wh := Webhook{Service: Service{Name: name, UserID: uint(u.ID)}}
 	ldb.db.Create(&wh)
 	u.Services = append(u.Services, wh.Service)
 	ldb.db.Save(&u)

@@ -66,7 +66,7 @@ func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId string)
 func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId string, us api.FullScenario) error {
 	user := converter.UserInfoToUserDb(*u)
 
-	updatedScenario := converter.FullScenarioToScenarioDb(us)
+	updatedScenario := converter.FullScenarioToScenarioDb(us, u.ID)
 
 	err := s.db.UpdateUserScenarioById(&user, scenarioId, updatedScenario)
 	if err != nil {
