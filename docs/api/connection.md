@@ -1,5 +1,3 @@
-
-
 ### /api/users/:username/connections/addtoken`POST`
 To create a new connection.
 - Request
@@ -19,7 +17,7 @@ To create a new connection.
     }
     ```
 ### /api/users/:username/connection/gettoken `POST`
-get the connection token.
+get the connection .
 - Request
     ```json
     {
@@ -51,7 +49,7 @@ Request
 
 
 ### /api/users/:username/connection/gettokens `GET`
-get the connection token.
+get the all  connections of a user as list .
 - Header
     - `Authorization` = `access_token`
  - Response
@@ -89,23 +87,24 @@ get the connection token.
         }
     ]
     ```
-### /api/users/connection/update/token/name `PUT`
-update name of a token with id
-    Request
-        ```json
-        {
-            "name": "git1",
-            "id": 1
-        }
-        ```
--   Response
-        ```json
-        {
-            "message": "update token successfully"
-        }
+
+### /api/users/:username/connection/update/token/name `PUT`
+get the token of a connection .
+- Request
+    ```json
+    {
+       "name": "git1",
+        "id": 1
     ```
+- Response
+    ```json
+    {
+        "message":  "updated token successfully"
+    }
+    ```
+
 ### /api/users/:username/connection/check/token `POST`
-get a id and check if there is a token with this id for a user return correct token
+get a id and check if there is a connection with this id for a user return correct token
 - Request
     ```json
     {
