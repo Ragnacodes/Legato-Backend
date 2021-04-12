@@ -115,7 +115,7 @@ func updateScenario(c *gin.Context) {
 	username := c.Param("username")
 	scenarioId := c.Param("scenario_id")
 
-	updatedScenario := api.FullScenario{}
+	updatedScenario := api.FullScenarioGraph{}
 	_ = c.BindJSON(&updatedScenario)
 
 	// Auth

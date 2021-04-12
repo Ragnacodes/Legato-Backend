@@ -16,13 +16,13 @@ type Scenario struct {
 	Name          string
 	IsActive      *bool
 	RootServiceID *uint
-	RootService   *Service    `gorm:"RootServiceID:"`
+	RootService   *Service `gorm:"RootServiceID:"`
+	Services      []Service
 }
 
 func (s *Scenario) String() string {
 	return fmt.Sprintf("(@Scenario: %+v)", *s)
 }
-
 
 // To Start scenario
 func (s *Scenario) Start() error {
@@ -30,7 +30,6 @@ func (s *Scenario) Start() error {
 	s.RootService.LoadOwner().Execute()
 	return nil
 }
-
 
 func (ldb *LegatoDB) AddScenario(u *User, s *Scenario) error {
 	log.Println(s.String())
@@ -56,7 +55,9 @@ func (ldb *LegatoDB) GetUserScenarioById(u *User, scenarioId string) (Scenario, 
 	err := ldb.db.
 		Where(&Scenario{UserID: u.ID}).
 		Where("id = ?", scenarioId).
+		Preload("Services").
 		Preload("RootService").Find(&sc).Error
+	log.Printf("%+v", sc)
 	if err != nil {
 		return Scenario{}, err
 	}
@@ -74,9 +75,8 @@ func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {
 	return sc, nil
 }
 
-
 func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID string, updatedScenario Scenario) error {
-	sid, _ :=  strconv.Atoi(scenarioID)
+	sid, _ := strconv.Atoi(scenarioID)
 	updatedScenario.ID = uint(sid)
 	ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&updatedScenario)
 
