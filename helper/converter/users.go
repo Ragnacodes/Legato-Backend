@@ -1,7 +1,7 @@
 package converter
 
 import (
-	"legato_server/db"
+	legatoDb "legato_server/db"
 	"legato_server/models"
 	"strings"
 )
@@ -30,3 +30,22 @@ func UserInfoToUserDb(u models.UserInfo) legatoDb.User {
 
 	return ue
 }
+
+func NewTokenDb(ut models.UserAddToken) legatoDb.Connection {
+	con := legatoDb.Connection{}
+	con.Name = ut.Name
+	con.Token = ut.Token
+	con.Token_type = ut.Token_type
+	con.UserID = ut.UserID
+
+	return con
+}
+
+// func GetTokenDb(ut models.UserGetToken) legatoDb.Connection {
+// 	con := legatoDb.Connection{}
+// 	con.Name = ut.Name
+// 	con.Token_type = ut.Token_type
+// 	con.UserID = ut.UserID
+
+// 	return con
+// }
