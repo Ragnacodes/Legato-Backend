@@ -14,9 +14,9 @@ var ConnectionRG = routeGroup{
 	"Connection routers",
 	routes{
 		route{
-			"spotiy token",
-			GET,
-			"user/connection/access/url",
+			"token url",
+			POST,
+			"users/connection/access/url",
 			connection_auth_url,
 		},
 		route{
@@ -33,7 +33,7 @@ var ConnectionRG = routeGroup{
 		},
 		route{
 			"Get Tokens",
-			POST,
+			GET,
 			"users/:username/connection/gettokens",
 			GetTokens,
 		},
@@ -70,30 +70,26 @@ const git_authenticate_url = "https://github.com/login/oauth/authorize?access_ty
 const discord_authenticate_url = "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:8080/callback&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
 
 func connection_auth_url(c *gin.Context) {
-	username := c.Param("username")
-	loginUser := checkAuthforconnection(c, []string{username}, "addtoken")
-	if loginUser == nil {
-		return
-	}
 	usertoken := models.UserAddToken{}
+	_ = c.BindJSON(&usertoken)
 	if strings.EqualFold(usertoken.Token_type, "spotify") {
 		c.JSON(200, gin.H{
-			"spotify_url": spotify_authenticate_url,
+			"url": spotify_authenticate_url,
 		})
 	}
 	if strings.EqualFold(usertoken.Token_type, "google") {
 		c.JSON(200, gin.H{
-			"google_url": google_authenticate_url,
+			"url": google_authenticate_url,
 		})
 	}
 	if strings.EqualFold(usertoken.Token_type, "git") {
 		c.JSON(200, gin.H{
-			"git_url": git_authenticate_url,
+			"url": git_authenticate_url,
 		})
 	}
 	if strings.EqualFold(usertoken.Token_type, "discord") {
 		c.JSON(200, gin.H{
-			"discord_url": discord_authenticate_url,
+			"url": discord_authenticate_url,
 		})
 	}
 }
