@@ -48,6 +48,21 @@ func (s scenarioUseCase) GetUserScenarios(u *api.UserInfo) ([]api.BriefScenario,
 	return briefScenarios, nil
 }
 
+func (s scenarioUseCase) GetUserScenarioGraphById(u *api.UserInfo, scenarioId string) (api.FullScenarioGraph, error) {
+	user := converter.UserInfoToUserDb(*u)
+	scenario, err := s.db.GetUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return api.FullScenarioGraph{}, err
+	}
+
+	// Load the whole graph
+	scenario.RootService, _ = s.db.GetServicesGraph(scenario.RootService)
+
+	fullScenario := converter.ScenarioDbToFullScenarioGraph(scenario)
+
+	return fullScenario, nil
+}
+
 func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId string) (api.FullScenario, error) {
 	user := converter.UserInfoToUserDb(*u)
 	scenario, err := s.db.GetUserScenarioById(&user, scenarioId)
@@ -55,18 +70,15 @@ func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId string)
 		return api.FullScenario{}, err
 	}
 
-	// Load the whole graph
-	scenario.RootService, _ = s.db.GetServicesGraph(scenario.RootService)
-
 	fullScenario := converter.ScenarioDbToFullScenario(scenario)
 
 	return fullScenario, nil
 }
 
-func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId string, us api.FullScenario) error {
+func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId string, us api.FullScenarioGraph) error {
 	user := converter.UserInfoToUserDb(*u)
 
-	updatedScenario := converter.FullScenarioToScenarioDb(us, u.ID)
+	updatedScenario := converter.FullScenarioGraphToScenarioDb(us, u.ID)
 
 	err := s.db.UpdateUserScenarioById(&user, scenarioId, updatedScenario)
 	if err != nil {

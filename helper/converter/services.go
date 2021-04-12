@@ -11,6 +11,13 @@ func ServiceDbToService(service *legatoDb.Service) *api.Service {
 	}
 
 	var s api.Service
+	s.Id = service.ID
+	// ParentID
+	if service.ParentID != nil {
+		s.ParentId = service.ParentID
+	} else {
+		s.ParentId = nil
+	}
 	s.Name = service.Name
 	s.Type = service.OwnerType
 	s.Position = api.Position{X: service.Position.X, Y: service.Position.Y}

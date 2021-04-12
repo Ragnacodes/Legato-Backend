@@ -15,13 +15,14 @@ type Position struct {
 
 type Service struct {
 	gorm.Model
-	Name     string
-	OwnerID int
-	OwnerType	string
-	ParentID *uint
-	Children []Service `gorm:"foreignkey:ParentID"`
-	Position Position
-	UserID uint
+	Name       string
+	OwnerID    int
+	OwnerType  string
+	ParentID   *uint
+	Children   []Service `gorm:"foreignkey:ParentID"`
+	Position   Position
+	UserID     uint
+	ScenarioID uint
 }
 
 func (s *Service) String() string {
@@ -57,17 +58,16 @@ func (ldb *LegatoDB) GetServicesGraph(root *Service) (*Service, error) {
 	return root, nil
 }
 
-func (s *Service) LoadOwner() services.Service{
+func (s *Service) LoadOwner() services.Service {
 	var wh Webhook
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id = %d", s.OwnerType, s.OwnerID)
 	err := legatoDb.db.Raw(query).Scan(&wh).Error
-	if err!=nil{
+	if err != nil {
 		panic(err)
 	}
 
 	return wh
 }
-
 
 func (ldb *LegatoDB) AppendChildren(parent *Service, children []Service) {
 	parent.Children = append(parent.Children, children...)
