@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"legato_server/authenticate"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
@@ -113,6 +114,81 @@ func (u *userUseCase) CreateDefaultUser() error {
 		return err
 	}
 	log.Printf("Default user created: %v\n", defaultUser)
+
+	return nil
+}
+
+func (u *userUseCase) AddTokenDB(name string, ut models.UserAddToken) error {
+	user, _ := u.db.GetUserByUsername(name)
+	con := converter.NewTokenDb(ut)
+	err := u.db.AddToken(&user, con)
+	if err != nil {
+		return fmt.Errorf("can not add token")
+	}
+
+	return nil
+}
+
+func (u *userUseCase) GetTokenByUsername(username string, ut models.UserGetToken) (legatoDb.Connection, error) {
+	user, _ := u.db.GetUserByUsername(username)
+	connection, err := u.db.GetUserToken(&user, ut)
+	if err != nil {
+		return legatoDb.Connection{}, fmt.Errorf("can not find token")
+	}
+
+	return connection, nil
+}
+
+func (u *userUseCase) GetTokensByUsername(username string, ut models.UserGetToken) ([]legatoDb.Connection, error) {
+	user, _ := u.db.GetUserByUsername(username)
+	connections, err := u.db.GetUserTokens(&user, ut)
+	if err != nil {
+		return []legatoDb.Connection{}, fmt.Errorf("can not find token")
+	}
+
+	return connections, nil
+}
+
+func (u *userUseCase) UpdateUserTokenById(username string, ut models.UserGetToken) error {
+	user, _ := u.db.GetUserByUsername(username)
+
+	err := u.db.UpdateUserTokenById(&user, ut.Name, ut, ut.Token_id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *userUseCase) CheckTokenByID(username string, ut models.UserGetToken) error {
+	user, _ := u.db.GetUserByUsername(username)
+	err := u.db.CheckTokenByID(&user, ut.Token_id)
+	if err != nil {
+		return nil
+	}
+	return err
+}
+
+func (u *userUseCase) DeleteUserTokenById(username string, ut models.UserGetToken) error {
+	user, _ := u.db.GetUserByUsername(username)
+
+	err := u.db.DeleteConnectionByID(&user, ut, ut.Token_id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func (u *userUseCase) UpdateUserTokenByName(username string, ut models.UserGetToken) error {
+	user, _ := u.db.GetUserByUsername(username)
+
+	err := u.db.UpdateUserTokenByName(&user, ut.Name, ut, ut.Token_id)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
