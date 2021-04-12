@@ -1,6 +1,7 @@
 package domain
 
 import (
+	legatoDb "legato_server/db"
 	"legato_server/models"
 )
 
@@ -12,4 +13,11 @@ type UserUseCase interface {
 	GetUserByUsername(email string) (models.UserInfo, error)
 	GetAllUsers() ([]*models.UserInfo, error)
 	CreateDefaultUser() error
+	AddTokenDB(name string, ut models.UserAddToken) error
+	GetTokenByUsername(username string, ut models.UserGetToken) (legatoDb.Connection, error)
+	GetTokensByUsername(username string, ut models.UserGetToken) ([]legatoDb.Connection, error)
+	UpdateUserTokenById(username string, ut models.UserGetToken) error
+	CheckTokenByID(username string, ut models.UserGetToken) error
+	DeleteUserTokenById(username string, ut models.UserGetToken) error
+	UpdateUserTokenByName(username string, ut models.UserGetToken) error
 }
