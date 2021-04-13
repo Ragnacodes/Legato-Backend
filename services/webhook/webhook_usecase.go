@@ -22,7 +22,7 @@ func NewWebhookUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Webh
 	}
 }
 
-func (w *WebhookUseCase) Create(u *api.UserInfo, scenarioId uint, nw api.NewServiceNode) (api.ServiceNode, error) {
+func (w *WebhookUseCase) AddWebhookToScenario(u *api.UserInfo, scenarioId uint, nw api.NewServiceNode) (api.ServiceNode, error) {
 	user, err := w.db.GetUserByUsername(u.Username)
 	if err != nil {
 		return api.ServiceNode{}, err
@@ -36,12 +36,28 @@ func (w *WebhookUseCase) Create(u *api.UserInfo, scenarioId uint, nw api.NewServ
 	webhook := converter.DataToWebhook(nw.Data)
 	webhook.Service = converter.NewServiceNodeToServiceDb(nw)
 
-	wh, err := w.db.CreateWebhook(&scenario, webhook)
+	wh, err := w.db.CreateWebhookForScenario(&scenario, webhook)
 	if err != nil {
 		return api.ServiceNode{}, err
 	}
 
 	return converter.WebhookDbToServiceNode(*wh), nil
+}
+
+func (w *WebhookUseCase) CreateSeparateWebhook(u *api.UserInfo, nw api.NewSeparateWebhook) (api.WebhookInfo, error) {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return api.WebhookInfo{}, err
+	}
+
+	webhook := converter.NewSeparateWebhookToWebhook(nw)
+
+	wh, err := w.db.CreateSeparateWebhook(&user, webhook)
+	if err != nil {
+		return api.WebhookInfo{}, err
+	}
+
+	return converter.WebhookDbToWebhookInfo(*wh), nil
 }
 
 func (w *WebhookUseCase) Exists(ids string) (*legatoDb.Webhook, error) {
@@ -78,17 +94,22 @@ func (w *WebhookUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint
 	return nil
 }
 
-func (w *WebhookUseCase) List(u *api.UserInfo) ([]api.WebhookInfo, error) {
-	user := converter.UserInfoToUserDb(*u)
+func (w *WebhookUseCase) GetUserWebhooks(u *api.UserInfo) ([]api.WebhookInfo, error) {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return nil, err
+	}
+
 	webhooks, err := w.db.GetUserWebhooks(&user)
 	if err != nil {
 		return nil, err
 	}
 
-	var WebhookInfos []api.WebhookInfo
+	var whInfos []api.WebhookInfo
+	whInfos = []api.WebhookInfo{}
 	for _, w := range webhooks {
-		WebhookInfos = append(WebhookInfos, converter.WebhookDbToWebhookInfo(w))
+		whInfos = append(whInfos, converter.WebhookDbToWebhookInfo(w))
 	}
 
-	return WebhookInfos, nil
+	return whInfos, nil
 }

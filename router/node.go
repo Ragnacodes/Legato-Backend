@@ -81,11 +81,12 @@ func addNode(c *gin.Context) {
 	}
 
 	// Service Switch
+	// NOTE: handle other non-service state
 	var err error
 	var addedServ api.ServiceNode
 	switch newNode.Type {
 	case "webhooks":
-		addedServ, err = resolvers.WebhookUseCase.Create(loginUser, uint(scenarioId), newNode)
+		addedServ, err = resolvers.WebhookUseCase.AddWebhookToScenario(loginUser, uint(scenarioId), newNode)
 		break
 	case "http":
 		break
@@ -151,6 +152,7 @@ func updateNode(c *gin.Context) {
 	}
 
 	// Service Switch
+	// NOTE: handle other non-service state
 	switch serv.Type {
 	case "webhooks":
 		err = resolvers.WebhookUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)

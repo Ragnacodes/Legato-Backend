@@ -6,8 +6,9 @@ import (
 )
 
 type WebhookUseCase interface {
-	Create(userInfo *api.UserInfo, scenarioId uint, newWebhook api.NewServiceNode) (api.ServiceNode, error)
+	AddWebhookToScenario(userInfo *api.UserInfo, scenarioId uint, newWebhook api.NewServiceNode) (api.ServiceNode, error)
+	CreateSeparateWebhook(userInfo *api.UserInfo, newWebhook api.NewSeparateWebhook) (api.WebhookInfo, error)
 	Exists(ids string) (*legatoDb.Webhook, error)
 	Update(u *api.UserInfo, scenarioId uint, nodeId uint, nw api.NewServiceNode) error
-	List(userInfo *api.UserInfo) ([]api.WebhookInfo, error)
+	GetUserWebhooks(userInfo *api.UserInfo) ([]api.WebhookInfo, error)
 }

@@ -17,7 +17,7 @@ type Service struct {
 	PosX         int
 	PosY         int
 	UserID     uint
-	ScenarioID uint
+	ScenarioID *uint
 }
 
 func (s *Service) String() string {
@@ -27,7 +27,7 @@ func (s *Service) String() string {
 func (ldb *LegatoDB) GetServiceById(scenario *Scenario, serviceId uint) (*Service, error) {
 	var srv *Service
 	err := ldb.db.
-		Where(&Service{ScenarioID: scenario.ID}).
+		Where(&Service{ScenarioID: &scenario.ID}).
 		Where("id = ?", serviceId).
 		Find(&srv).Error
 	if err != nil {
@@ -39,7 +39,7 @@ func (ldb *LegatoDB) GetServiceById(scenario *Scenario, serviceId uint) (*Servic
 
 func (ldb *LegatoDB) DeleteServiceById(scenario *Scenario, serviceId uint) error {
 	var srv *Service
-	ldb.db.Where(&Service{ScenarioID: scenario.ID}).Where("id = ?", serviceId).Find(&srv)
+	ldb.db.Where(&Service{ScenarioID: &scenario.ID}).Where("id = ?", serviceId).Find(&srv)
 	if srv.ID != serviceId {
 		return errors.New("the service is not in this scenario")
 	}

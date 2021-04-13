@@ -39,3 +39,10 @@ func WebhookDbToServiceNode(wh legatoDb.Webhook) api.ServiceNode {
 
 	return sn
 }
+
+func NewSeparateWebhookToWebhook(s api.NewSeparateWebhook) legatoDb.Webhook {
+	var wh legatoDb.Webhook
+	wh.Service.Name = s.Name
+
+	return wh
+}
