@@ -7,5 +7,4 @@ type WebhookInfo struct {
 }
 
 type NewWebhook struct {
-	Name  string `json:"name"`
 }

@@ -10,11 +10,13 @@ import (
 	scenarioUC "legato_server/scenario/usecase"
 	webhookUC "legato_server/services/webhook"
 	userUC "legato_server/user/usecase"
+	serviceUC "legato_server/services/usecase"
 	"time"
 )
 
 var userUseCase domain.UserUseCase
 var scenarioUseCase domain.ScenarioUseCase
+var serviceUseCase domain.ServiceUseCase
 var webhookUseCase domain.WebhookUseCase
 
 func init() {
@@ -35,6 +37,7 @@ func init() {
 	// Use Cases
 	userUseCase = userUC.NewUserUseCase(appDB, timeoutContext)
 	scenarioUseCase = scenarioUC.NewScenarioUseCase(appDB, timeoutContext)
+	serviceUseCase = serviceUC.NewServiceUseCase(appDB, timeoutContext)
 	webhookUseCase = webhookUC.NewWebhookUseCase(appDB, timeoutContext)
 
 	// Defaults
@@ -50,6 +53,7 @@ func main() {
 	resolvers := router.Resolver{
 		UserUseCase:     userUseCase,
 		ScenarioUseCase: scenarioUseCase,
+		ServiceUseCase: serviceUseCase,
 		WebhookUseCase:  webhookUseCase,
 	}
 

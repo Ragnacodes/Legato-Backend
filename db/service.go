@@ -6,13 +6,6 @@ import (
 	"legato_server/services"
 )
 
-type Position struct {
-	gorm.Model
-	ServiceID *uint
-	X         int
-	Y         int
-}
-
 type Service struct {
 	gorm.Model
 	Name       string
@@ -20,13 +13,27 @@ type Service struct {
 	OwnerType  string
 	ParentID   *uint
 	Children   []Service `gorm:"foreignkey:ParentID"`
-	Position   Position
+	PosX         int
+	PosY         int
 	UserID     uint
 	ScenarioID uint
 }
 
 func (s *Service) String() string {
 	return fmt.Sprintf("(@Service: %+v)", *s)
+}
+
+func (ldb *LegatoDB) GetServiceById(scenario *Scenario, serviceId uint) (*Service, error) {
+	var srv *Service
+	err := ldb.db.
+		Where(&Service{ScenarioID: scenario.ID}).
+		Where("id = ?", serviceId).
+		Find(&srv).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return srv, nil
 }
 
 func (ldb *LegatoDB) GetServicesGraph(root *Service) (*Service, error) {
