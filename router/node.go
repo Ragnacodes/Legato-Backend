@@ -23,12 +23,12 @@ var nodeRG = routeGroup{
 		//	pattern:     "/users/:username/scenarios/:scenario_id/nodes/:node_id",
 		//	handlerFunc: updateNode,
 		//},
-		//route{
-		//	name:        "Delete a node in the scenario",
-		//	method:      DELETE,
-		//	pattern:     "/users/:username/scenarios/:scenario_id/nodes/:node_id",
-		//	handlerFunc: deleteNode,
-		//},
+		route{
+			name:        "Delete a node in the scenario",
+			method:      DELETE,
+			pattern:     "/users/:username/scenarios/:scenario_id/nodes/:node_id",
+			handlerFunc: deleteNode,
+		},
 		route{
 			name:        "Get details about a node in the scenario",
 			method:      GET,
@@ -117,7 +117,7 @@ func getNode(c *gin.Context) {
 	node, err := resolvers.ServiceUseCase.GetServiceNodeById(loginUser, uint(scenarioId), uint(nodeId))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("can not fetch specefic node: %s", err),
+			"message": fmt.Sprintf("can not fetch this node: %s", err),
 		})
 		return
 	}
@@ -142,16 +142,27 @@ func getNode(c *gin.Context) {
 //	}
 //
 //}
-//
-//func deleteNode(c *gin.Context) {
-//	username := c.Param("username")
-//	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
-//	nodeId, _ := strconv.Atoi(c.Param("node_id"))
-//
-//	// Auth
-//	loginUser := checkAuth(c, []string{username})
-//	if loginUser == nil {
-//		return
-//	}
-//
-//}
+
+func deleteNode(c *gin.Context) {
+	username := c.Param("username")
+	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
+	nodeId, _ := strconv.Atoi(c.Param("node_id"))
+
+	// Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	err := resolvers.ServiceUseCase.DeleteServiceNodeById(loginUser, uint(scenarioId), uint(nodeId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not delete this node: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "node is deleted successfully",
+	})
+}
