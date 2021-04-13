@@ -94,6 +94,22 @@ func (w *WebhookUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint
 	return nil
 }
 
+func (w *WebhookUseCase) UpdateSeparateWebhook(u *api.UserInfo, wid uint, nw api.NewSeparateWebhook) error {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return err
+	}
+
+	nwh := converter.NewSeparateWebhookToWebhook(nw)
+
+	err = w.db.UpdateSeparateWebhook(&user, wid, nwh)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (w *WebhookUseCase) GetUserWebhooks(u *api.UserInfo) ([]api.WebhookInfo, error) {
 	user, err := w.db.GetUserByUsername(u.Username)
 	if err != nil {
@@ -112,4 +128,18 @@ func (w *WebhookUseCase) GetUserWebhooks(u *api.UserInfo) ([]api.WebhookInfo, er
 	}
 
 	return whInfos, nil
+}
+
+func (w *WebhookUseCase) GetUserWebhookById(u *api.UserInfo, wid uint) (api.WebhookInfo, error) {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return api.WebhookInfo{}, err
+	}
+
+	wh, err := w.db.GetUserWebhookById(&user, wid)
+	if err != nil {
+		return api.WebhookInfo{}, err
+	}
+
+	return converter.WebhookDbToWebhookInfo(wh), nil
 }
