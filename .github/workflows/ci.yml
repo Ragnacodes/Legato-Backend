@@ -27,14 +27,14 @@ jobs:
     - name: Sleep
       uses: jakejarvis/wait-action@master
       with:
-       time: '20s'
+       time: '10s'
 
     - name: Check running containers
       run: docker ps
     
     # Run testing on the code
     - name: Run testing
-      run: docker exec -it legato_server go test ./test
+      run: docker exec legato_server go test ./test
     
     # # Send slack notification
     # - name: Send slack notification
