@@ -10,6 +10,7 @@ type ScenarioUseCase interface {
 	GetUserScenarioGraphById(userInfo *api.UserInfo, scenarioId uint) (api.FullScenarioGraph, error)
 	GetUserScenarioById(userInfo *api.UserInfo, scenarioId uint) (api.FullScenario, error)
 	UpdateUserScenarioById(userInfo *api.UserInfo, scenarioId uint, updated api.NewScenario) error
+	DeleteUserScenarioById(u *api.UserInfo, scenarioId uint) error
 	CreateDefaultScenario() error
 	TestScenario()
 }
