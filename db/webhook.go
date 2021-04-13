@@ -70,8 +70,6 @@ func (ldb *LegatoDB) UpdateWebhook(s *Scenario, servId uint, nwh Webhook) error 
 		return errors.New("the webhook service is not in this scenario")
 	}
 
-	log.Printf("\n\n%+v", nwh.Service)
-	log.Printf("%+v", nwh)
 	ldb.db.Model(&serv).Updates(nwh.Service)
 	ldb.db.Model(&wh).Updates(nwh)
 
