@@ -10,6 +10,7 @@ func NewScenarioToScenarioDb(ns api.NewScenario) legatoDb.Scenario {
 	s := legatoDb.Scenario{}
 	s.Name = ns.Name
 	s.IsActive = ns.IsActive
+	s.Services = []legatoDb.Service{}
 
 	return s
 }
@@ -19,12 +20,7 @@ func ScenarioDbToBriefScenario(s legatoDb.Scenario) api.BriefScenario {
 	bs.ID = s.ID
 	bs.Name = s.Name
 	bs.IsActive = s.IsActive
-
-	//if s.RootService != nil {
-	//	bs.DigestNodes = []string{}
-	//} else {
-	//	bs.DigestNodes = []string{}
-	//}
+	bs.DigestNodes = []string{}
 
 	return bs
 }

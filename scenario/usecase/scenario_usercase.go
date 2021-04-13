@@ -48,6 +48,7 @@ func (s scenarioUseCase) GetUserScenarios(u *api.UserInfo) ([]api.BriefScenario,
 	return briefScenarios, nil
 }
 
+// Deprecated
 func (s scenarioUseCase) GetUserScenarioGraphById(u *api.UserInfo, scenarioId uint) (api.FullScenarioGraph, error) {
 	user := converter.UserInfoToUserDb(*u)
 	scenario, err := s.db.GetUserScenarioById(&user, scenarioId)
@@ -75,10 +76,10 @@ func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId uint) (
 	return fullScenario, nil
 }
 
-func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId uint, fsg api.FullScenarioGraph) error {
+func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId uint, ns api.NewScenario) error {
 	user := converter.UserInfoToUserDb(*u)
 
-	updatedScenario := converter.FullScenarioGraphToScenarioDb(fsg, u.ID)
+	updatedScenario := converter.NewScenarioToScenarioDb(ns)
 
 	err := s.db.UpdateUserScenarioById(&user, scenarioId, updatedScenario)
 	if err != nil {
