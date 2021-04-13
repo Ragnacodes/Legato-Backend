@@ -32,14 +32,14 @@ func (w *Webhook) GetURL() string {
 	return fmt.Sprintf("%s:%s/api/services/webhook/%v", env.ENV.WebHost, env.ENV.ServingPort, w.Token)
 }
 
-func (ldb *LegatoDB) CreateWebhook(u *User, scenarioId uint, wh Webhook) (*Webhook, error ){
-	wh.Service.UserID = u.ID
-	wh.Service.ScenarioID = scenarioId
+func (ldb *LegatoDB) CreateWebhook(s *Scenario, wh Webhook) (*Webhook, error) {
+	wh.Service.UserID = s.UserID
+	wh.Service.ScenarioID = s.ID
 
 	ldb.db.Create(&wh)
 	ldb.db.Save(&wh)
 
-	return &wh ,nil
+	return &wh, nil
 }
 
 func (ldb *LegatoDB) CreateWebhookInScenario(u *User, s *Scenario, parent *Service, name string) *Webhook {
@@ -54,23 +54,27 @@ func (ldb *LegatoDB) CreateWebhookInScenario(u *User, s *Scenario, parent *Servi
 	return &wh
 }
 
-func (ldb *LegatoDB) UpdateWebhook(uuid uuid.UUID, vals map[string]interface{}) error {
-	var err error
-	wh, _ := ldb.GetWebhookByUUID(uuid)
-	for key, value := range vals {
-		if key == "enable" {
-			key = "IsEnable"
-		}
-		if key == "name" {
-			wh.Service.Name = value.(string)
-			ldb.db.Save(&wh.Service)
-		} else {
-			err = ldb.db.Model(&wh).Update(key, value).Error
-		}
-	}
+func (ldb *LegatoDB) UpdateWebhook(s *Scenario, servId uint, nwh Webhook) error {
+	var serv Service
+	err := ldb.db.Where(&Service{ScenarioID: s.ID}).Where("id = ?", servId).Find(&serv).Error
 	if err != nil {
 		return err
 	}
+
+	var wh Webhook
+	err = ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&wh).Error
+	if err != nil {
+		return err
+	}
+	if wh.Service.ID != servId {
+		return errors.New("the webhook service is not in this scenario")
+	}
+
+	log.Printf("\n\n%+v", nwh.Service)
+	log.Printf("%+v", nwh)
+	ldb.db.Model(&serv).Updates(nwh.Service)
+	ldb.db.Model(&wh).Updates(nwh)
+
 	return nil
 }
 

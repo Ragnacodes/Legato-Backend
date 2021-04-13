@@ -17,12 +17,12 @@ var nodeRG = routeGroup{
 			pattern:     "/users/:username/scenarios/:scenario_id/nodes",
 			handlerFunc: addNode,
 		},
-		//route{
-		//	name:        "Update a node in the scenario",
-		//	method:      PUT,
-		//	pattern:     "/users/:username/scenarios/:scenario_id/nodes/:node_id",
-		//	handlerFunc: updateNode,
-		//},
+		route{
+			name:        "Update a node in the scenario",
+			method:      PUT,
+			pattern:     "/users/:username/scenarios/:scenario_id/nodes/:node_id",
+			handlerFunc: updateNode,
+		},
 		route{
 			name:        "Delete a node in the scenario",
 			method:      DELETE,
@@ -127,21 +127,57 @@ func getNode(c *gin.Context) {
 	})
 }
 
-//func updateNode(c *gin.Context) {
-//	username := c.Param("username")
-//	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
-//	nodeId, _ := strconv.Atoi(c.Param("node_id"))
-//
-//	updatedNode := api.ServiceNode{}
-//	_ = c.BindJSON(&updatedNode)
-//
-//	// Auth
-//	loginUser := checkAuth(c, []string{username})
-//	if loginUser == nil {
-//		return
-//	}
-//
-//}
+func updateNode(c *gin.Context) {
+	username := c.Param("username")
+	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
+	nodeId, _ := strconv.Atoi(c.Param("node_id"))
+
+	newNode := api.NewServiceNode{}
+	_ = c.BindJSON(&newNode)
+
+	// Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	// Get the existing service and get the type
+	serv, err := resolvers.ServiceUseCase.GetServiceNodeById(loginUser, uint(scenarioId), uint(nodeId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch this scenario before updating: %s", err),
+		})
+		return
+	}
+
+	// Service Switch
+	switch serv.Type {
+	case "webhooks":
+		err = resolvers.WebhookUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	case "http":
+		break
+	}
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("can not create this node: %s", err),
+		})
+		return
+	}
+
+	updatedServ, err := resolvers.ServiceUseCase.GetServiceNodeById(loginUser, uint(scenarioId), uint(nodeId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch this scenario after updating: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "node is updated successfully.",
+		"node":    updatedServ,
+	})
+}
 
 func deleteNode(c *gin.Context) {
 	username := c.Param("username")
@@ -163,6 +199,6 @@ func deleteNode(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "node is deleted successfully",
+		"message": "node is deleted successfully",
 	})
 }
