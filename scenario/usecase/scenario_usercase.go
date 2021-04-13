@@ -137,7 +137,7 @@ func (s *scenarioUseCase) CreateDefaultScenario() error {
 	// Default scenario
 	isActive := false
 	newScenario := &api.NewScenario{
-		Name: "my_very_first_scenario",
+		Name:     "my webhook scenario",
 		IsActive: &isActive,
 	}
 
@@ -153,12 +153,12 @@ func (s *scenarioUseCase) CreateDefaultScenario() error {
 
 	// Create some services
 	// Root service
-	webhookRoot := s.db.CreateWebhookInScenario(&u, &scenario, nil, "My starter webhook")
+	webhookRoot := s.db.CreateWebhookInScenario(&u, &scenario, nil, "My starter webhook", 288, -55)
 	// Second level children
-	firstHttp := s.db.CreateWebhookInScenario(&u, &scenario, &webhookRoot.Service, "My first http")
-	_ = s.db.CreateWebhookInScenario(&u, &scenario, &webhookRoot.Service, "another http")
+	firstHttp := s.db.CreateWebhookInScenario(&u, &scenario, &webhookRoot.Service, "My first http", 673, 16)
+	_ = s.db.CreateWebhookInScenario(&u, &scenario, &webhookRoot.Service, "another http", 939, 166)
 	// Third level children
-	_ = s.db.CreateWebhookInScenario(&u, &scenario, &firstHttp.Service, "My second http")
+	_ = s.db.CreateWebhookInScenario(&u, &scenario, &firstHttp.Service, "My second http", 328, 174)
 
 	return nil
 }

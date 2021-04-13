@@ -42,12 +42,12 @@ func (ldb *LegatoDB) CreateWebhook(s *Scenario, wh Webhook) (*Webhook, error) {
 	return &wh, nil
 }
 
-func (ldb *LegatoDB) CreateWebhookInScenario(u *User, s *Scenario, parent *Service, name string) *Webhook {
+func (ldb *LegatoDB) CreateWebhookInScenario(u *User, s *Scenario, parent *Service, name string, x int, y int) *Webhook {
 	var wh Webhook
 	if parent != nil {
-		wh = Webhook{Service: Service{Name: name, UserID: u.ID, ScenarioID: s.ID, ParentID: &parent.ID}}
+		wh = Webhook{Service: Service{Name: name, UserID: u.ID, ScenarioID: s.ID, ParentID: &parent.ID, PosX: x, PosY: y}}
 	} else {
-		wh = Webhook{Service: Service{Name: name, UserID: u.ID, ScenarioID: s.ID}}
+		wh = Webhook{Service: Service{Name: name, UserID: u.ID, ScenarioID: s.ID, PosX: x, PosY:y }}
 	}
 	ldb.db.Create(&wh)
 	ldb.db.Save(&wh)
