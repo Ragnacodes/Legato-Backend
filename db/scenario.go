@@ -11,12 +11,12 @@ import (
 // Root is the first Service of the schema that start the scenario.
 type Scenario struct {
 	gorm.Model
-	UserID        uint
-	Name          string
-	IsActive      *bool
+	UserID   uint
+	Name     string
+	IsActive *bool
 	//RootServiceID *uint
 	//RootService   *Service `gorm:"RootServiceID:"`
-	Services      []Service
+	Services []Service
 }
 
 func (s *Scenario) String() string {
@@ -75,6 +75,19 @@ func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID uint, updatedSce
 
 	ldb.db.Model(&scenario).Updates(updatedScenario)
 
+	return nil
+}
+
+func (ldb *LegatoDB) DeleteUserScenarioById(u *User, scenarioID uint) error {
+	var scenario Scenario
+	ldb.db.Where(&Scenario{UserID: u.ID}).Where("id = ?", scenarioID).Find(&scenario)
+	if scenario.ID != scenarioID {
+		return errors.New("the scenario is not in user scenarios")
+	}
+
+	// Note: webhook and http records should be deleted here, too
+	ldb.db.Where("scenario_id = ?", scenario.ID).Delete(&Service{})
+	ldb.db.Delete(&scenario)
 	return nil
 }
 

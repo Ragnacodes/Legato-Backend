@@ -35,6 +35,12 @@ var scenarioRG = routeGroup{
 			pattern:     "/users/:username/scenarios/:scenario_id",
 			handlerFunc: getFullScenario,
 		},
+		route{
+			name:        "Delete a single scenario with its services",
+			method:      DELETE,
+			pattern:     "/users/:username/scenarios/:scenario_id",
+			handlerFunc: deleteScenario,
+		},
 	},
 }
 
@@ -60,7 +66,7 @@ func addScenario(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "scenario created successfully.",
+		"message":  "scenario is created successfully.",
 		"scenario": createdScenario,
 	})
 }
@@ -143,7 +149,31 @@ func updateScenario(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "update scenario successfully",
+		"message":  "scenario is updated successfully",
 		"scenario": scenario,
+	})
+}
+
+func deleteScenario(c *gin.Context)  {
+	username := c.Param("username")
+	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
+
+	// Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	// Delete that scenario
+	err := resolvers.ScenarioUseCase.DeleteUserScenarioById(loginUser, uint(scenarioId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not delete this scenario: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "scenario is deleted successfully",
 	})
 }
