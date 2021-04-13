@@ -25,7 +25,7 @@ var scenarioRG = routeGroup{
 		},
 		route{
 			name:        "update a single scenarios",
-			method:      POST,
+			method:      PUT,
 			pattern:     "/users/:username/scenarios/:scenario_id",
 			handlerFunc: updateScenario,
 		},
@@ -116,7 +116,7 @@ func updateScenario(c *gin.Context) {
 	username := c.Param("username")
 	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
-	updatedScenario := api.FullScenarioGraph{}
+	updatedScenario := api.NewScenario{}
 	_ = c.BindJSON(&updatedScenario)
 
 	// Auth

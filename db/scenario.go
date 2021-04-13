@@ -1,6 +1,7 @@
 package legatoDb
 
 import (
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -66,8 +67,13 @@ func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {
 }
 
 func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID uint, updatedScenario Scenario) error {
-	updatedScenario.ID = scenarioID
-	ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&updatedScenario)
+	var scenario Scenario
+	ldb.db.Where(&Scenario{UserID: u.ID}).Where("id = ?", scenarioID).Find(&scenario)
+	if scenario.ID != scenarioID {
+		return errors.New("the scenario is not in user scenarios")
+	}
+
+	ldb.db.Model(&scenario).Updates(updatedScenario)
 
 	return nil
 }
