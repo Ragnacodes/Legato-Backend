@@ -28,10 +28,15 @@ func (w *WebhookUseCase) Create(u *api.UserInfo, scenarioId uint, nw api.NewServ
 		return api.ServiceNode{}, err
 	}
 
+	scenario, err := w.db.GetUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return api.ServiceNode{}, err
+	}
+
 	webhook := converter.DataToWebhook(nw.Data)
 	webhook.Service = converter.NewServiceNodeToServiceDb(nw)
 
-	wh, err := w.db.CreateWebhook(&user, scenarioId, webhook)
+	wh, err := w.db.CreateWebhook(&scenario, webhook)
 	if err != nil {
 		return api.ServiceNode{}, err
 	}
@@ -39,31 +44,41 @@ func (w *WebhookUseCase) Create(u *api.UserInfo, scenarioId uint, nw api.NewServ
 	return converter.WebhookDbToServiceNode(*wh), nil
 }
 
-func (w *WebhookUseCase) Exists(ids string) (*legatoDb.Webhook, error){
+func (w *WebhookUseCase) Exists(ids string) (*legatoDb.Webhook, error) {
 	id, err := uuid.FromString(ids)
-	if err!=nil{
+	if err != nil {
 		return &legatoDb.Webhook{}, err
 	}
 	wh, err := w.db.GetWebhookByUUID(id)
-	if err!=nil{
+	if err != nil {
 		return &legatoDb.Webhook{}, err
 	}
 	return wh, nil
 }
 
-func (w *WebhookUseCase) Update(ids string, vals map[string]interface{}) error{
-	id, err := uuid.FromString(ids)
-	if err!=nil{
-		return  err
+func (w *WebhookUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint, nw api.NewServiceNode) error {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return err
 	}
-	err = w.db.UpdateWebhook(id, vals)
-	if err!=nil{
-		return  err
+
+	scenario, err := w.db.GetUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return err
 	}
+
+	webhook := converter.DataToWebhook(nw.Data)
+	webhook.Service = converter.NewServiceNodeToServiceDb(nw)
+
+	err = w.db.UpdateWebhook(&scenario, serviceId, webhook)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (w *WebhookUseCase) List(u *api.UserInfo) ([]api.WebhookInfo, error){
+func (w *WebhookUseCase) List(u *api.UserInfo) ([]api.WebhookInfo, error) {
 	user := converter.UserInfoToUserDb(*u)
 	webhooks, err := w.db.GetUserWebhooks(&user)
 	if err != nil {

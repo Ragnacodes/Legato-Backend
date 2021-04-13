@@ -24,7 +24,9 @@ func WebhookToWebhookDb(s api.WebhookInfo) legatoDb.Webhook {
 
 func DataToWebhook(data interface{}) legatoDb.Webhook {
 	var w legatoDb.Webhook
-	_ = data.(map[string]interface{})
+	if data != nil {
+		_ = data.(map[string]interface{})
+	}
 
 	return w
 }
