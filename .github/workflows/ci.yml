@@ -18,11 +18,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v0.1
+    - uses: actions/checkout@v2
     
     # Setup 
     - name: Build the docker-compose stack
-      run: docker-compose -f dev-compose-dev.yml up -d
+      run: docker-compose -f docker-compose-dev.yml up -d
 
     - name: Sleep
       uses: jakejarvis/wait-action@master
