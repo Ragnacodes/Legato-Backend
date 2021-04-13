@@ -42,13 +42,22 @@ To create new scenarios.
 - Response
     ```json
     {
-        "message": "scenario created successfully.",
+        "message": "scenario is created successfully.",
         "scenario": {
           "id": 22,
           "name": "test title for scenario",
           "is_active": true,
           "nodes": []
         }
+    }
+    ```
+
+### /api/users/:username/scenarios/:scenario_id `DELETE`
+To delete specific scenarios.
+- Response
+    ```json
+    {
+        "message": "scenario is deleted successfully."
     }
     ```
 
@@ -135,7 +144,7 @@ To update user scenario.
 - Response
     ```json
     {
-        "message": "update scenario successfully",
+        "message": "scenario i updated successfully",
         "scenario": {
             "id": 16,
             "name": "my test scenario",
@@ -209,7 +218,7 @@ Just pass the changes. For example if you just want to update scenario name the 
 - Response
     ```json
     {
-        "message": "update scenario successfully",
+        "message": "scenario is updated successfully",
         "scenario": {
             "id": 16,
             "name": "another name for scenario",
