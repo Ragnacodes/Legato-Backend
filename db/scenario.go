@@ -3,8 +3,6 @@ package legatoDb
 import (
 	"fmt"
 	"gorm.io/gorm"
-	"log"
-	"strconv"
 )
 
 // Each Scenario describes a schema that includes Handler and Events.
@@ -15,8 +13,8 @@ type Scenario struct {
 	UserID        uint
 	Name          string
 	IsActive      *bool
-	RootServiceID *uint
-	RootService   *Service `gorm:"RootServiceID:"`
+	//RootServiceID *uint
+	//RootService   *Service `gorm:"RootServiceID:"`
 	Services      []Service
 }
 
@@ -24,15 +22,7 @@ func (s *Scenario) String() string {
 	return fmt.Sprintf("(@Scenario: %+v)", *s)
 }
 
-// To Start scenario
-func (s *Scenario) Start() error {
-	log.Printf("Scenario root %s is Executing:", s.RootService.Name)
-	s.RootService.LoadOwner().Execute()
-	return nil
-}
-
 func (ldb *LegatoDB) AddScenario(u *User, s *Scenario) error {
-	log.Println(s.String())
 	s.UserID = u.ID
 
 	ldb.db.Create(&s)
@@ -50,14 +40,14 @@ func (ldb *LegatoDB) GetUserScenarios(u *User) ([]Scenario, error) {
 	return scenarios, nil
 }
 
-func (ldb *LegatoDB) GetUserScenarioById(u *User, scenarioId string) (Scenario, error) {
+func (ldb *LegatoDB) GetUserScenarioById(u *User, scenarioId uint) (Scenario, error) {
 	var sc Scenario
 	err := ldb.db.
 		Where(&Scenario{UserID: u.ID}).
 		Where("id = ?", scenarioId).
 		Preload("Services").
-		Preload("RootService").Find(&sc).Error
-	log.Printf("%+v", sc)
+		//Preload("RootService").
+		Find(&sc).Error
 	if err != nil {
 		return Scenario{}, err
 	}
@@ -75,10 +65,18 @@ func (ldb *LegatoDB) GetScenarioByName(u *User, name string) (Scenario, error) {
 	return sc, nil
 }
 
-func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID string, updatedScenario Scenario) error {
-	sid, _ := strconv.Atoi(scenarioID)
-	updatedScenario.ID = uint(sid)
+func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID uint, updatedScenario Scenario) error {
+	updatedScenario.ID = scenarioID
 	ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&updatedScenario)
 
+	return nil
+}
+
+// Methods
+
+// To Start scenario
+func (s *Scenario) Start() error {
+	//log.Printf("Scenario root %s is Executing:", s.RootService.Name)
+	//s.RootService.LoadOwner().Execute()
 	return nil
 }

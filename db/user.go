@@ -35,14 +35,14 @@ func (ldb *LegatoDB) AddUser(u User) error {
 
 	// Check unique username
 	user = &User{}
-	ldb.db.Where(&User{Username: u.Username}).First(&user)
+	ldb.db.Where(&User{Username: u.Username}).Find(&user)
 	if user.Username == u.Username {
 		return errors.New("this username is already taken")
 	}
 
 	// Check unique user email
 	user = &User{}
-	ldb.db.Where(&User{Email: u.Email}).First(&user)
+	ldb.db.Where(&User{Email: u.Email}).Find(&user)
 	if user.Email == u.Email {
 		return errors.New("this email is already taken")
 	}

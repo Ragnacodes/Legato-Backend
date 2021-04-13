@@ -3,6 +3,7 @@ package converter
 import (
 	"legato_server/api"
 	"legato_server/db"
+	"math/rand"
 )
 
 func NewScenarioToScenarioDb(ns api.NewScenario) legatoDb.Scenario {
@@ -19,11 +20,11 @@ func ScenarioDbToBriefScenario(s legatoDb.Scenario) api.BriefScenario {
 	bs.Name = s.Name
 	bs.IsActive = s.IsActive
 
-	if s.RootService != nil {
-		bs.DigestNodes = []string{}
-	} else {
-		bs.DigestNodes = []string{}
-	}
+	//if s.RootService != nil {
+	//	bs.DigestNodes = []string{}
+	//} else {
+	//	bs.DigestNodes = []string{}
+	//}
 
 	return bs
 }
@@ -33,7 +34,7 @@ func ScenarioDbToFullScenarioGraph(s legatoDb.Scenario) api.FullScenarioGraph {
 	fsg.ID = s.ID
 	fsg.Name = s.Name
 	fsg.IsActive = s.IsActive
-	fsg.Graph = ServiceDbToService(s.RootService)
+	//fsg.Graph = ServiceDbToService(s.RootService)
 
 	return fsg
 }
@@ -43,12 +44,13 @@ func FullScenarioGraphToScenarioDb(fsg api.FullScenarioGraph, userID uint) legat
 	s.Name = fsg.Name
 	s.IsActive = fsg.IsActive
 	// Graph
-	if fsg.Graph != nil {
-		root := ServiceToServiceDb(fsg.Graph, userID)
-		s.RootService = &root
-	} else {
-		s.RootService = nil
-	}
+	//if fsg.Graph != nil {
+	//	root := ServiceToServiceDb(fsg.Graph, userID)
+	//	s.RootService = &root
+	//	s.RootServiceID = &root.ID
+	//} else {
+	//	s.RootService = nil
+	//}
 
 	return s
 }
@@ -58,6 +60,7 @@ func ScenarioDbToFullScenario(s legatoDb.Scenario) api.FullScenario {
 	fs.ID = s.ID
 	fs.Name = s.Name
 	fs.IsActive = s.IsActive
+	fs.Interval = rand.Intn(2)
 	// Services
 	var services []api.Service
 	services = []api.Service{}

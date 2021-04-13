@@ -23,7 +23,6 @@ func (w *Webhook) String() string {
 	return fmt.Sprintf("(@Webhooks: %+v)", *w)
 }
 
-
 func (w *Webhook) BeforeCreate(tx *gorm.DB) (err error) {
 	w.Token = uuid.NewV4()
 	return nil
@@ -41,17 +40,31 @@ func (ldb *LegatoDB) CreateWebhook(u *User, name string) *Webhook {
 	return &wh
 }
 
+func (ldb *LegatoDB) CreateWebhookInScenario(u *User, s *Scenario, parent *Service, name string) *Webhook {
+	var wh Webhook
+	if parent != nil {
+		wh = Webhook{Service: Service{Name: name, UserID: u.ID, ScenarioID: s.ID, ParentID: &parent.ID}}
+	} else {
+		wh = Webhook{Service: Service{Name: name, UserID: u.ID, ScenarioID: s.ID}}
+	}
+	ldb.db.Create(&wh)
+	ldb.db.Save(&wh)
+	return &wh
+}
+
 func (ldb *LegatoDB) UpdateWebhook(uuid uuid.UUID, vals map[string]interface{}) error {
 	var err error
-	wh, _  := ldb.GetWebhookByUUID(uuid)
+	wh, _ := ldb.GetWebhookByUUID(uuid)
 	for key, value := range vals {
-		if key == "enable"{
+		if key == "enable" {
 			key = "IsEnable"
 		}
 		if key == "name" {
 			wh.Service.Name = value.(string)
 			ldb.db.Save(&wh.Service)
-		}else{err = ldb.db.Model(&wh).Update(key, value).Error}
+		} else {
+			err = ldb.db.Model(&wh).Update(key, value).Error
+		}
 	}
 	if err != nil {
 		return err
@@ -68,15 +81,15 @@ func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (*Webhook, error) {
 	return &webhook, nil
 }
 
-func (ldb *LegatoDB)GetUserWebhooks(u *User) ([]Webhook, error){
+func (ldb *LegatoDB) GetUserWebhooks(u *User) ([]Webhook, error) {
 	user, _ := ldb.GetUserByUsername(u.Username)
 
 	var services []Service
 	ldb.db.Model(&user).Where("owner_type = ?", "webhooks").Association("Services").Find(&services)
-	
+
 	var webhooks []Webhook
 	for _, s := range services {
-		if w, ok := s.LoadOwner().(Webhook); ok{
+		if w, ok := s.LoadOwner().(Webhook); ok {
 			w.Service.Name = s.Name
 			webhooks = append(webhooks, w)
 		}
@@ -84,7 +97,6 @@ func (ldb *LegatoDB)GetUserWebhooks(u *User) ([]Webhook, error){
 
 	return webhooks, nil
 }
-
 
 // Service Interface for Webhook
 
