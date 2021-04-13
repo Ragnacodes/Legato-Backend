@@ -1,6 +1,7 @@
 package legatoDb
 
 import (
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"legato_server/services"
@@ -34,6 +35,23 @@ func (ldb *LegatoDB) GetServiceById(scenario *Scenario, serviceId uint) (*Servic
 	}
 
 	return srv, nil
+}
+
+func (ldb *LegatoDB) DeleteServiceById(scenario *Scenario, serviceId uint) error {
+	var srv *Service
+	ldb.db.Where(&Service{ScenarioID: scenario.ID}).Where("id = ?", serviceId).Find(&srv)
+	if srv.ID != serviceId {
+		return errors.New("the service is not in this scenario")
+	}
+
+	// Note: webhook and http records should be deleted here, too
+	ldb.db.Delete(srv)
+
+	// Attach children to the parent
+	parentId := srv.ParentID
+	ldb.db.Where(&Service{ParentID: &srv.ID}).Updates(Service{ParentID: parentId})
+
+	return nil
 }
 
 func (ldb *LegatoDB) GetServicesGraph(root *Service) (*Service, error) {

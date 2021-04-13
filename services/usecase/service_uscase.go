@@ -34,3 +34,18 @@ func (s *ServiceUseCase) GetServiceNodeById(u *api.UserInfo, scenarioId uint, se
 
 	return converter.ServiceDbToServiceNode(*serv), nil
 }
+
+func (s *ServiceUseCase) DeleteServiceNodeById(u *api.UserInfo, scenarioId uint, serviceId uint) error {
+	user := converter.UserInfoToUserDb(*u)
+	scenario, err := s.db.GetUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return err
+	}
+
+	err = s.db.DeleteServiceById(&scenario, serviceId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
