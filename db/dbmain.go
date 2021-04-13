@@ -29,7 +29,7 @@ func Connect() (*LegatoDB, error) {
 		log.Fatal(err)
 	}
 
-	// Create LegatoDB instance
+	// AddWebhookToScenario LegatoDB instance
 	//defer db.Close() // TODO: what should happen to this?
 	legatoDb.db = db
 

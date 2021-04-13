@@ -105,14 +105,14 @@ func (s scenarioUseCase) TestScenario() {
 	//log.Println("---------------------------")
 	//log.Println("Testing Scenario mode")
 	//
-	////Create some Webhooks
+	////AddWebhookToScenario some Webhooks
 	//child := legatoDb.Webhook{Service:legatoDb.Service{Name :"abc"}}
 	//s.db.Db.Save(&child)
 	//root := legatoDb.Webhook{Service: legatoDb.Service{Name: "fuck",
 	//	Children: []legatoDb.Service{child.Service}}}
-	//s.db.Db.Create(&root)
+	//s.db.Db.AddWebhookToScenario(&root)
 	//
-	//// Create scenario
+	//// AddWebhookToScenario scenario
 	//println(root.Service.Name)
 	//ns := legatoDb.Scenario{
 	//	Name: "My first scenario",
@@ -141,17 +141,17 @@ func (s *scenarioUseCase) CreateDefaultScenario() error {
 		IsActive: &isActive,
 	}
 
-	// Create the scenario
+	// AddWebhookToScenario the scenario
 	ns, err := s.AddScenario(user, newScenario)
 	if err != nil {
 		return err
 	}
 
-	// Create root
+	// AddWebhookToScenario root
 	u, err := s.db.GetUserByUsername(user.Username)
 	scenario, err := s.db.GetUserScenarioById(&u, ns.ID)
 
-	// Create some services
+	// AddWebhookToScenario some services
 	// Root service
 	webhookRoot := s.db.CreateWebhookInScenario(&u, &scenario, nil, "My starter webhook", 288, -55)
 	// Second level children

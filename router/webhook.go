@@ -1,34 +1,42 @@
 package router
 
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"legato_server/api"
+	"net/http"
+	"regexp"
+)
+
 const Webhook = "Webhook"
 
 var webhookRG = routeGroup{
 	name: "Webhook",
 	routes: routes{
-		//		route{
-		//			"Create Webhook",
-		//			POST,
-		//			"/users/:username/services/webhook",
-		//			handleNewWebhook,
-		//		},
-		//		route{
-		//			"Webhook",
-		//			POST,
-		//			"/services/webhook/:webhookid",
-		//			handleWebhookData,
-		//		},
-		//		route{
-		//			"Update Webhook",
-		//			PATCH,
-		//			"/users/:username/services/webhook/:webhookid",
-		//			handleUpdateWebhook,
-		//		},
-		//		route{
-		//			"List Webhook",
-		//			GET,
-		//			"/users/:username/services/webhook/",
-		//			getUserWebhookList,
+		route{
+			"Add a new separate webhook",
+			POST,
+			"/users/:username/services/webhooks",
+			createNewWebhook,
+		},
+		//route{
+		//	"Webhook Trigger",
+		//	POST,
+		//	"/services/webhook/:webhookid",
+		//	handleWebhookData,
 		//},
+		//route{
+		//	"Update Webhook",
+		//	PATCH,
+		//	"/users/:username/services/webhook/:webhookid",
+		//	handleUpdateWebhook,
+		//},
+		route{
+			"Get user webhooks",
+			GET,
+			"/users/:username/services/webhooks",
+			getUserWebhooks,
+		},
 	},
 }
 
@@ -63,54 +71,61 @@ var webhookRG = routeGroup{
 //	}
 //	wh.Next(webhookData)
 //}
-//
-//func handleNewWebhook(c *gin.Context) {
-//	username := c.Param("username")
-//	req := api.NewWebhook{}
-//	_ = c.BindJSON(&req)
-//
-//	// Authenticate
-//	loginUser := checkAuth(c, []string{username})
-//	if loginUser == nil {
-//		return
-//	}
-//	// Add scenario
-//	webhookInfo := resolvers.WebhookUseCase.Create(loginUser, req.Name)
-//
-//	c.JSON(http.StatusOK, webhookInfo)
-//}
-//
-//func IsValidUUID(uuid string) bool {
-//    r := regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
-//    return r.MatchString(uuid)
-//}
-//
-//func getUserWebhookList(c *gin.Context){
-//	username := c.Param("username")
-//
-//	// Auth
-//	loginUser := checkAuth(c, []string{username})
-//	if loginUser == nil {
-//		return
-//	}
-//
-//	// Get Webhooks
-//	userWebhooks, err := resolvers.WebhookUseCase.List(loginUser)
-//	if err != nil {
-//		c.JSON(http.StatusInternalServerError, gin.H{
-//			"message": fmt.Sprintf("can not fetch user webhooks: %s", err),
-//		})
-//		return
-//	}
-//
-//	if userWebhooks == nil{
-//		c.JSON(http.StatusOK, gin.H{})
-//		return
-//	}
-//	c.JSON(http.StatusOK, userWebhooks)
-//	return
-//}
-//
+
+func createNewWebhook(c *gin.Context) {
+	username := c.Param("username")
+
+	nwh := api.NewSeparateWebhook{}
+	_ = c.BindJSON(&nwh)
+
+	// Authenticate
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	webhookInfo, err := resolvers.WebhookUseCase.CreateSeparateWebhook(loginUser, nwh)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not add separate webhook: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "webhook is added successfully",
+		"webhook": webhookInfo,
+	})
+}
+
+func IsValidUUID(uuid string) bool {
+	r := regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+	return r.MatchString(uuid)
+}
+
+func getUserWebhooks(c *gin.Context) {
+	username := c.Param("username")
+
+	// Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	// Get Webhooks
+	userWebhooks, err := resolvers.WebhookUseCase.GetUserWebhooks(loginUser)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch user webhooks: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"webhooks": userWebhooks,
+	})
+}
+
 //func handleUpdateWebhook(c *gin.Context){
 //	username := c.Param("username")
 //	loginUser := checkAuth(c, []string{username})

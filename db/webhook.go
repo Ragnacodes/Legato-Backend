@@ -32,9 +32,19 @@ func (w *Webhook) GetURL() string {
 	return fmt.Sprintf("%s:%s/api/services/webhook/%v", env.ENV.WebHost, env.ENV.ServingPort, w.Token)
 }
 
-func (ldb *LegatoDB) CreateWebhook(s *Scenario, wh Webhook) (*Webhook, error) {
+func (ldb *LegatoDB) CreateWebhookForScenario(s *Scenario, wh Webhook) (*Webhook, error) {
 	wh.Service.UserID = s.UserID
-	wh.Service.ScenarioID = s.ID
+	wh.Service.ScenarioID = &s.ID
+
+	ldb.db.Create(&wh)
+	ldb.db.Save(&wh)
+
+	return &wh, nil
+}
+
+func (ldb *LegatoDB) CreateSeparateWebhook(u *User, wh Webhook) (*Webhook, error) {
+	wh.Service.UserID = u.ID
+	wh.Service.ScenarioID = nil
 
 	ldb.db.Create(&wh)
 	ldb.db.Save(&wh)
@@ -45,9 +55,9 @@ func (ldb *LegatoDB) CreateWebhook(s *Scenario, wh Webhook) (*Webhook, error) {
 func (ldb *LegatoDB) CreateWebhookInScenario(u *User, s *Scenario, parent *Service, name string, x int, y int) *Webhook {
 	var wh Webhook
 	if parent != nil {
-		wh = Webhook{Service: Service{Name: name, UserID: u.ID, ScenarioID: s.ID, ParentID: &parent.ID, PosX: x, PosY: y}}
+		wh = Webhook{Service: Service{Name: name, UserID: u.ID, ScenarioID: &s.ID, ParentID: &parent.ID, PosX: x, PosY: y}}
 	} else {
-		wh = Webhook{Service: Service{Name: name, UserID: u.ID, ScenarioID: s.ID, PosX: x, PosY:y }}
+		wh = Webhook{Service: Service{Name: name, UserID: u.ID, ScenarioID: &s.ID, PosX: x, PosY: y}}
 	}
 	ldb.db.Create(&wh)
 	ldb.db.Save(&wh)
@@ -56,7 +66,7 @@ func (ldb *LegatoDB) CreateWebhookInScenario(u *User, s *Scenario, parent *Servi
 
 func (ldb *LegatoDB) UpdateWebhook(s *Scenario, servId uint, nwh Webhook) error {
 	var serv Service
-	err := ldb.db.Where(&Service{ScenarioID: s.ID}).Where("id = ?", servId).Find(&serv).Error
+	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
 	if err != nil {
 		return err
 	}
@@ -86,17 +96,23 @@ func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (*Webhook, error) {
 }
 
 func (ldb *LegatoDB) GetUserWebhooks(u *User) ([]Webhook, error) {
-	user, _ := ldb.GetUserByUsername(u.Username)
-
 	var services []Service
-	ldb.db.Model(&user).Where("owner_type = ?", "webhooks").Association("Services").Find(&services)
+	err := ldb.db.Select("id").Where(&Service{UserID: u.ID}).Find(&services).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Collect webhook service id
+	var serviceIds []uint
+	serviceIds = []uint{}
+	for _, srv := range services {
+		serviceIds = append(serviceIds, srv.ID)
+	}
 
 	var webhooks []Webhook
-	for _, s := range services {
-		if w, ok := s.LoadOwner().(Webhook); ok {
-			w.Service.Name = s.Name
-			webhooks = append(webhooks, w)
-		}
+	err = ldb.db.Where(serviceIds).Preload("Service").Find(&webhooks).Error
+	if err != nil {
+		return nil, err
 	}
 
 	return webhooks, nil
