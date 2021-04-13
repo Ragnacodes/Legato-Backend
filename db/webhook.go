@@ -140,8 +140,8 @@ func (ldb *LegatoDB) GetUserWebhooks(u *User) ([]Webhook, error) {
 }
 
 func (ldb *LegatoDB) GetUserWebhookById(u *User, wid uint) (Webhook, error) {
-	var services Service
-	err := ldb.db.Where(&Service{UserID: u.ID, OwnerID: int(wid)}).Find(&services).Error
+	var service Service
+	err := ldb.db.Where(&Service{UserID: u.ID, OwnerID: int(wid)}).Find(&service).Error
 	if err != nil {
 		return Webhook{}, err
 	}
@@ -153,6 +153,25 @@ func (ldb *LegatoDB) GetUserWebhookById(u *User, wid uint) (Webhook, error) {
 	}
 
 	return webhooks, nil
+}
+
+func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
+	var wh Webhook
+	err := ldb.db.Where("id = ?", wid).Preload("Service").Find(&wh).Error
+	if err != nil {
+		return err
+	}
+	if wh.ID != wid {
+		return errors.New("the webhook service is not existed")
+	}
+	if wh.Service.UserID != u.ID {
+		return errors.New("the webhook service is not for this user")
+	}
+
+	ldb.db.Delete(&wh)
+	ldb.db.Delete(&wh.Service)
+
+	return nil
 }
 
 // Service Interface for Webhook
