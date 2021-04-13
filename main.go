@@ -8,8 +8,8 @@ import (
 	"legato_server/env"
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
-	userUC "legato_server/user/usecase"
 	webhookUC "legato_server/services/webhook"
+	userUC "legato_server/user/usecase"
 	"time"
 )
 
@@ -39,6 +39,7 @@ func init() {
 
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
+	_ = scenarioUseCase.CreateDefaultScenario()
 
 	// Test single scenario
 	// go scenarioUseCase.TestScenario()
@@ -47,9 +48,9 @@ func init() {
 func main() {
 	// resolvers include all of our use cases
 	resolvers := router.Resolver{
-		UserUseCase: userUseCase,
+		UserUseCase:     userUseCase,
 		ScenarioUseCase: scenarioUseCase,
-		WebhookUseCase: webhookUseCase,
+		WebhookUseCase:  webhookUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()

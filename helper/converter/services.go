@@ -12,6 +12,7 @@ func ServiceDbToService(service *legatoDb.Service) *api.Service {
 
 	var s api.Service
 	s.Id = service.ID
+	s.UserId = &service.UserID
 	// ParentID
 	if service.ParentID != nil {
 		s.ParentId = service.ParentID
@@ -41,6 +42,7 @@ func ServiceDbToService(service *legatoDb.Service) *api.Service {
 
 func ServiceToServiceDb(service *api.Service, userID uint) legatoDb.Service {
 	var s legatoDb.Service
+	s.ID = service.Id
 	s.Name = service.Name
 	s.OwnerType = service.Type
 	s.Position = legatoDb.Position{X: service.Position.X, Y: service.Position.Y}

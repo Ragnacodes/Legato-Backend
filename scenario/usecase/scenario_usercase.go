@@ -48,7 +48,7 @@ func (s scenarioUseCase) GetUserScenarios(u *api.UserInfo) ([]api.BriefScenario,
 	return briefScenarios, nil
 }
 
-func (s scenarioUseCase) GetUserScenarioGraphById(u *api.UserInfo, scenarioId string) (api.FullScenarioGraph, error) {
+func (s scenarioUseCase) GetUserScenarioGraphById(u *api.UserInfo, scenarioId uint) (api.FullScenarioGraph, error) {
 	user := converter.UserInfoToUserDb(*u)
 	scenario, err := s.db.GetUserScenarioById(&user, scenarioId)
 	if err != nil {
@@ -56,14 +56,14 @@ func (s scenarioUseCase) GetUserScenarioGraphById(u *api.UserInfo, scenarioId st
 	}
 
 	// Load the whole graph
-	scenario.RootService, _ = s.db.GetServicesGraph(scenario.RootService)
+	//scenario.RootService, _ = s.db.GetServicesGraph(scenario.RootService)
 
 	fullScenario := converter.ScenarioDbToFullScenarioGraph(scenario)
 
 	return fullScenario, nil
 }
 
-func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId string) (api.FullScenario, error) {
+func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId uint) (api.FullScenario, error) {
 	user := converter.UserInfoToUserDb(*u)
 	scenario, err := s.db.GetUserScenarioById(&user, scenarioId)
 	if err != nil {
@@ -75,10 +75,10 @@ func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId string)
 	return fullScenario, nil
 }
 
-func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId string, us api.FullScenarioGraph) error {
+func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId uint, fsg api.FullScenarioGraph) error {
 	user := converter.UserInfoToUserDb(*u)
 
-	updatedScenario := converter.FullScenarioGraphToScenarioDb(us, u.ID)
+	updatedScenario := converter.FullScenarioGraphToScenarioDb(fsg, u.ID)
 
 	err := s.db.UpdateUserScenarioById(&user, scenarioId, updatedScenario)
 	if err != nil {
@@ -112,4 +112,41 @@ func (s scenarioUseCase) TestScenario() {
 	//log.Println("Going to start the scenario...")
 	//_ = sc.Start()
 	//log.Println("---------------------------")
+}
+
+// This is for testing purposes
+// It puts a default scenario for legato user in the database.
+func (s *scenarioUseCase) CreateDefaultScenario() error {
+	// Default user
+	user := &api.UserInfo{
+		Username: "legato",
+	}
+
+	// Default scenario
+	isActive := false
+	newScenario := &api.NewScenario{
+		Name: "my_very_first_scenario",
+		IsActive: &isActive,
+	}
+
+	// Create the scenario
+	ns, err := s.AddScenario(user, newScenario)
+	if err != nil {
+		return err
+	}
+
+	// Create root
+	u, err := s.db.GetUserByUsername(user.Username)
+	scenario, err := s.db.GetUserScenarioById(&u, ns.ID)
+
+	// Create some services
+	// Root service
+	webhookRoot := s.db.CreateWebhookInScenario(&u, &scenario, nil, "My starter webhook")
+	// Second level children
+	firstHttp := s.db.CreateWebhookInScenario(&u, &scenario, &webhookRoot.Service, "My first http")
+	_ = s.db.CreateWebhookInScenario(&u, &scenario, &webhookRoot.Service, "another http")
+	// Third level children
+	_ = s.db.CreateWebhookInScenario(&u, &scenario, &firstHttp.Service, "My second http")
+
+	return nil
 }

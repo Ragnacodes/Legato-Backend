@@ -2,7 +2,8 @@ package api
 
 type Service struct {
 	Id       uint        `json:"id"`
-	ParentId *uint        `json:"parentId"`
+	ParentId *uint       `json:"parentId"`
+	UserId   *uint       `json:"userId"`
 	Name     string      `json:"name"`
 	Type     string      `json:"type"`
 	Children []Service   `json:"children"`

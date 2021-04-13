@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"legato_server/api"
 	"net/http"
+	"strconv"
 )
 
 var scenarioRG = routeGroup{
@@ -89,7 +90,7 @@ func getUserScenarios(c *gin.Context) {
 
 func getFullScenario(c *gin.Context) {
 	username := c.Param("username")
-	scenarioId := c.Param("scenario_id")
+	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
 	//Auth
 	loginUser := checkAuth(c, []string{username})
@@ -98,7 +99,7 @@ func getFullScenario(c *gin.Context) {
 	}
 
 	// Get single scenario details
-	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, scenarioId)
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scenarioId))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
@@ -113,7 +114,7 @@ func getFullScenario(c *gin.Context) {
 
 func updateScenario(c *gin.Context) {
 	username := c.Param("username")
-	scenarioId := c.Param("scenario_id")
+	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
 	updatedScenario := api.FullScenarioGraph{}
 	_ = c.BindJSON(&updatedScenario)
@@ -125,7 +126,7 @@ func updateScenario(c *gin.Context) {
 	}
 
 	// Update that scenario
-	err := resolvers.ScenarioUseCase.UpdateUserScenarioById(loginUser, scenarioId, updatedScenario)
+	err := resolvers.ScenarioUseCase.UpdateUserScenarioById(loginUser, uint(scenarioId), updatedScenario)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not update this scenario: %s", err),
@@ -133,7 +134,7 @@ func updateScenario(c *gin.Context) {
 		return
 	}
 
-	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, scenarioId)
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scenarioId))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
