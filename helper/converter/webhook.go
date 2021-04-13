@@ -7,6 +7,7 @@ import (
 
 func WebhookDbToWebhookInfo(s legatoDb.Webhook) api.WebhookInfo {
 	wh := api.WebhookInfo{}
+	wh.Id = s.ID
 	wh.WebhookUrl = s.GetURL()
 	wh.Name = s.Service.Name
 	wh.IsEnable = s.IsEnable
