@@ -66,6 +66,16 @@ func (ldb *LegatoDB) GetUserByUsername(username string) (User, error) {
 	return user, nil
 }
 
+func (ldb *LegatoDB) GetUserById(userId uint) (User, error) {
+	user := User{}
+	ldb.db.Where("id = ?", userId).First(&user)
+	if user.ID != userId {
+		return User{}, errors.New("user id does not exist")
+	}
+
+	return user, nil
+}
+
 func (ldb *LegatoDB) GetUserByEmail(email string) (User, error) {
 	user := User{}
 	ldb.db.Where(&User{Email: strings.ToLower(email)}).First(&user)

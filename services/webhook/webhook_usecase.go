@@ -22,10 +22,21 @@ func NewWebhookUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Webh
 	}
 }
 
-func (w *WebhookUseCase) Create(u *api.UserInfo, name string) api.WebhookInfo {
-	user, _ := w.db.GetUserByUsername(u.Username)
-	wh := w.db.CreateWebhook(&user, name)
-	return converter.WebhookDbToWebhookInfo(*wh)
+func (w *WebhookUseCase) Create(u *api.UserInfo, scenarioId uint, nw api.NewServiceNode) (api.ServiceNode, error) {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return api.ServiceNode{}, err
+	}
+
+	webhook := converter.DataToWebhook(nw.Data)
+	webhook.Service = converter.NewServiceNodeToServiceDb(nw)
+
+	wh, err := w.db.CreateWebhook(&user, scenarioId, webhook)
+	if err != nil {
+		return api.ServiceNode{}, err
+	}
+
+	return converter.WebhookDbToServiceNode(*wh), nil
 }
 
 func (w *WebhookUseCase) Exists(ids string) (*legatoDb.Webhook, error){

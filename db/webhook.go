@@ -32,12 +32,14 @@ func (w *Webhook) GetURL() string {
 	return fmt.Sprintf("%s:%s/api/services/webhook/%v", env.ENV.WebHost, env.ENV.ServingPort, w.Token)
 }
 
-func (ldb *LegatoDB) CreateWebhook(u *User, name string) *Webhook {
-	wh := Webhook{Service: Service{Name: name, UserID: uint(u.ID)}}
+func (ldb *LegatoDB) CreateWebhook(u *User, scenarioId uint, wh Webhook) (*Webhook, error ){
+	wh.Service.UserID = u.ID
+	wh.Service.ScenarioID = scenarioId
+
 	ldb.db.Create(&wh)
-	u.Services = append(u.Services, wh.Service)
-	ldb.db.Save(&u)
-	return &wh
+	ldb.db.Save(&wh)
+
+	return &wh ,nil
 }
 
 func (ldb *LegatoDB) CreateWebhookInScenario(u *User, s *Scenario, parent *Service, name string) *Webhook {
