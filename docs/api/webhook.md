@@ -33,27 +33,47 @@ To send request to webhook endpoint.
 - Response
     200 ok
 
-### /api/users/:username/services/webhook/:webhookid `PATCH`
-to make your webhook active or change its name, this is the api to update your webhook.
+### /api/users/:username/services/webhooks/:webhook_id `PUT`
+To update the webhook.
 - Header
     - `Authorization` = `access_token`
 
 - Request
    ```json
     {
-        "enable": "true",
-        "name" : "af"
+        "name": "my webhook",
+        "isEnable": false
     }
     ```
   
 - Response
-    200 ok
     ```json
     {
-       "message": "updated successfully"
+        "message": "webhook is updated successfully",
+        "webhook": {
+            "url": "http://localhost:8080/api/services/webhook/255d24ba-eef5-4968-bd38-2c35fd5cdaec",
+            "name": "my webhook",
+            "isEnable": false
+        }
     }
     ```
+
+### /api/users/:username/services/webhooks/:webhook_id `GET`
+To get list of all user webhooks. 
+- Header
+    - `Authorization` = `access_token`
     
+- Response 
+    ```json
+    {
+        "webhook": {
+            "url": "http://localhost:8080/api/services/webhook/255d24ba-eef5-4968-bd38-2c35fd5cdaec",
+            "name": "my lovely webhook",
+            "isEnable": false
+        }
+    }
+    ```
+
 ### /api/users/:username/services/webhooks `GET`
 To get list of all user webhooks. 
 - Header

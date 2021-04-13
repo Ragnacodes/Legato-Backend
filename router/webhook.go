@@ -6,6 +6,7 @@ import (
 	"legato_server/api"
 	"net/http"
 	"regexp"
+	"strconv"
 )
 
 const Webhook = "Webhook"
@@ -25,17 +26,23 @@ var webhookRG = routeGroup{
 		//	"/services/webhook/:webhookid",
 		//	handleWebhookData,
 		//},
-		//route{
-		//	"Update Webhook",
-		//	PATCH,
-		//	"/users/:username/services/webhook/:webhookid",
-		//	handleUpdateWebhook,
-		//},
+		route{
+			"Update Webhook",
+			PUT,
+			"/users/:username/services/webhooks/:webhook_id",
+			updateUserWebhook,
+		},
 		route{
 			"Get user webhooks",
 			GET,
 			"/users/:username/services/webhooks",
 			getUserWebhooks,
+		},
+		route{
+			"Get user webhook by id",
+			GET,
+			"/users/:username/services/webhooks/:webhook_id",
+			getUserWebhookById,
 		},
 	},
 }
@@ -126,45 +133,64 @@ func getUserWebhooks(c *gin.Context) {
 	})
 }
 
-//func handleUpdateWebhook(c *gin.Context){
-//	username := c.Param("username")
-//	loginUser := checkAuth(c, []string{username})
-//	if loginUser == nil {
-//		return
-//	}
-//	param := c.Param("webhookid")
-//	_, err := webhookExists(param)
-//	if err != nil {
-//		c.JSON(http.StatusBadRequest,
-//			gin.H{"message": err},
-//		)
-//		return
-//	}
-//
-//	dataMap := make(map[string]interface{})
-//	err = json.NewDecoder(c.Request.Body).Decode(&dataMap)
-//	for k, v := range dataMap {
-//		log.Printf("%s : %v\n", k, v)
-//	}
-//	if err != nil {
-//		c.JSON(http.StatusNotFound, gin.H{
-//			"message": err.Error(),
-//		})
-//		return
-//	}
-//
-//	err = resolvers.WebhookUseCase.Update(param, dataMap)
-//	if err != nil {
-//		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-//			"message": err.Error(),
-//		})
-//		return
-//	}
-//
-//	c.JSON(http.StatusOK, gin.H{
-//		"message": "updated successfully",
-//	})
-//}
+func updateUserWebhook(c *gin.Context) {
+	username := c.Param("username")
+	webhookId, _ := strconv.Atoi(c.Param("webhook_id"))
+
+	nwh := api.NewSeparateWebhook{}
+	_ = c.BindJSON(&nwh)
+
+	// Authenticate
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	err := resolvers.WebhookUseCase.UpdateSeparateWebhook(loginUser, uint(webhookId), nwh)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not update this separate webhook: %s", err),
+		})
+		return
+	}
+
+	updatedWebhook, err := resolvers.WebhookUseCase.GetUserWebhookById(loginUser, uint(webhookId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not update this separate webhook: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "webhook is updated successfully",
+		"webhook": updatedWebhook,
+	})
+}
+
+func getUserWebhookById(c *gin.Context) {
+	username := c.Param("username")
+	webhookId, _ := strconv.Atoi(c.Param("webhook_id"))
+
+	// Authenticate
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	wh, err := resolvers.WebhookUseCase.GetUserWebhookById(loginUser, uint(webhookId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not update this separate webhook: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"webhook": wh,
+	})
+}
+
 //
 //func webhookExists(WebhookID string) (*legatoDb.Webhook, error) {
 //	if !IsValidUUID(WebhookID) {
