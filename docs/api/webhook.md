@@ -58,6 +58,18 @@ To update the webhook.
     }
     ```
 
+### /api/users/:username/services/webhooks/:webhook_id `DELETE`
+To delete the webhook.
+- Header
+    - `Authorization` = `access_token`
+
+- Response
+    ```json
+    {
+        "message": "webhook is deleted successfully"
+    }
+    ```
+
 ### /api/users/:username/services/webhooks/:webhook_id `GET`
 To get list of all user webhooks. 
 - Header

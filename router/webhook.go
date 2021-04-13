@@ -30,7 +30,7 @@ var webhookRG = routeGroup{
 			"Update Webhook",
 			PUT,
 			"/users/:username/services/webhooks/:webhook_id",
-			updateUserWebhook,
+			updateUserWebhooks,
 		},
 		route{
 			"Get user webhooks",
@@ -43,6 +43,12 @@ var webhookRG = routeGroup{
 			GET,
 			"/users/:username/services/webhooks/:webhook_id",
 			getUserWebhookById,
+		},
+		route{
+			"Delete a webhook",
+			DELETE,
+			"/users/:username/services/webhooks/:webhook_id",
+			deleteUserWebhook,
 		},
 	},
 }
@@ -133,7 +139,7 @@ func getUserWebhooks(c *gin.Context) {
 	})
 }
 
-func updateUserWebhook(c *gin.Context) {
+func updateUserWebhooks(c *gin.Context) {
 	username := c.Param("username")
 	webhookId, _ := strconv.Atoi(c.Param("webhook_id"))
 
@@ -188,6 +194,28 @@ func getUserWebhookById(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"webhook": wh,
+	})
+}
+func deleteUserWebhook(c *gin.Context) {
+	username := c.Param("username")
+	webhookId, _ := strconv.Atoi(c.Param("webhook_id"))
+
+	// Authenticate
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	err := resolvers.WebhookUseCase.DeleteUserWebhookById(loginUser, uint(webhookId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not delete this separate webhook: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "webhook is deleted successfully",
 	})
 }
 

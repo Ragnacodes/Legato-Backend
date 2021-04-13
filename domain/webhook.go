@@ -13,4 +13,5 @@ type WebhookUseCase interface {
 	UpdateSeparateWebhook(u *api.UserInfo, nodeId uint, nw api.NewSeparateWebhook) error
 	GetUserWebhooks(userInfo *api.UserInfo) ([]api.WebhookInfo, error)
 	GetUserWebhookById(u *api.UserInfo, wid uint) (api.WebhookInfo, error)
+	DeleteUserWebhookById(u *api.UserInfo, wid uint) error
 }

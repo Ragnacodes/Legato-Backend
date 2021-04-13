@@ -143,3 +143,17 @@ func (w *WebhookUseCase) GetUserWebhookById(u *api.UserInfo, wid uint) (api.Webh
 
 	return converter.WebhookDbToWebhookInfo(wh), nil
 }
+
+func (w *WebhookUseCase) DeleteUserWebhookById(u *api.UserInfo, wid uint) error {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return err
+	}
+
+	err = w.db.DeleteSeparateWebhookById(&user, wid)
+	if err != nil {
+		return  err
+	}
+
+	return nil
+}
