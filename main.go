@@ -9,11 +9,13 @@ import (
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
 	userUC "legato_server/user/usecase"
+	webhookUC "legato_server/services/webhook"
 	"time"
 )
 
 var userUseCase domain.UserUseCase
 var scenarioUseCase domain.ScenarioUseCase
+var webhookUseCase domain.WebhookUseCase
 
 func init() {
 	// Load environment variables
@@ -33,18 +35,21 @@ func init() {
 	// Use Cases
 	userUseCase = userUC.NewUserUseCase(appDB, timeoutContext)
 	scenarioUseCase = scenarioUC.NewScenarioUseCase(appDB, timeoutContext)
+	webhookUseCase = webhookUC.NewWebhookUseCase(appDB, timeoutContext)
 
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
 
 	// Test single scenario
-	scenarioUseCase.TestScenario()
+	// go scenarioUseCase.TestScenario()
 }
 
 func main() {
 	// resolvers include all of our use cases
 	resolvers := router.Resolver{
 		UserUseCase: userUseCase,
+		ScenarioUseCase: scenarioUseCase,
+		WebhookUseCase: webhookUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()

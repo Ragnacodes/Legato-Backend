@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
+	"legato_server/api"
 	legatoDb "legato_server/db"
-	"legato_server/models"
 	"time"
 )
 
@@ -41,7 +41,7 @@ func GenerateRandomKey() []byte {
 // Login check input details with database.
 // If everything was ok then it creates JWT token.
 // Returns JWT token
-func Login(cred models.UserCredential, user legatoDb.User) (t Token, e error) {
+func Login(cred api.UserCredential, user legatoDb.User) (t Token, e error) {
 
 	// Check Password
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(cred.Password))

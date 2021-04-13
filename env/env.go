@@ -14,6 +14,7 @@ const (
 	DefaultDatabaseUsername = "legato"
 	DefaultDatabasePassword = "legato"
 	DefaultDatabaseName     = "legatodb"
+	DefaultWebHost     = "http://localhost"
 )
 
 type env struct {
@@ -23,6 +24,7 @@ type env struct {
 	DatabaseUsername string
 	DatabasePassword string
 	DatabaseName     string
+	WebHost	 string
 }
 
 var ENV env
@@ -62,6 +64,11 @@ func LoadEnv() {
 		envDatabaseName = DefaultDatabaseName
 	}
 
+	envWebHost := os.Getenv("WEB_HOST")
+	if envWebHost == "" {
+		envWebHost = DefaultWebHost
+	}
+
 	ENV = env{
 		ServingPort: envPort,
 		// Postgres database
@@ -70,6 +77,8 @@ func LoadEnv() {
 		DatabaseUsername: envDatabaseUsername,
 		DatabasePassword: envDatabasePassword,
 		DatabaseName:     envDatabaseName,
+		WebHost: envWebHost,
+		
 	}
 
 	log.Printf("Environment Variables is Loaded: %+v\n", ENV)

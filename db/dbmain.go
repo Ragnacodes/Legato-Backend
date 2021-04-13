@@ -2,17 +2,17 @@ package legatoDb
 
 import (
 	"fmt"
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"legato_server/env"
 	"log"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 type LegatoDB struct {
 	db *gorm.DB
 }
+
+var legatoDb LegatoDB
 
 func Connect() (*LegatoDB, error) {
 	config := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
@@ -23,7 +23,7 @@ func Connect() (*LegatoDB, error) {
 		env.ENV.DatabasePassword,
 	)
 
-	db, err := gorm.Open("postgres", config)
+	db, err := gorm.Open(postgres.Open(config), &gorm.Config{})
 	if err != nil {
 		log.Println("Error in connecting to the postgres database")
 		log.Fatal(err)
@@ -31,24 +31,25 @@ func Connect() (*LegatoDB, error) {
 
 	// Create LegatoDB instance
 	//defer db.Close() // TODO: what should happen to this?
-	dbObj := LegatoDB{}
-	dbObj.db = db
+	legatoDb.db = db
 
 	// Call createSchema to create all of our tables
-	err = createSchema(dbObj.db)
+	err = createSchema(legatoDb.db)
 	if err != nil {
 		return nil, err
 	}
 	log.Println("Connected to the database and created the tables")
 
-	return &dbObj, nil
+	return &legatoDb, nil
 }
 
 // createSchema creates database schema (tables and ...)
 // for all of our models.
 func createSchema(db *gorm.DB) error {
-	db.AutoMigrate(User{})
-	db.AutoMigrate(Scenario{})
-
+	_ = db.AutoMigrate(User{})
+	_ = db.AutoMigrate(Scenario{})
+	_ = db.AutoMigrate(Service{})
+	_ = db.AutoMigrate(Position{})
+	_ = db.AutoMigrate(Webhook{})
 	return nil
 }

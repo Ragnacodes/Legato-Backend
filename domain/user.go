@@ -1,15 +1,15 @@
 package domain
 
 import (
-	"legato_server/models"
+	"legato_server/api"
 )
 
 type UserUseCase interface {
-	RegisterNewUser(newUser models.NewUser) error
-	Login(credential models.UserCredential) (string, error)
-	RefreshUserToken(accessToken string) (models.RefreshToken, error)
-	GetUserByEmail(email string) (models.UserInfo, error)
-	GetUserByUsername(email string) (models.UserInfo, error)
-	GetAllUsers() ([]*models.UserInfo, error)
+	RegisterNewUser(newUser api.NewUser) error
+	Login(credential api.UserCredential) (string, error)
+	RefreshUserToken(accessToken string) (api.RefreshToken, error)
+	GetUserByEmail(email string) (api.UserInfo, error)
+	GetUserByUsername(email string) (api.UserInfo, error)
+	GetAllUsers() ([]*api.UserInfo, error)
 	CreateDefaultUser() error
 }

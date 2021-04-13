@@ -1,4 +1,4 @@
-package models
+package api
 
 type NewUser struct {
 	Username  string `json:"username"`
@@ -11,6 +11,7 @@ type RefreshToken struct {
 }
 
 type UserInfo struct {
+	ID        uint
 	Email     string `json:"email"`
 	Username  string `json:"username"`
 }

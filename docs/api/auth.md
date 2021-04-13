@@ -35,7 +35,7 @@ To login and get the access token.
     ```
 
 ### /api/auth/refresh `POST`
-to refresh the access token by set it in the request's header.
+To refresh the access token by set it in the request's header.
 - Header
     - `Authorization` = `access_token`
 - Response
@@ -45,34 +45,50 @@ to refresh the access token by set it in the request's header.
     }
     ```
 
+### /api/auth/user `GET`
+To get logged in user.
+- Header
+    - `Authorization` = `access_token`
+- Response
+    ```json
+    {
+        "user": {
+            "email": "legato@gmail.com",
+            "username": "legato"
+        }
+    }
+    ```
+
 
 ### /api/auth/protected `GET`
-to test that only authorized users could see this page.
+To test that only authorized users could see this page.
 > This api is for testing purposes, and it returns all of existing users.
 - Header
     - `Authorization` = `access_token`
  - Response
-     ```json
-    [
-        {
-            "email": "legato@gmail.com",
-            "username": "legato"
-        },
-        {
-            "email": "sedaqi@gmail.com",
-            "username": "insomnia"
-        },
-        {
-            "email": "amin@gmail.com",
-            "username": "amin"
-        },
-        {
-            "email": "amir@gmail.com",
-            "username": "amir"
-        },
-        {
-            "email": "ahmad@gmail.com",
-            "username": "ahmad"
-        }
-    ]
-     ```
+    ```json
+    {
+       "users": [
+            {
+                "email": "legato@gmail.com",
+                "username": "legato"
+            },
+            {
+                "email": "sedaqi@gmail.com",
+                "username": "insomnia"
+            },
+            {
+                "email": "amin@gmail.com",
+                "username": "amin"
+            },
+            {
+                "email": "amir@gmail.com",
+                "username": "amir"
+            },
+            {
+                "email": "ahmad@gmail.com",
+                "username": "ahmad"
+            }
+        ]
+    }
+    ```
