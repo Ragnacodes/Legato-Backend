@@ -165,7 +165,7 @@ func checkAuth(c *gin.Context, validUsers []string) *api.UserInfo {
 
 	// If the api is not accessible
 	c.JSON(http.StatusForbidden, gin.H{
-		"message": "access denied: can not add scenario for this user",
+		"message": "access denied: can not do any actions for this user",
 	})
 	return nil
 }

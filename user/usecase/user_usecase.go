@@ -109,10 +109,10 @@ func (u *userUseCase) RefreshUserToken(at string) (api.RefreshToken, error) {
 func (u *userUseCase) CreateDefaultUser() error {
 	err := u.db.AddUser(defaultUser)
 	if err != nil {
-		log.Printf("%v\n", err)
+		log.Printf("Default user is not created: %v\n", err)
 		return err
 	}
-	log.Printf("Default user created: %v\n", defaultUser)
+	log.Printf("Default user is created: %v\n", defaultUser)
 
 	return nil
 }

@@ -22,47 +22,138 @@ func NewWebhookUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Webh
 	}
 }
 
-func (w *WebhookUseCase) Create(u *api.UserInfo, name string) api.WebhookInfo {
-	user, _ := w.db.GetUserByUsername(u.Username)
-	wh := w.db.CreateWebhook(&user, name)
-	return converter.WebhookDbToWebhookInfo(*wh)
+func (w *WebhookUseCase) AddWebhookToScenario(u *api.UserInfo, scenarioId uint, nw api.NewServiceNode) (api.ServiceNode, error) {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return api.ServiceNode{}, err
+	}
+
+	scenario, err := w.db.GetUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return api.ServiceNode{}, err
+	}
+
+	webhook := converter.DataToWebhook(nw.Data)
+	webhook.Service = converter.NewServiceNodeToServiceDb(nw)
+
+	wh, err := w.db.CreateWebhookForScenario(&scenario, webhook)
+	if err != nil {
+		return api.ServiceNode{}, err
+	}
+
+	return converter.WebhookDbToServiceNode(*wh), nil
 }
 
-func (w *WebhookUseCase) Exists(ids string) (*legatoDb.Webhook, error){
+func (w *WebhookUseCase) CreateSeparateWebhook(u *api.UserInfo, nw api.NewSeparateWebhook) (api.WebhookInfo, error) {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return api.WebhookInfo{}, err
+	}
+
+	webhook := converter.NewSeparateWebhookToWebhook(nw)
+
+	wh, err := w.db.CreateSeparateWebhook(&user, webhook)
+	if err != nil {
+		return api.WebhookInfo{}, err
+	}
+
+	return converter.WebhookDbToWebhookInfo(*wh), nil
+}
+
+func (w *WebhookUseCase) Exists(ids string) (*legatoDb.Webhook, error) {
 	id, err := uuid.FromString(ids)
-	if err!=nil{
+	if err != nil {
 		return &legatoDb.Webhook{}, err
 	}
 	wh, err := w.db.GetWebhookByUUID(id)
-	if err!=nil{
+	if err != nil {
 		return &legatoDb.Webhook{}, err
 	}
 	return wh, nil
 }
 
-func (w *WebhookUseCase) Update(ids string, vals map[string]interface{}) error{
-	id, err := uuid.FromString(ids)
-	if err!=nil{
-		return  err
+func (w *WebhookUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint, nw api.NewServiceNode) error {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return err
 	}
-	err = w.db.UpdateWebhook(id, vals)
-	if err!=nil{
-		return  err
+
+	scenario, err := w.db.GetUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return err
 	}
+
+	webhook := converter.DataToWebhook(nw.Data)
+	webhook.Service = converter.NewServiceNodeToServiceDb(nw)
+
+	err = w.db.UpdateWebhook(&scenario, serviceId, webhook)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (w *WebhookUseCase) List(u *api.UserInfo) ([]api.WebhookInfo, error){
-	user := converter.UserInfoToUserDb(*u)
+func (w *WebhookUseCase) UpdateSeparateWebhook(u *api.UserInfo, wid uint, nw api.NewSeparateWebhook) error {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return err
+	}
+
+	nwh := converter.NewSeparateWebhookToWebhook(nw)
+
+	err = w.db.UpdateSeparateWebhook(&user, wid, nwh)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (w *WebhookUseCase) GetUserWebhooks(u *api.UserInfo) ([]api.WebhookInfo, error) {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return nil, err
+	}
+
 	webhooks, err := w.db.GetUserWebhooks(&user)
 	if err != nil {
 		return nil, err
 	}
 
-	var WebhookInfos []api.WebhookInfo
+	var whInfos []api.WebhookInfo
+	whInfos = []api.WebhookInfo{}
 	for _, w := range webhooks {
-		WebhookInfos = append(WebhookInfos, converter.WebhookDbToWebhookInfo(w))
+		whInfos = append(whInfos, converter.WebhookDbToWebhookInfo(w))
 	}
 
-	return WebhookInfos, nil
+	return whInfos, nil
+}
+
+func (w *WebhookUseCase) GetUserWebhookById(u *api.UserInfo, wid uint) (api.WebhookInfo, error) {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return api.WebhookInfo{}, err
+	}
+
+	wh, err := w.db.GetUserWebhookById(&user, wid)
+	if err != nil {
+		return api.WebhookInfo{}, err
+	}
+
+	return converter.WebhookDbToWebhookInfo(wh), nil
+}
+
+func (w *WebhookUseCase) DeleteUserWebhookById(u *api.UserInfo, wid uint) error {
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return err
+	}
+
+	err = w.db.DeleteSeparateWebhookById(&user, wid)
+	if err != nil {
+		return  err
+	}
+
+	return nil
 }

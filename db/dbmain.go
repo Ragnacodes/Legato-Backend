@@ -29,7 +29,7 @@ func Connect() (*LegatoDB, error) {
 		log.Fatal(err)
 	}
 
-	// Create LegatoDB instance
+	// AddWebhookToScenario LegatoDB instance
 	//defer db.Close() // TODO: what should happen to this?
 	legatoDb.db = db
 
@@ -49,7 +49,6 @@ func createSchema(db *gorm.DB) error {
 	_ = db.AutoMigrate(User{})
 	_ = db.AutoMigrate(Scenario{})
 	_ = db.AutoMigrate(Service{})
-	_ = db.AutoMigrate(Position{})
 	_ = db.AutoMigrate(Webhook{})
 	return nil
 }

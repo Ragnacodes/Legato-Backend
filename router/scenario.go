@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"legato_server/api"
 	"net/http"
+	"strconv"
 )
 
 var scenarioRG = routeGroup{
@@ -24,7 +25,7 @@ var scenarioRG = routeGroup{
 		},
 		route{
 			name:        "update a single scenarios",
-			method:      POST,
+			method:      PUT,
 			pattern:     "/users/:username/scenarios/:scenario_id",
 			handlerFunc: updateScenario,
 		},
@@ -33,6 +34,12 @@ var scenarioRG = routeGroup{
 			method:      GET,
 			pattern:     "/users/:username/scenarios/:scenario_id",
 			handlerFunc: getFullScenario,
+		},
+		route{
+			name:        "Delete a single scenario with its services",
+			method:      DELETE,
+			pattern:     "/users/:username/scenarios/:scenario_id",
+			handlerFunc: deleteScenario,
 		},
 	},
 }
@@ -59,7 +66,7 @@ func addScenario(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "scenario created successfully.",
+		"message":  "scenario is created successfully.",
 		"scenario": createdScenario,
 	})
 }
@@ -89,7 +96,7 @@ func getUserScenarios(c *gin.Context) {
 
 func getFullScenario(c *gin.Context) {
 	username := c.Param("username")
-	scenarioId := c.Param("scenario_id")
+	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
 	//Auth
 	loginUser := checkAuth(c, []string{username})
@@ -98,7 +105,7 @@ func getFullScenario(c *gin.Context) {
 	}
 
 	// Get single scenario details
-	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, scenarioId)
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scenarioId))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
@@ -113,9 +120,9 @@ func getFullScenario(c *gin.Context) {
 
 func updateScenario(c *gin.Context) {
 	username := c.Param("username")
-	scenarioId := c.Param("scenario_id")
+	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
-	updatedScenario := api.FullScenario{}
+	updatedScenario := api.NewScenario{}
 	_ = c.BindJSON(&updatedScenario)
 
 	// Auth
@@ -125,7 +132,7 @@ func updateScenario(c *gin.Context) {
 	}
 
 	// Update that scenario
-	err := resolvers.ScenarioUseCase.UpdateUserScenarioById(loginUser, scenarioId, updatedScenario)
+	err := resolvers.ScenarioUseCase.UpdateUserScenarioById(loginUser, uint(scenarioId), updatedScenario)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not update this scenario: %s", err),
@@ -133,7 +140,7 @@ func updateScenario(c *gin.Context) {
 		return
 	}
 
-	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, scenarioId)
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scenarioId))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
@@ -142,7 +149,31 @@ func updateScenario(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "update scenario successfully",
+		"message":  "scenario is updated successfully",
 		"scenario": scenario,
+	})
+}
+
+func deleteScenario(c *gin.Context)  {
+	username := c.Param("username")
+	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
+
+	// Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	// Delete that scenario
+	err := resolvers.ScenarioUseCase.DeleteUserScenarioById(loginUser, uint(scenarioId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not delete this scenario: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "scenario is deleted successfully",
 	})
 }
