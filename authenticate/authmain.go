@@ -1,13 +1,13 @@
 package authenticate
 
 import (
-	legatoDb "legato_server/db"
-	"legato_server/models"
 	"crypto/rand"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
+	"legato_server/api"
+	legatoDb "legato_server/db"
 	"time"
 )
 
@@ -41,12 +41,12 @@ func GenerateRandomKey() []byte {
 // Login check input details with database.
 // If everything was ok then it creates JWT token.
 // Returns JWT token
-func Login(cred models.UserCredential, user legatoDb.User) (t Token, e error) {
+func Login(cred api.UserCredential, user legatoDb.User) (t Token, e error) {
 
 	// Check Password
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(cred.Password))
 	if err != nil {
-		return Token{}, errors.New("unauthorized, wrong password")
+		return Token{}, errors.New("wrong password")
 	}
 
 	expirationTime := time.Now().Add(30 * time.Minute)
@@ -91,10 +91,12 @@ func Refresh(tokenStr string) (t Token, e error) {
 		return t, errors.New("internal server error")
 	}
 
+	// TODO: discuss @masoud about setting this time
 	// Ensure that a new token is not issued until enough time has elapsed
-	if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Second {
-		return t, errors.New("bad request time")
-	}
+	//log.Println(time.Unix(claims.ExpiresAt, 0).Sub(time.Now()))
+	//if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Hour {
+	//	return t, errors.New("bad request time")
+	//}
 
 	expirationTime := time.Now().Add(30 * time.Minute)
 	claims.ExpiresAt = expirationTime.Unix()

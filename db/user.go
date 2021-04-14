@@ -3,60 +3,62 @@ package legatoDb
 import (
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
 
-const FEMALE = "Female"
-const MALE = "Male"
-
 type User struct {
 	gorm.Model
-	UserID    uuid.UUID
 	Username  string
 	Email     string
 	Password  string
 	LastLogin time.Time
-	FirstName string
-	LastName  string
-	Gender    string
+	Scenarios []Scenario
+	Services []Service
 }
 
 func (u *User) String() string {
-	return fmt.Sprintf("User: %v", u)
+	return fmt.Sprintf("(@User: %+v)", *u)
 }
 
-func (edb *LegatoDB) AddUser(u User) error {
+func (ldb *LegatoDB) AddUser(u User) error {
+	var user *User
+
+	// Encode the user password
 	if pw, err := bcrypt.GenerateFromPassword([]byte(u.Password), 0); err != nil {
 		return err
 	} else {
 		u.Password = string(pw)
 	}
 
-	user := &User{}
-	edb.db.Where(&User{Username: u.Username}).First(&user)
+	// Check unique username
+	user = &User{}
+	ldb.db.Where(&User{Username: u.Username}).Find(&user)
 	if user.Username == u.Username {
 		return errors.New("this username is already taken")
 	}
 
+	// Check unique user email
 	user = &User{}
-	edb.db.Where(&User{Email: u.Email}).First(&user)
+	ldb.db.Where(&User{Email: u.Email}).Find(&user)
 	if user.Email == u.Email {
 		return errors.New("this email is already taken")
 	}
 
-	edb.db.NewRecord(u) // => returns `true` as primary key is blank
-	edb.db.Create(&u)
+	// Set initial values for new user
+	u.LastLogin = time.Now()
+
+	ldb.db.Create(&u)
+	ldb.db.Save(u)
 
 	return nil
 }
 
-func (edb *LegatoDB) GetUserByUsername(username string) (User, error) {
+func (ldb *LegatoDB) GetUserByUsername(username string) (User, error) {
 	user := User{}
-	edb.db.Where(&User{Username: strings.ToLower(username)}).First(&user)
+	ldb.db.Where(&User{Username: strings.ToLower(username)}).First(&user)
 	if user.Username != username {
 		return User{}, errors.New("username does not exist")
 	}
@@ -64,9 +66,19 @@ func (edb *LegatoDB) GetUserByUsername(username string) (User, error) {
 	return user, nil
 }
 
-func (edb *LegatoDB) GetUserByEmail(email string) (User, error) {
+func (ldb *LegatoDB) GetUserById(userId uint) (User, error) {
 	user := User{}
-	edb.db.Where(&User{Email: strings.ToLower(email)}).First(&user)
+	ldb.db.Where("id = ?", userId).First(&user)
+	if user.ID != userId {
+		return User{}, errors.New("user id does not exist")
+	}
+
+	return user, nil
+}
+
+func (ldb *LegatoDB) GetUserByEmail(email string) (User, error) {
+	user := User{}
+	ldb.db.Where(&User{Email: strings.ToLower(email)}).First(&user)
 	if user.Email != email {
 		return User{}, errors.New("email does not exist")
 	}
@@ -74,9 +86,9 @@ func (edb *LegatoDB) GetUserByEmail(email string) (User, error) {
 	return user, nil
 }
 
-func (edb *LegatoDB) FetchAllUsers() ([]User, error) {
+func (ldb *LegatoDB) FetchAllUsers() ([]User, error) {
 	var users []User
-	edb.db.Find(&users)
+	ldb.db.Find(&users)
 
 	if len(users) <= 0 {
 		return users, errors.New("there is no user")

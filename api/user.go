@@ -1,22 +1,19 @@
-package models
+package api
 
 type NewUser struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
 	Username  string `json:"username"`
+	Email     string `json:"email"`
 	Password  string `json:"password"`
 }
 
 type RefreshToken struct {
-	Token string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
-type User struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+type UserInfo struct {
+	ID        uint
 	Email     string `json:"email"`
 	Username  string `json:"username"`
-	Gender    string `json:"gender"`
 }
 
 type UserCredential struct {

@@ -6,14 +6,25 @@ import (
 	"os"
 )
 
-const DefaultTlsPort = "443"
-const DefaultDatabaseHost = "database"
-const DefaultDatabasePort = "5432"
+const (
+	DefaultTlsPort = "443"
+	// Postgres database
+	DefaultDatabaseHost     = "database"
+	DefaultDatabasePort     = "5432"
+	DefaultDatabaseUsername = "legato"
+	DefaultDatabasePassword = "legato"
+	DefaultDatabaseName     = "legatodb"
+	DefaultWebHost     = "http://localhost"
+)
 
 type env struct {
-	ServingPort  string
-	DatabaseHost string
-	DatabasePort string
+	ServingPort      string
+	DatabaseHost     string
+	DatabasePort     string
+	DatabaseUsername string
+	DatabasePassword string
+	DatabaseName     string
+	WebHost	 string
 }
 
 var ENV env
@@ -38,11 +49,37 @@ func LoadEnv() {
 		envDatabasePort = DefaultDatabasePort
 	}
 
-	ENV = env{
-		ServingPort:  envPort,
-		DatabaseHost: envDatabaseHost,
-		DatabasePort: envDatabasePort,
+	envDatabaseUsername := os.Getenv("DATABASE_USERNAME")
+	if envDatabaseUsername == "" {
+		envDatabaseUsername = DefaultDatabaseUsername
 	}
 
-	log.Printf("Environment Variables is Loaded: %v\n", ENV)
+	envDatabasePassword := os.Getenv("DATABASE_PASSWORD")
+	if envDatabasePassword == "" {
+		envDatabasePassword = DefaultDatabasePassword
+	}
+
+	envDatabaseName := os.Getenv("DATABASE_NAME")
+	if envDatabaseName == "" {
+		envDatabaseName = DefaultDatabaseName
+	}
+
+	envWebHost := os.Getenv("WEB_HOST")
+	if envWebHost == "" {
+		envWebHost = DefaultWebHost
+	}
+
+	ENV = env{
+		ServingPort: envPort,
+		// Postgres database
+		DatabaseHost:     envDatabaseHost,
+		DatabasePort:     envDatabasePort,
+		DatabaseUsername: envDatabaseUsername,
+		DatabasePassword: envDatabasePassword,
+		DatabaseName:     envDatabaseName,
+		WebHost: envWebHost,
+		
+	}
+
+	log.Printf("Environment Variables is Loaded: %+v\n", ENV)
 }
