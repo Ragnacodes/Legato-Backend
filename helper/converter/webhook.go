@@ -23,7 +23,7 @@ func WebhookToWebhookDb(s api.WebhookInfo) legatoDb.Webhook {
 	return wh
 }
 
-func DataToWebhook(data interface{}) legatoDb.Webhook {
+func DataToWebhookDb(data interface{}) legatoDb.Webhook {
 	var w legatoDb.Webhook
 	if data != nil {
 		_ = data.(map[string]interface{})

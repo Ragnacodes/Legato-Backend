@@ -1,6 +1,7 @@
 package legatoDb
 
 import (
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"log"
@@ -19,40 +20,36 @@ func (h *Http) String() string {
 }
 
 // Database methods
-func (ldb *LegatoDB) CreateHttp(u *User, name string, url string, method string) *Http {
-	h := Http{
-		Service: Service{Name: name, UserID: int(u.ID)},
-		Url:     url,
-		Method:  method,
-	}
+func (ldb *LegatoDB) CreateHttp(s *Scenario, h Http) (*Http, error) {
+	h.Service.UserID = s.UserID
+	h.Service.ScenarioID = &s.ID
 
 	ldb.db.Create(&h)
-	u.Services = append(u.Services, h.Service)
 	ldb.db.Save(&h)
 
-	return &h
+	return &h, nil
 }
 
-func (ldb *LegatoDB) UpdateHttp(id string, values map[string]interface{}) (err error) {
-	//for key, value := range values {
-	//	if key == "name" {
-	//		var wh Webhook
-	//		err = ldb.db.Model(&Http{}).Where(&Http{Token: uuid}).First(&wh).Error
-	//		wh.Service.Name = value.(string)
-	//		ldb.db.Save(&wh)
-	//	}
-	//	err = ldb.db.Model(&Http{}).Where(&Http{Token: uuid}).Update(key, value).Error
-	//}
-	//
-	//if err != nil {
-	//	return err
-	//}
+func (ldb *LegatoDB) UpdateHttp(s *Scenario, servId uint, nh Http) error {
+	var serv Service
+	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
+	if err != nil {
+		return err
+	}
+
+	var h Http
+	err = ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&h).Error
+	if err != nil {
+		return err
+	}
+	if h.Service.ID != servId {
+		return errors.New("the http service is not in this scenario")
+	}
+
+	ldb.db.Model(&serv).Updates(nh.Service)
+	ldb.db.Model(&h).Updates(nh)
 
 	return nil
-}
-
-func (ldb *LegatoDB) GetHttpByID(id string) (*Http, error) {
-	return nil, nil
 }
 
 // Service Interface for Http
@@ -62,7 +59,7 @@ func (h Http) Execute(...interface{}) {
 		panic(err)
 	}
 
-	log.Printf("Executing %s node: %s\n", "webhook", h.Service.Name)
+	log.Printf("Executing %s node: %s\n", "http", h.Service.Name)
 
 	_, err = makeHttpRequest(h.Url, h.Method)
 	if err != nil {
@@ -78,7 +75,7 @@ func (h Http) Post() {
 		panic(err)
 	}
 
-	log.Printf("Executing %s node in background: %s\n", "webhook", h.Service.Name)
+	log.Printf("Executing %s node in background: %s\n", "http", h.Service.Name)
 }
 
 func (h Http) Next(...interface{}) {

@@ -54,6 +54,7 @@ type Resolver struct {
 	ScenarioUseCase domain.ScenarioUseCase
 	ServiceUseCase  domain.ServiceUseCase
 	WebhookUseCase  domain.WebhookUseCase
+	HttpUserCase    domain.HttpUseCase
 }
 
 // This Resolver includes all of our use cases so we can handle incoming requests
@@ -66,6 +67,7 @@ var legatoRoutesGroups = routeGroups{
 	scenarioRG,
 	webhookRG,
 	nodeRG,
+	httpRG,
 }
 
 // NewRouter get the resolvers and create *gin.Engine that can handle all

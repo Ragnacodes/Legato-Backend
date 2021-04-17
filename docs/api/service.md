@@ -80,6 +80,7 @@ Data field for each one of services is different.
     ```json
     {
         "data": {
+          "id": 23,
           "url": "http://localhost:8080/api/ping",
           "method": "get"
         }
