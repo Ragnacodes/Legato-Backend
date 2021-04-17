@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+const httpType string = "https"
+
 type Http struct {
 	gorm.Model
 	Url     string
@@ -52,6 +54,19 @@ func (ldb *LegatoDB) UpdateHttp(s *Scenario, servId uint, nh Http) error {
 	return nil
 }
 
+func (ldb *LegatoDB) GetHttpByService(serv Service) (*Http, error) {
+	var h Http
+	err := ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&h).Error
+	if err != nil {
+		return nil, err
+	}
+	if h.ID != uint(serv.OwnerID) {
+		return nil, errors.New("the http service is not in this scenario")
+	}
+
+	return &h, nil
+}
+
 // Service Interface for Http
 func (h Http) Execute(...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&h).Error
@@ -85,7 +100,12 @@ func (h Http) Next(...interface{}) {
 	}
 
 	for _, node := range h.Service.Children {
-		node.LoadOwner().Execute()
+		serv, err := node.Load()
+		if err != nil {
+			log.Println("error in loading services in Next()")
+			return
+		}
+		serv.Execute()
 	}
 }
 

@@ -100,6 +100,21 @@ func (s scenarioUseCase) DeleteUserScenarioById(u *api.UserInfo, scenarioId uint
 	return nil
 }
 
+func (s scenarioUseCase) StartScenario(u *api.UserInfo, scenarioId uint) error {
+	user := converter.UserInfoToUserDb(*u)
+	scenario, err := s.db.GetUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return err
+	}
+
+	err = scenario.Start()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s scenarioUseCase) TestScenario() {
 	//time.Sleep(1500 * time.Millisecond)
 	//log.Println("---------------------------")

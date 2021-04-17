@@ -14,8 +14,8 @@ type Service struct {
 	OwnerType  string
 	ParentID   *uint
 	Children   []Service `gorm:"foreignkey:ParentID"`
-	PosX         int
-	PosY         int
+	PosX       int
+	PosY       int
 	UserID     uint
 	ScenarioID *uint
 }
@@ -83,15 +83,22 @@ func (ldb *LegatoDB) GetServicesGraph(root *Service) (*Service, error) {
 	return root, nil
 }
 
-func (s *Service) LoadOwner() services.Service {
-	var wh Webhook
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id = %d", s.OwnerType, s.OwnerID)
-	err := legatoDb.db.Raw(query).Scan(&wh).Error
+func (s *Service) Load() (services.Service, error) {
+	var serv services.Service
+	var err error
+	switch s.OwnerType {
+	case webhookType:
+		serv, err = legatoDb.GetWebhookByService(*s)
+		break
+	case httpType:
+		serv, err = legatoDb.GetHttpByService(*s)
+		break
+	}
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return wh
+	return serv, nil
 }
 
 func (ldb *LegatoDB) AppendChildren(parent *Service, children []Service) {

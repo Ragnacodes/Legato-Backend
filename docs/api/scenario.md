@@ -52,6 +52,18 @@ To create new scenarios.
     }
     ```
 
+### /api/users/:username/scenarios/:scenario_id `PATCH`
+To start the scenarios.
+- Header
+    - `Authorization` = `access_token`
+    
+- Response
+    ```json
+    {
+        "message": "scenario is started successfully"
+    }
+    ```
+
 ### /api/users/:username/scenarios/:scenario_id `DELETE`
 To delete specific scenarios.
 - Response
