@@ -12,13 +12,6 @@ type BriefScenario struct {
 	DigestNodes []string `json:"nodes"`
 }
 
-type FullScenarioGraph struct {
-	ID       uint     `json:"id"`
-	Name     string   `json:"name"`
-	IsActive *bool    `json:"isActive"`
-	Graph    *ServiceNode `json:"graph"`
-}
-
 type FullScenario struct {
 	ID       uint      `json:"id"`
 	Name     string    `json:"name"`

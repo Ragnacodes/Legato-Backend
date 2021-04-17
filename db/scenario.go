@@ -125,7 +125,7 @@ func (s *Scenario) Prepare() error {
 // LoadRootService
 // To Load Root Service of scenario
 func (s *Scenario) LoadRootService() error {
-	servicesEntities, err := legatoDb.GetScenarioRootService(*s)
+	servicesEntities, err := legatoDb.GetScenarioRootServices(*s)
 	if err != nil {
 		return err
 	}

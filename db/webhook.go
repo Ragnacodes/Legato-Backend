@@ -120,7 +120,7 @@ func (ldb *LegatoDB) GetWebhookByService(serv Service) (*Webhook, error) {
 	return &wh, nil
 }
 
-func (ldb *LegatoDB) GetScenarioRootService(s Scenario) ([]Service, error) {
+func (ldb *LegatoDB) GetScenarioRootServices(s Scenario) ([]Service, error) {
 	var ss []Service
 	err := ldb.db.Where("parent_id is NULL").
 		Where("scenario_id = ?", s.ID).
@@ -208,7 +208,7 @@ func (w Webhook) Execute(...interface{}) {
 		panic(err)
 	}
 
-	log.Printf("Executing type (%s) : %s\n", httpType, w.Service.Name)
+	log.Printf("Executing type (%s) : %s\n", webhookType, w.Service.Name)
 
 	w.IsEnable = true
 	legatoDb.db.Save(&w)
@@ -217,7 +217,7 @@ func (w Webhook) Execute(...interface{}) {
 }
 
 func (w Webhook) Post() {
-	log.Printf("Executing type (%s) node in background : %s\n", httpType, w.Service.Name)
+	log.Printf("Executing type (%s) node in background : %s\n", webhookType, w.Service.Name)
 }
 
 func (w Webhook) Next(...interface{}) {
