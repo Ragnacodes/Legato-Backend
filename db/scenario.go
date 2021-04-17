@@ -97,11 +97,13 @@ func (ldb *LegatoDB) DeleteUserScenarioById(u *User, scenarioID uint) error {
 // Start
 // To Start scenario
 func (s *Scenario) Start() error {
+	log.Println("Preparing scenario to start")
 	err := s.Prepare()
 	if err != nil {
 		return err
 	}
 
+	log.Println("Executing root services of this scenario")
 	for _, serv := range s.RootServices {
 		serv.Execute()
 	}

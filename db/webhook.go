@@ -201,12 +201,14 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 
 // Service Interface for Webhook
 func (w Webhook) Execute(...interface{}) {
+	log.Println("*******Starting Webhook Service*******")
+
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Executing %s node: %s\n", "webhook", w.Service.Name)
+	log.Printf("Executing type (%s) : %s\n", httpType, w.Service.Name)
 
 	w.IsEnable = true
 	legatoDb.db.Save(&w)
@@ -215,7 +217,7 @@ func (w Webhook) Execute(...interface{}) {
 }
 
 func (w Webhook) Post() {
-	log.Printf("Executing %s node in background: %s\n", "webhook", w.Service.Name)
+	log.Printf("Executing type (%s) node in background : %s\n", httpType, w.Service.Name)
 }
 
 func (w Webhook) Next(...interface{}) {
@@ -223,6 +225,8 @@ func (w Webhook) Next(...interface{}) {
 	if err != nil {
 		panic(err)
 	}
+
+	log.Printf("Executing \"%s\" Children \n", w.Service.Name)
 
 	for _, node := range w.Service.Children {
 		serv, err := node.Load()
@@ -232,4 +236,6 @@ func (w Webhook) Next(...interface{}) {
 		}
 		serv.Execute()
 	}
+
+	log.Printf("*******End of \"%s\"*******", w.Service.Name)
 }

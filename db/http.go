@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 const httpType string = "https"
@@ -69,12 +71,14 @@ func (ldb *LegatoDB) GetHttpByService(serv Service) (*Http, error) {
 
 // Service Interface for Http
 func (h Http) Execute(...interface{}) {
+	log.Println("*******Starting Http Service*******")
+
 	err := legatoDb.db.Preload("Service").Find(&h).Error
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Executing %s node: %s\n", "http", h.Service.Name)
+	log.Printf("Executing type (%s) : %s\n", httpType, h.Service.Name)
 
 	_, err = makeHttpRequest(h.Url, h.Method)
 	if err != nil {
@@ -85,12 +89,7 @@ func (h Http) Execute(...interface{}) {
 }
 
 func (h Http) Post() {
-	err := legatoDb.db.Preload("Service").Find(&h).Error
-	if err != nil {
-		panic(err)
-	}
-
-	log.Printf("Executing %s node in background: %s\n", "http", h.Service.Name)
+	log.Printf("Executing type (%s) node in background : %s\n", httpType, h.Service.Name)
 }
 
 func (h Http) Next(...interface{}) {
@@ -98,6 +97,8 @@ func (h Http) Next(...interface{}) {
 	if err != nil {
 		panic(err)
 	}
+
+	log.Printf("Executing \"%s\" Children \n", h.Service.Name)
 
 	for _, node := range h.Service.Children {
 		serv, err := node.Load()
@@ -107,15 +108,19 @@ func (h Http) Next(...interface{}) {
 		}
 		serv.Execute()
 	}
+
+	log.Printf("*******End of \"%s\"*******", h.Service.Name)
 }
 
 // Service interface helper functions
 func makeHttpRequest(url string, method string) (res *http.Response, err error) {
+	log.Println("Make http request")
+
 	switch method {
-	case http.MethodGet:
+	case strings.ToLower(http.MethodGet):
 		res, err = http.Get(url)
 		break
-	case http.MethodPost:
+	case strings.ToLower(http.MethodPost):
 		res, err = http.Post(url, "application/json", nil)
 		break
 	}
@@ -123,6 +128,14 @@ func makeHttpRequest(url string, method string) (res *http.Response, err error) 
 	if err != nil {
 		return nil, err
 	}
+
+	// Log the result
+	bodyBytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	bodyString := string(bodyBytes)
+	log.Printf("Response from http request is : \n%s\n", bodyString)
 
 	return res, nil
 }

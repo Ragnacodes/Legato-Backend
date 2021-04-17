@@ -83,6 +83,9 @@ func (ldb *LegatoDB) GetServicesGraph(root *Service) (*Service, error) {
 	return root, nil
 }
 
+// Load
+// It Load the service entity to a services.Service
+// so that we can execute the scenario for them.
 func (s *Service) Load() (services.Service, error) {
 	var serv services.Service
 	var err error
@@ -99,6 +102,29 @@ func (s *Service) Load() (services.Service, error) {
 	}
 
 	return serv, nil
+}
+
+// GetServiceData
+// Each one of services have some special data. By giving the Service model
+// this function returns a map of those data.
+func (s *Service) GetServiceData() (map[string]interface{}, error) {
+	data := make(map[string]interface{})
+
+	switch s.OwnerType {
+	case webhookType:
+		break
+	case httpType:
+		h, err := legatoDb.GetHttpByService(*s)
+		if err != nil {
+			return nil, err
+		}
+
+		data["url"] = h.Url
+		data["method"] = h.Method
+		break
+	}
+
+	return data, nil
 }
 
 func (ldb *LegatoDB) AppendChildren(parent *Service, children []Service) {
