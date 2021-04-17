@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"legato_server/services"
 )
 
 // Each Scenario describes a schema that includes Handler and Events.
@@ -15,8 +16,8 @@ type Scenario struct {
 	Name     string
 	IsActive *bool
 	//RootServiceID *uint
-	//RootService   *Service `gorm:"RootServiceID:"`
-	Services []Service
+	RootService *services.Service `gorm:"-"`
+	Services    []Service
 }
 
 func (s *Scenario) String() string {

@@ -79,7 +79,6 @@ To get all the scenario details including the services list.
                     "userId": 1,
                     "name": "My starter webhook",
                     "type": "webhooks",
-                    "children": [],
                     "position": {
                         "x": 0,
                         "y": 0
@@ -92,7 +91,6 @@ To get all the scenario details including the services list.
                     "userId": 1,
                     "name": "My first http",
                     "type": "webhooks",
-                    "children": [],
                     "position": {
                         "x": 0,
                         "y": 0
@@ -105,7 +103,6 @@ To get all the scenario details including the services list.
                     "userId": 1,
                     "name": "another http",
                     "type": "webhooks",
-                    "children": [],
                     "position": {
                         "x": 0,
                         "y": 0
@@ -118,7 +115,6 @@ To get all the scenario details including the services list.
                     "userId": 1,
                     "name": "My second http",
                     "type": "webhooks",
-                    "children": [],
                     "position": {
                         "x": 0,
                         "y": 0
@@ -156,7 +152,6 @@ To update user scenario.
                     "userId": 1,
                     "name": "My starter webhook",
                     "type": "webhooks",
-                    "children": [],
                     "position": {
                         "x": 0,
                         "y": 0
@@ -169,7 +164,6 @@ To update user scenario.
                     "userId": 1,
                     "name": "My first http",
                     "type": "webhooks",
-                    "children": [],
                     "position": {
                         "x": 0,
                         "y": 0
@@ -182,7 +176,6 @@ To update user scenario.
                     "userId": 1,
                     "name": "another http",
                     "type": "webhooks",
-                    "children": [],
                     "position": {
                         "x": 0,
                         "y": 0
@@ -195,7 +188,6 @@ To update user scenario.
                     "userId": 1,
                     "name": "My second http",
                     "type": "webhooks",
-                    "children": [],
                     "position": {
                         "x": 0,
                         "y": 0

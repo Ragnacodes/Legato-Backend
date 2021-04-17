@@ -104,7 +104,6 @@ To get all services (nodes) in that user scenarios.
                 "userId": 1,
                 "name": "another http",
                 "type": "webhooks",
-                "children": [],
                 "position": {
                     "x": 0,
                     "y": 0
@@ -117,7 +116,6 @@ To get all services (nodes) in that user scenarios.
                 "userId": 1,
                 "name": "My starter webhook",
                 "type": "webhooks",
-                "children": [],
                 "position": {
                     "x": 0,
                     "y": 0
@@ -130,7 +128,6 @@ To get all services (nodes) in that user scenarios.
                 "userId": 1,
                 "name": "updated",
                 "type": "webhooks",
-                "children": [],
                 "position": {
                     "x": 40,
                     "y": 40
@@ -143,7 +140,6 @@ To get all services (nodes) in that user scenarios.
                 "userId": 1,
                 "name": "New http added 22333",
                 "type": "webhooks",
-                "children": [],
                 "position": {
                     "x": 123,
                     "y": 200
@@ -156,7 +152,6 @@ To get all services (nodes) in that user scenarios.
                 "userId": 1,
                 "name": "updated",
                 "type": "webhooks",
-                "children": [],
                 "position": {
                     "x": 40,
                     "y": 40

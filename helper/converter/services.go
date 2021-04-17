@@ -24,19 +24,6 @@ func ServiceDbToService(service *legatoDb.Service) *api.Service {
 	s.Position = api.Position{X: service.PosX, Y: service.PosY}
 	s.Data = struct{}{}
 
-	if len(service.Children) == 0 {
-		s.Children = []api.Service{}
-		return &s
-	}
-
-	var children []api.Service
-	for _, child := range service.Children {
-		childSubGraph := ServiceDbToService(&child)
-		children = append(children, *childSubGraph)
-	}
-
-	s.Children = children
-
 	return &s
 }
 
@@ -48,19 +35,6 @@ func ServiceToServiceDb(service *api.Service, userID uint) legatoDb.Service {
 	s.PosX, s.PosY = service.Position.X, service.Position.Y
 	s.UserID = userID
 	//s.Data = struct{}{}
-
-	if len(service.Children) == 0 {
-		s.Children = []legatoDb.Service{}
-		return s
-	}
-
-	var children []legatoDb.Service
-	for _, child := range service.Children {
-		childSubGraph := ServiceToServiceDb(&child, userID)
-		children = append(children, childSubGraph)
-	}
-
-	s.Children = children
 
 	return s
 }

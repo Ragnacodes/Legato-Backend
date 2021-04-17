@@ -6,7 +6,6 @@ type Service struct {
 	UserId   *uint       `json:"userId"`
 	Name     string      `json:"name"`
 	Type     string      `json:"type"`
-	Children []Service   `json:"children"`
 	Position Position    `json:"position"`
 	Data     interface{} `json:"data"`
 }
