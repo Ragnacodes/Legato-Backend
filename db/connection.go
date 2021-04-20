@@ -2,8 +2,6 @@ package legatoDb
 
 import (
 	"fmt"
-	"legato_server/models"
-	"strings"
 
 	"gorm.io/gorm"
 )
@@ -16,134 +14,91 @@ type Connection struct {
 	Name       string
 }
 
-func (ldb *LegatoDB) AddToken(u *User, c Connection) error {
+func (ldb *LegatoDB) AddConnection(u *User, c Connection) error {
 	c.UserID = u.ID
 	ldb.db.Create(&c)
 	ldb.db.Save(&c)
 	return nil
 }
 
-func (ldb *LegatoDB) GetUserTokens(u *User, ut models.UserGetToken) ([]Connection, error) {
+func (ldb *LegatoDB) GetUserConnections(u *User) ([]Connection, error) {
 	user, _ := ldb.GetUserByUsername(u.Username)
-
 	var connections []Connection
 	ldb.db.Model(&user).Association("Connections").Find(&connections)
 
 	return connections, nil
 }
 
-func (ldb *LegatoDB) GetUserToken(u *User, ut models.UserGetToken) (Connection, error) {
-	user, _ := ldb.GetUserByUsername(u.Username)
+// func (ldb *LegatoDB) GetUserConnectionByName(u *User, name string) (Connection, error) {
+// 	var connection Connection
+// 	err := ldb.db.
+// 		Where(&Scenario{UserID: u.ID}).
+// 		Where("Name = ?", name).
+// 		Find(&connection).Error
+// 	return connection, err
+// }
 
-	var connections []Connection
-	var connection Connection
-	ldb.db.Model(&user).Association("Connections").Find(&connections)
-	for _, con := range connections {
-		if strings.EqualFold(con.Name, ut.Name) && strings.EqualFold(con.Token_type, ut.Token_type) {
-			connection = con
-		} else {
-			connection.Token = "can not find token"
-		}
-	}
-	return connection, nil
-}
-
-func (ldb *LegatoDB) GetUserTokenById(u *User, name string) (Connection, error) {
+func (ldb *LegatoDB) GetUserConnectionById(u *User, id uint) (Connection, error) {
 	var con Connection
 	err := ldb.db.
 		Where(&Connection{UserID: u.ID}).
-		Where("Name = ?", name).
-		Preload("Token").Find(&con).Error
+		Where("ID = ?", id).Find(&con).Error
 	if err != nil {
 		conect := Connection{}
-		conect.Token = "couldn' find toke"
-		return Connection{}, fmt.Errorf("can not find token")
+		conect.Token = "couldn' find connection"
+		return Connection{}, fmt.Errorf("can not find connection")
 	}
-
 	return con, nil
 }
 
-func (ldb *LegatoDB) UpdateUserTokenById(u *User, name string, ut models.UserGetToken, id uint) error {
+func (ldb *LegatoDB) UpdateUserConnectionByID(u *User, name string, id uint) error {
 	var connection Connection
-	var connections []Connection
-	ldb.db.Model(&u).Association("Connections").Find(&connections)
-	flag := false
-	for _, con := range connections {
-		if con.ID == id {
-			connection = con
-			flag = true
-		}
-	}
-	if flag == false {
 
-		return fmt.Errorf("can not find token")
+	err := ldb.db.Take(&Connection{}).
+		Where("ID = ?", id).Find(&connection).Error
 
+	if err == nil && connection.UserID == u.ID {
+		connection.Name = name
+		ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&connection)
+		ldb.db.Model(&connection).Update(connection.Token, name)
+		ldb.db.Save(&connection)
 	}
-	connection.Name = name
-	ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&connection)
-	ldb.db.Model(&connection).Update(connection.Name, name)
-	ldb.db.Save(&connection)
-	return nil
+	return err
 }
 
-func (ldb *LegatoDB) CheckTokenByID(user *User, id uint) error {
+func (ldb *LegatoDB) CheckConnectionByID(u *User, id uint) error {
 
-	var connections []Connection
-	ldb.db.Model(&user).Association("Connections").Find(&connections)
-	flag := false
-	for _, con := range connections {
-		if con.ID == id {
-			flag = true
-		}
+	var connection Connection
+	err := ldb.db.Take(&Connection{}).
+		Where("ID = ?", id).Find(&connection).Error
+	if connection.UserID == u.ID && err == nil {
+		return nil
 	}
-	if flag == false {
 
-		return fmt.Errorf("can not find token")
-
-	}
-	return nil
+	return fmt.Errorf("there is no connection with this id for this user")
 }
 
-func (ldb *LegatoDB) DeleteConnectionByID(u *User, ut models.UserGetToken, id uint) error {
+func (ldb *LegatoDB) DeleteConnectionByID(id uint) error {
+	// ldb.db.Delete(&Connection{}, id)
+	// err := ldb.db.Take(&Connection{}).Where("id = ?", id).Delete(&Connection{}).Error
 	var connection Connection
-	var connections []Connection
-	ldb.db.Model(&u).Association("Connections").Find(&connections)
-	flag := false
-	for _, con := range connections {
-		if con.ID == id {
-			connection = con
-			flag = true
-		}
-	}
-	if flag == false {
-
-		return fmt.Errorf("can not find token")
-
-	}
-	ldb.db.Delete(&Connection{}, id)
-	ldb.db.Save(&connection)
-	return nil
+	err := ldb.db.Take(&Connection{}).
+		Where("ID = ?", id).Find(&connection).Error
+	ldb.db.Delete(&connection)
+	return err
 }
 
-func (ldb *LegatoDB) UpdateUserTokenByName(u *User, Token string, ut models.UserGetToken, id uint) error {
+func (ldb *LegatoDB) UpdateTokenFieldByID(u *User, Token string, id uint) error {
 	var connection Connection
-	var connections []Connection
-	ldb.db.Model(&u).Association("Connections").Find(&connections)
-	flag := false
-	for _, con := range connections {
-		if con.ID == id {
-			connection = con
-			flag = true
-		}
-	}
-	if flag == false {
 
-		return fmt.Errorf("can not find token")
+	err := ldb.db.Take(&Connection{}).
+		Where("ID = ?", id).Find(&connection).Error
 
+	if err == nil && connection.UserID == u.ID {
+		connection.Token = Token
+		ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&connection)
+		ldb.db.Model(&connection).Update(connection.Token, Token)
+		ldb.db.Save(&connection)
 	}
-	connection.Token = Token
-	ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&connection)
-	ldb.db.Model(&connection).Update(connection.Token, Token)
-	ldb.db.Save(&connection)
-	return nil
+	return err
 }

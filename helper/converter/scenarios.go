@@ -1,11 +1,11 @@
 package converter
 
 import (
+	"legato_server/api"
 	"legato_server/db"
-	"legato_server/models"
 )
 
-func NewScenarioToScenarioDb(ns models.NewScenario) legatoDb.Scenario {
+func NewScenarioToScenarioDb(ns api.NewScenario) legatoDb.Scenario {
 	s := legatoDb.Scenario{}
 	s.Name = ns.Name
 	s.IsActive = ns.IsActive
@@ -13,8 +13,8 @@ func NewScenarioToScenarioDb(ns models.NewScenario) legatoDb.Scenario {
 	return s
 }
 
-func ScenarioDbToBriefScenario(s legatoDb.Scenario) models.BriefScenario {
-	bs := models.BriefScenario{}
+func ScenarioDbToBriefScenario(s legatoDb.Scenario) api.BriefScenario {
+	bs := api.BriefScenario{}
 	bs.ID = s.ID
 	bs.Name = s.Name
 	bs.IsActive = s.IsActive
@@ -28,8 +28,8 @@ func ScenarioDbToBriefScenario(s legatoDb.Scenario) models.BriefScenario {
 	return bs
 }
 
-func ScenarioDbToFullScenario(s legatoDb.Scenario) models.FullScenario {
-	fs := models.FullScenario{}
+func ScenarioDbToFullScenario(s legatoDb.Scenario) api.FullScenario {
+	fs := api.FullScenario{}
 	fs.ID = s.ID
 	fs.Name = s.Name
 	fs.IsActive = s.IsActive
@@ -38,13 +38,13 @@ func ScenarioDbToFullScenario(s legatoDb.Scenario) models.FullScenario {
 	return fs
 }
 
-func FullScenarioToScenarioDb(fs models.FullScenario) legatoDb.Scenario {
+func FullScenarioToScenarioDb(fs api.FullScenario, userID uint) legatoDb.Scenario {
 	s := legatoDb.Scenario{}
 	s.Name = fs.Name
 	s.IsActive = fs.IsActive
 	// Graph
 	if fs.Graph != nil {
-		root := ServiceToServiceDb(fs.Graph)
+		root := ServiceToServiceDb(fs.Graph, userID)
 		s.RootService = &root
 	} else {
 		s.RootService = nil

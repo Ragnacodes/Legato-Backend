@@ -1,9 +1,10 @@
 package usecase
 
 import (
+	"legato_server/api"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
-	"legato_server/models"
+	"legato_server/helper/converter"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -21,9 +22,10 @@ func NewWebhookUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Webh
 	}
 }
 
-func (w *WebhookUseCase) Create(name string) models.WebhookUrl {
-	wh := w.db.CreateWebhook(name)
-	return models.WebhookUrl{WebhookUrl: wh.WebhookID.String()}
+func (w *WebhookUseCase) Create(u *api.UserInfo, name string) api.WebhookInfo {
+	user, _ := w.db.GetUserByUsername(u.Username)
+	wh := w.db.CreateWebhook(&user, name)
+	return converter.WebhookDbToWebhookInfo(*wh)
 }
 
 func (w *WebhookUseCase) Exists(ids string) (*legatoDb.Webhook, error){
@@ -48,4 +50,19 @@ func (w *WebhookUseCase) Update(ids string, vals map[string]interface{}) error{
 		return  err
 	}
 	return nil
+}
+
+func (w *WebhookUseCase) List(u *api.UserInfo) ([]api.WebhookInfo, error){
+	user := converter.UserInfoToUserDb(*u)
+	webhooks, err := w.db.GetUserWebhooks(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	var WebhookInfos []api.WebhookInfo
+	for _, w := range webhooks {
+		WebhookInfos = append(WebhookInfos, converter.WebhookDbToWebhookInfo(w))
+	}
+
+	return WebhookInfos, nil
 }

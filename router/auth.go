@@ -1,12 +1,11 @@
 package router
 
 import (
+	"github.com/gin-gonic/gin"
+	"legato_server/api"
 	"legato_server/middleware"
-	"legato_server/models"
 	"net/http"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 const Authorization = "Authorization"
@@ -40,12 +39,18 @@ var authRG = routeGroup{
 			"auth/protected",
 			protectedPage,
 		},
+		route{
+			"Get logged in user",
+			GET,
+			"auth/user",
+			getLoggedInUser,
+		},
 	},
 }
 
 // signup creates new users
 func signup(c *gin.Context) {
-	newUser := models.NewUser{}
+	newUser := api.NewUser{}
 	_ = c.BindJSON(&newUser)
 
 	err := resolvers.UserUseCase.RegisterNewUser(newUser)
@@ -63,7 +68,7 @@ func signup(c *gin.Context) {
 
 // login is for authorizing and generating access token
 func login(c *gin.Context) {
-	userCredentials := models.UserCredential{}
+	userCredentials := api.UserCredential{}
 	_ = c.BindJSON(&userCredentials)
 
 	token, err := resolvers.UserUseCase.Login(userCredentials)
@@ -96,13 +101,28 @@ func refresh(c *gin.Context) {
 
 // protectedPage is a test api for getting all of the user details
 func protectedPage(c *gin.Context) {
-	loginUser := checkAuth(c, nil)
-	if loginUser == nil {
+	loggedInUser := checkAuth(c, nil)
+	if loggedInUser == nil {
 		return
 	}
 
 	users, _ := resolvers.UserUseCase.GetAllUsers()
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, gin.H{
+		"users": users,
+	})
+}
+
+// getLoggedInUser will get the token in the header.
+// Returns loggedInUser
+func getLoggedInUser(c *gin.Context) {
+	loggedInUser := checkAuth(c, nil)
+	if loggedInUser == nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": loggedInUser,
+	})
 }
 
 /*
@@ -114,7 +134,7 @@ func protectedPage(c *gin.Context) {
 // validUsers is list of usernames that the api is accessible for them.
 // nil validUsers means that any authenticated user can use api.
 // Return the logged in user.
-func checkAuth(c *gin.Context, validUsers []string) *models.UserInfo {
+func checkAuth(c *gin.Context, validUsers []string) *api.UserInfo {
 	// Get the user
 	rawData := c.MustGet(middleware.UserKey)
 	if rawData == nil {
@@ -124,7 +144,7 @@ func checkAuth(c *gin.Context, validUsers []string) *models.UserInfo {
 		return nil
 	}
 
-	loginUser := rawData.(*models.UserInfo)
+	loginUser := rawData.(*api.UserInfo)
 	if loginUser == nil {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "access denied",
@@ -150,8 +170,7 @@ func checkAuth(c *gin.Context, validUsers []string) *models.UserInfo {
 	})
 	return nil
 }
-
-func checkAuthforconnection(c *gin.Context, validUsers []string, request string) *models.UserInfo {
+func checkAuthforconnection(c *gin.Context, validUsers []string, request string) *api.UserInfo {
 	// Get the user
 	rawData := c.MustGet(middleware.UserKey)
 	if rawData == nil {
@@ -161,7 +180,7 @@ func checkAuthforconnection(c *gin.Context, validUsers []string, request string)
 		return nil
 	}
 
-	loginUser := rawData.(*models.UserInfo)
+	loginUser := rawData.(*api.UserInfo)
 	if loginUser == nil {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "access denied",

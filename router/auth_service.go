@@ -2,8 +2,9 @@ package router
 
 import (
 	"fmt"
-	"legato_server/models"
+	"legato_server/api"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -14,52 +15,52 @@ var ConnectionRG = routeGroup{
 	"Connection routers",
 	routes{
 		route{
-			"token url",
+			"Connection urls",
 			POST,
 			"user/connection/access/token/urls",
 			connection_auth_url,
 		},
 		route{
-			"Add Token",
+			"Add Connection",
 			POST,
-			"users/:username/connections/addtoken",
-			AddTokens,
+			"users/:username/add/connection",
+			addConnection,
 		},
 		route{
-			"Get Token",
-			POST,
-			"users/:username/connection/gettoken",
-			GetToken,
-		},
-		route{
-			"Get Tokens",
+			"Retrun connection",
 			GET,
-			"users/:username/connection/gettokens",
-			GetTokens,
+			"users/:username/get/connection/:id",
+			returnConnection,
+		},
+		route{
+			"Return Connections",
+			GET,
+			"users/:username/get/connections",
+			GetConnections,
 		},
 		route{
 			"update Token",
 			PUT,
-			"users/:username/connection/update/token/name",
-			UpdateTokenNameByID,
+			"users/:username/update/connection/token/:id",
+			UpdateTokenFieldByID,
 		},
 		route{
 			"check Token",
-			POST,
-			"users/:username/connection/check/token",
-			CheckToken,
+			GET,
+			"users/:username/check/connection/:id",
+			checkConnection,
 		},
 		route{
 			"delete Token",
-			POST,
-			"users/:username/connection/delete/token",
+			DELETE,
+			"users/:username/connection/delete/:id",
 			DeleteConnectionByID,
 		},
 		route{
 			"update Token",
 			PUT,
-			"users/:username/connection/update/token/token",
-			UpdateUserTokenByName,
+			"users/:username/update/connection/name/:id",
+			UpdateConnectionNameByID,
 		},
 	},
 }
@@ -70,7 +71,7 @@ const git_authenticate_url = "https://github.com/login/oauth/authorize?access_ty
 const discord_authenticate_url = "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:3000/redirect/discord/&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
 
 func connection_auth_url(c *gin.Context) {
-	usertoken := models.UserAddToken{}
+	usertoken := api.Connection{}
 	_ = c.BindJSON(&usertoken)
 	if strings.EqualFold(usertoken.Token_type, "spotify") {
 		c.JSON(200, gin.H{
@@ -94,9 +95,9 @@ func connection_auth_url(c *gin.Context) {
 	}
 }
 
-func AddTokens(c *gin.Context) {
+func addConnection(c *gin.Context) {
 	username := c.Param("username")
-	usertoken := models.UserAddToken{}
+	usertoken := api.Connection{}
 	_ = c.BindJSON(&usertoken)
 
 	// Authenticate
@@ -106,7 +107,7 @@ func AddTokens(c *gin.Context) {
 	}
 
 	// Add token
-	err := resolvers.UserUseCase.AddTokenDB(username, usertoken)
+	err := resolvers.UserUseCase.AddConnectionDB(username, usertoken)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not add token: %s", err),
@@ -119,9 +120,10 @@ func AddTokens(c *gin.Context) {
 	})
 }
 
-func GetToken(c *gin.Context) {
-	usertoken := models.UserGetToken{}
+func returnConnection(c *gin.Context) {
+	usertoken := api.Connection{}
 	username := c.Param("username")
+	id := c.Param("id")
 	_ = c.BindJSON(&usertoken)
 
 	// Authenticate
@@ -129,29 +131,27 @@ func GetToken(c *gin.Context) {
 	if loginUser == nil {
 		return
 	}
-	token, err := resolvers.UserUseCase.GetTokenByUsername(username, usertoken)
-	if err == nil {
+	i, _ := strconv.Atoi(id)
+	token, err := resolvers.UserUseCase.GetConnectionByID(username, uint(i))
+	if err == nil && !strings.EqualFold(token.Token, "") {
 		c.JSON(200, gin.H{
 			"token": token.Token,
 		})
 	} else {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"error": "can not find token",
 		})
 	}
 }
 
-func GetTokens(c *gin.Context) {
-	usertoken := models.UserGetToken{}
+func GetConnections(c *gin.Context) {
 	username := c.Param("username")
-	_ = c.BindJSON(&usertoken)
-
 	// Authenticate
 	loginUser := checkAuthforconnection(c, []string{username}, "gettoken")
 	if loginUser == nil {
 		return
 	}
-	connections, err := resolvers.UserUseCase.GetTokensByUsername(username, usertoken)
+	connections, err := resolvers.UserUseCase.GetConnectionsByUsername(username)
 
 	if err == nil {
 		c.JSON(200, gin.H{
@@ -164,9 +164,10 @@ func GetTokens(c *gin.Context) {
 	}
 }
 
-func UpdateTokenNameByID(c *gin.Context) {
-	usertoken := models.UserGetToken{}
+func UpdateConnectionNameByID(c *gin.Context) {
+	usertoken := api.Connection{}
 	username := c.Param("username")
+	id := c.Param("id")
 	_ = c.BindJSON(&usertoken)
 
 	// Authenticate
@@ -174,7 +175,9 @@ func UpdateTokenNameByID(c *gin.Context) {
 	if loginUser == nil {
 		return
 	}
-	err := resolvers.UserUseCase.UpdateUserTokenById(username, usertoken)
+	i, _ := strconv.Atoi(id)
+	usertoken.ID = i
+	err := resolvers.UserUseCase.UpdateUserConnectionNameById(username, usertoken)
 	if err == nil {
 		c.JSON(200, gin.H{
 			"message": "update token successfully",
@@ -186,17 +189,16 @@ func UpdateTokenNameByID(c *gin.Context) {
 	}
 }
 
-func CheckToken(c *gin.Context) {
-	usertoken := models.UserGetToken{}
+func checkConnection(c *gin.Context) {
 	username := c.Param("username")
-	_ = c.BindJSON(&usertoken)
-
+	id := c.Param("id")
 	// Authenticate
 	loginUser := checkAuthforconnection(c, []string{username}, "checktoken")
 	if loginUser == nil {
 		return
 	}
-	err := resolvers.UserUseCase.CheckTokenByID(username, usertoken)
+	i, _ := strconv.Atoi(id)
+	err := resolvers.UserUseCase.CheckConnectionByID(username, uint(i))
 	if err == nil {
 		c.JSON(200, gin.H{
 			"message": "correct token",
@@ -208,30 +210,30 @@ func CheckToken(c *gin.Context) {
 	}
 }
 func DeleteConnectionByID(c *gin.Context) {
-	usertoken := models.UserGetToken{}
 	username := c.Param("username")
-	_ = c.BindJSON(&usertoken)
-
+	id := c.Param("id")
 	// Authenticate
 	loginUser := checkAuthforconnection(c, []string{username}, "deletetoken")
 	if loginUser == nil {
 		return
 	}
-	err := resolvers.UserUseCase.DeleteUserTokenById(username, usertoken)
+	i, _ := strconv.Atoi(id)
+	err := resolvers.UserUseCase.DeleteUserConnectionById(uint(i))
 	if err == nil {
 		c.JSON(200, gin.H{
 			"message": "deleted token successfully",
 		})
 	} else {
-		c.JSON(200, gin.H{
-			"error": "can not delete token with this ID",
+		c.JSON(400, gin.H{
+			"error": "can not deleled",
 		})
 	}
 }
 
-func UpdateUserTokenByName(c *gin.Context) {
-	usertoken := models.UserGetToken{}
+func UpdateTokenFieldByID(c *gin.Context) {
+	usertoken := api.Connection{}
 	username := c.Param("username")
+	id := c.Param("id")
 	_ = c.BindJSON(&usertoken)
 
 	// Authenticate
@@ -239,7 +241,9 @@ func UpdateUserTokenByName(c *gin.Context) {
 	if loginUser == nil {
 		return
 	}
-	err := resolvers.UserUseCase.UpdateUserTokenByName(username, usertoken)
+	i, _ := strconv.Atoi(id)
+	usertoken.ID = i
+	err := resolvers.UserUseCase.UpdateTokenFieldByID(username, usertoken)
 	if err == nil {
 		c.JSON(200, gin.H{
 			"message": "update token successfully",

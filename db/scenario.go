@@ -3,7 +3,6 @@ package legatoDb
 import (
 	"fmt"
 	"gorm.io/gorm"
-	"legato_server/services"
 	"log"
 	"strconv"
 )
@@ -17,13 +16,21 @@ type Scenario struct {
 	Name          string
 	IsActive      *bool
 	RootServiceID *uint
-	RootService   *Service         `gorm:"RootServiceID:"`
-	Root          services.Service `gorm:"-"`
+	RootService   *Service    `gorm:"RootServiceID:"`
 }
 
 func (s *Scenario) String() string {
 	return fmt.Sprintf("(@Scenario: %+v)", *s)
 }
+
+
+// To Start scenario
+func (s *Scenario) Start() error {
+	log.Printf("Scenario root %s is Executing:", s.RootService.Name)
+	s.RootService.LoadOwner().Execute()
+	return nil
+}
+
 
 func (ldb *LegatoDB) AddScenario(u *User, s *Scenario) error {
 	log.Println(s.String())
@@ -73,14 +80,5 @@ func (ldb *LegatoDB) UpdateUserScenarioById(u *User, scenarioID string, updatedS
 	updatedScenario.ID = uint(sid)
 	ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&updatedScenario)
 
-	return nil
-}
-
-
-// Scenario methods
-
-// To Start scenario
-func (s *Scenario) Start() error {
-	s.RootService.LoadOwner().Execute()
 	return nil
 }
