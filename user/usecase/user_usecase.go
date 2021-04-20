@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"legato_server/api"
 	"legato_server/authenticate"
 	legatoDb "legato_server/db"
@@ -127,7 +126,7 @@ func (u *userUseCase) AddConnectionDB(name string, ut api.Connection) error {
 	con.UserID = uint(ut.ID)
 	err := u.db.AddConnection(&user, con)
 	if err != nil {
-		return fmt.Errorf("can not add token")
+		return err
 	}
 
 	return nil
@@ -143,7 +142,7 @@ func (u *userUseCase) GetConnectionsByUsername(username string) ([]legatoDb.Conn
 	user, _ := u.db.GetUserByUsername(username)
 	connections, err := u.db.GetUserConnections(&user)
 	if err != nil {
-		return nil, fmt.Errorf("can not find token")
+		return nil, err
 	}
 	return connections, nil
 }
@@ -151,7 +150,7 @@ func (u *userUseCase) GetConnectionsByUsername(username string) ([]legatoDb.Conn
 func (u *userUseCase) UpdateUserConnectionNameById(username string, ut api.Connection) error {
 	user, _ := u.db.GetUserByUsername(username)
 
-	err := u.db.UpdateUserConnectionByID(&user, ut.Name, uint(ut.ID))
+	err := u.db.UpdateUserConnectionNameByID(&user, ut.Name, uint(ut.ID))
 
 	if err != nil {
 		return err
@@ -164,14 +163,14 @@ func (u *userUseCase) CheckConnectionByID(username string, id uint) error {
 	user, _ := u.db.GetUserByUsername(username)
 	err := u.db.CheckConnectionByID(&user, id)
 	if err != nil {
-		return fmt.Errorf("can not find token")
+		return err
 	}
 	return err
 }
 
-func (u *userUseCase) DeleteUserConnectionById(id uint) error {
-
-	err := u.db.DeleteConnectionByID(id)
+func (u *userUseCase) DeleteUserConnectionById(username string, id uint) error {
+	user, _ := u.db.GetUserByUsername(username)
+	err := u.db.DeleteConnectionByID(&user, id)
 
 	if err != nil {
 		return err
