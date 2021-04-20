@@ -96,6 +96,8 @@ func connection_auth_url(c *gin.Context) {
 }
 
 func addConnection(c *gin.Context) {
+	// this function add connection
+
 	username := c.Param("username")
 	usertoken := api.Connection{}
 	_ = c.BindJSON(&usertoken)
@@ -106,7 +108,6 @@ func addConnection(c *gin.Context) {
 		return
 	}
 
-	// Add token
 	err := resolvers.UserUseCase.AddConnectionDB(username, usertoken)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -121,6 +122,7 @@ func addConnection(c *gin.Context) {
 }
 
 func returnConnection(c *gin.Context) {
+	//this function retuen a connection
 	usertoken := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
@@ -138,13 +140,14 @@ func returnConnection(c *gin.Context) {
 			"token": token.Token,
 		})
 	} else {
-		c.JSON(400, gin.H{
-			"error": "can not find token",
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not find connection : %s", err),
 		})
 	}
 }
 
 func GetConnections(c *gin.Context) {
+	// this function return list of all connections of a user
 	username := c.Param("username")
 	// Authenticate
 	loginUser := checkAuthforconnection(c, []string{username}, "gettoken")
@@ -158,13 +161,14 @@ func GetConnections(c *gin.Context) {
 			"connections": connections,
 		})
 	} else {
-		c.JSON(200, gin.H{
-			"error": "can not find tokens",
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not find connections: %s", err),
 		})
 	}
 }
 
 func UpdateConnectionNameByID(c *gin.Context) {
+	// this function update name of connection with id
 	usertoken := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
@@ -180,16 +184,17 @@ func UpdateConnectionNameByID(c *gin.Context) {
 	err := resolvers.UserUseCase.UpdateUserConnectionNameById(username, usertoken)
 	if err == nil {
 		c.JSON(200, gin.H{
-			"message": "update token successfully",
+			"message": "update connection successfully",
 		})
 	} else {
-		c.JSON(200, gin.H{
-			"error": "can not update tokens",
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not update connection: %s", err),
 		})
 	}
 }
 
 func checkConnection(c *gin.Context) {
+	// this function check if there is a connection with this id for a user
 	username := c.Param("username")
 	id := c.Param("id")
 	// Authenticate
@@ -201,15 +206,16 @@ func checkConnection(c *gin.Context) {
 	err := resolvers.UserUseCase.CheckConnectionByID(username, uint(i))
 	if err == nil {
 		c.JSON(200, gin.H{
-			"message": "correct token",
+			"message": "true",
 		})
 	} else {
-		c.JSON(200, gin.H{
-			"error": "there is no token with this id",
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "false",
 		})
 	}
 }
 func DeleteConnectionByID(c *gin.Context) {
+	// this function delete a connection with id
 	username := c.Param("username")
 	id := c.Param("id")
 	// Authenticate
@@ -218,19 +224,20 @@ func DeleteConnectionByID(c *gin.Context) {
 		return
 	}
 	i, _ := strconv.Atoi(id)
-	err := resolvers.UserUseCase.DeleteUserConnectionById(uint(i))
+	err := resolvers.UserUseCase.DeleteUserConnectionById(username, uint(i))
 	if err == nil {
 		c.JSON(200, gin.H{
-			"message": "deleted token successfully",
+			"message": "deleted connection successfully",
 		})
 	} else {
-		c.JSON(400, gin.H{
-			"error": "can not deleled",
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not delete connection: %s", err),
 		})
 	}
 }
 
 func UpdateTokenFieldByID(c *gin.Context) {
+	// this function update token field in connection with id
 	usertoken := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
@@ -246,11 +253,11 @@ func UpdateTokenFieldByID(c *gin.Context) {
 	err := resolvers.UserUseCase.UpdateTokenFieldByID(username, usertoken)
 	if err == nil {
 		c.JSON(200, gin.H{
-			"message": "update token successfully",
+			"message": "update connection successfully",
 		})
 	} else {
-		c.JSON(200, gin.H{
-			"error": "can not update tokens",
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not update connection: %s", err),
 		})
 	}
 }
