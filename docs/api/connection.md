@@ -1,4 +1,4 @@
-### /api/users/:username/connections/addtoken`POST`
+### /api/users/:username/add/connection `POST`
 To create a new connection.
 - Request
     ```json
@@ -16,15 +16,9 @@ To create a new connection.
         "message": "token added"
     }
     ```
-### /api/users/:username/connection/gettoken `POST`
-get the connection .
-- Request
-    ```json
-    {
-        "name": "git1",
-        "token_type": "github"
-    }
-    ```
+### /api/users/:username/get/connection/:id `GET`
+get the connection with id
+
 - Response
     ```json
     {
@@ -48,7 +42,7 @@ Request
     }
 
 
-### /api/users/:username/connection/gettokens `GET`
+### /api/users/:username/get/connections `GET`
 get the all  connections of a user as list .
 - Header
     - `Authorization` = `access_token`
@@ -88,13 +82,12 @@ get the all  connections of a user as list .
     ]
     ```
 
-### /api/users/:username/connection/update/token/name `PUT`
-get the token of a connection .
+### /api/users/:username/update/connection/name/:id `PUT`
+update name of a connection with id.
 - Request
     ```json
     {
        "name": "git1",
-        "id": 1
     ```
 - Response
     ```json
@@ -103,15 +96,8 @@ get the token of a connection .
     }
     ```
 
-### /api/users/:username/connection/check/token `POST`
+### /api/"users/:username/check/connection/:id `GET`
 get a id and check if there is a connection with this id for a user return correct token
-- Request
-    ```json
-    {
-        "id": 1,
-        
-    }
-    ```
 - Response
     ```json
     {
@@ -119,12 +105,11 @@ get a id and check if there is a connection with this id for a user return corre
     }
     ```
 
-### /api/users/:username/connection/update/token/token `PUT`
-get the connection token.
+### /api/users/:username/update/connection/token/:id `PUT`
+update field token in connection with id.
 - Request
     ```json
     {
-        "id" : 2,
         "token" : "asdpjbfipdsafhbcop;bfdhsbocp;x"
     ```
 - Response
@@ -135,15 +120,8 @@ get the connection token.
     ```
 
 
-### /api/users/:username/connection/delete/token `POST`
-delete the connection .
-- Request
-    ```json
-    {
-        "id": 1,
-        
-    }
-    ```
+### /api/users/:username/connection/delete/:id `DELETE`
+delete the connection with id.
 - Response
     ```json
     {
