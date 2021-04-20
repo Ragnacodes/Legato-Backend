@@ -4,6 +4,7 @@
 - [Authentication](api/auth.md)
 - [Scenario](api/scenario.md)
 - [Webhook](api/webhook.md)
+- [Connection](api/connection.md)
 
 ### Defaults
 There are some default models in the database for testing purposes.
