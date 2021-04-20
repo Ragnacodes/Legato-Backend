@@ -1,11 +1,12 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"legato_server/api"
 	"legato_server/middleware"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 const Authorization = "Authorization"
@@ -203,12 +204,12 @@ func checkAuthforconnection(c *gin.Context, validUsers []string, request string)
 	// If the api is not accessible
 	if strings.EqualFold(request, "addtoken") {
 		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not add token for this user",
+			"message": "access denied: can not add connection for this user",
 		})
 	}
 	if strings.EqualFold(request, "gettoken") {
 		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not get token for this user",
+			"message": "access denied: can not get connection for this user",
 		})
 	}
 	if strings.EqualFold(request, "tokenurl") {
@@ -218,27 +219,22 @@ func checkAuthforconnection(c *gin.Context, validUsers []string, request string)
 	}
 	if strings.EqualFold(request, "tokenurl") {
 		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not update this token for this user",
+			"message": "access denied: can not update this connection for this user",
 		})
 	}
 	if strings.EqualFold(request, "checktoken") {
 		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not find token with this ID for this user",
+			"message": "access denied: can not find connection with this ID for this user",
 		})
 	}
 	if strings.EqualFold(request, "deletetoken") {
 		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not delete token with this ID for this user",
+			"message": "access denied: can not delete connection with this ID for this user",
 		})
 	}
 	if strings.EqualFold(request, "updatetoken") {
 		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not update token with this ID for this user",
-		})
-	}
-	if strings.EqualFold(request, "updateotoken") {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not update token with this ID for this user",
+			"message": "access denied: can not update connection with this ID for this user",
 		})
 	}
 	return nil
