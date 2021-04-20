@@ -18,6 +18,6 @@ type UserUseCase interface {
 	GetConnectionsByUsername(username string) ([]legatoDb.Connection, error)
 	UpdateUserConnectionNameById(username string, ut api.Connection) error
 	CheckConnectionByID(username string, id uint) error
-	DeleteUserConnectionById(id uint) error
+	DeleteUserConnectionById(username string, id uint) error
 	UpdateTokenFieldByID(username string, ut api.Connection) error
 }
