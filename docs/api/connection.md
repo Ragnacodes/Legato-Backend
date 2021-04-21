@@ -1,14 +1,13 @@
 ### /api/users/:username/add/connection `POST`
 To create a new connection.
+
 - Request
     ```json
     {
-    "name" :"spotify3",
-    "token_type" : "spotify",
-    "token" : "1afcd222222sdcfaxfdfa52aafkkkbvdj"
-
-
-}
+        "name" :"spotify3",
+        "token_type" : "spotify",
+        "token" : "1afcd222222sdcfaxfdfa52aafkkkbvdj"
+    }
     ```
 - Response
     ```json
@@ -17,7 +16,7 @@ To create a new connection.
     }
     ```
 ### /api/users/:username/get/connection/:id `GET`
-get the connection with id
+To get the user connection with id.
 
 - Response
     ```json
@@ -28,8 +27,9 @@ get the connection with id
 
 
 ### /api/user/connection/access/token/urls `POST`
-get you access url for apps you shod send token_type to back .if token_type = "spotify" redirect to spotify access url . other app is git discord google
-Request
+To get the access url for apps you would like to connect.
+`token_type` specifies the service etc. if it is `token_type = "spotify"`,  it will redirect to spotify.
+- Request
     ```json
     {
         "token_type": "discord"
@@ -41,11 +41,15 @@ Request
         "spotify_url": "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:8080/callback&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
     }
     ```
+  
+> `token_type` are spotify, google, git, discord.
 
 ### /api/users/:username/get/connections `GET`
-get the all  connections of a user as list .
+To get the all  connections of a user as list .
+
 - Header
     - `Authorization` = `access_token`
+    
  - Response
      ```json
     [
@@ -83,11 +87,12 @@ get the all  connections of a user as list .
     ```
 
 ### /api/users/:username/update/connection/name/:id `PUT`
-update name of a connection with id.
+To update the name of a connection with id.
 - Request
     ```json
     {
-       "name": "git1",
+       "name": "git1"
+    }
     ```
 - Response
     ```json
@@ -97,7 +102,7 @@ update name of a connection with id.
     ```
 
 ### /api/"users/:username/check/connection/:id `GET`
-get a id and check if there is a connection with this id for a user return correct token
+To get the id of a connection and check if there is a connection with this id for a user return correct token
 - Response
     ```json
     {
@@ -106,11 +111,12 @@ get a id and check if there is a connection with this id for a user return corre
     ```
 
 ### /api/users/:username/update/connection/token/:id `PUT`
-update field token in connection with id.
+To update field token in connection with id.
 - Request
     ```json
     {
         "token" : "asdpjbfipdsafhbcop;bfdhsbocp;x"
+    }
     ```
 - Response
     ```json
@@ -121,7 +127,7 @@ update field token in connection with id.
 
 
 ### /api/users/:username/connection/delete/:id `DELETE`
-delete the connection with id.
+To delete the connection with id.
 - Response
     ```json
     {
