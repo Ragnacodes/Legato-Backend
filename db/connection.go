@@ -14,11 +14,11 @@ type Connection struct {
 	Name       string
 }
 
-func (ldb *LegatoDB) AddConnection(u *User, c Connection) error {
+func (ldb *LegatoDB) AddConnection(u *User, c Connection) (Connection, error) {
 	c.UserID = u.ID
 	ldb.db.Create(&c)
 	ldb.db.Save(&c)
-	return nil
+	return c, nil
 }
 
 func (ldb *LegatoDB) GetUserConnections(u *User) ([]Connection, error) {
