@@ -117,19 +117,19 @@ func (u *userUseCase) CreateDefaultUser() error {
 	return nil
 }
 
-func (u *userUseCase) AddConnectionDB(name string, ut api.Connection) error {
+func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Connection, error) {
 	user, _ := u.db.GetUserByUsername(name)
 	con := legatoDb.Connection{}
 	con.Name = ut.Name
 	con.Token = ut.Token
 	con.Token_type = ut.Token_type
 	con.UserID = uint(ut.ID)
-	err := u.db.AddConnection(&user, con)
+	c, err := u.db.AddConnection(&user, con)
 	if err != nil {
-		return err
+		return api.Connection{}, err
 	}
-
-	return nil
+	ut.ID = int(c.ID)
+	return ut, nil
 }
 
 func (u *userUseCase) GetConnectionByID(username string, id uint) (legatoDb.Connection, error) {
@@ -138,7 +138,7 @@ func (u *userUseCase) GetConnectionByID(username string, id uint) (legatoDb.Conn
 	return connection, err
 }
 
-func (u *userUseCase) GetConnectionsByUsername(username string) ([]legatoDb.Connection, error) {
+func (u *userUseCase) GetConnections(username string) ([]legatoDb.Connection, error) {
 	user, _ := u.db.GetUserByUsername(username)
 	connections, err := u.db.GetUserConnections(&user)
 	if err != nil {
