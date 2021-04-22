@@ -2,6 +2,7 @@ package legatoDb
 
 import (
 	"fmt"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -16,9 +17,18 @@ type Connection struct {
 
 func (ldb *LegatoDB) AddConnection(u *User, c Connection) (Connection, error) {
 	c.UserID = u.ID
-	ldb.db.Create(&c)
-	ldb.db.Save(&c)
-	return c, nil
+	con := Connection{}
+
+	ldb.db.
+		Where(&Connection{UserID: u.ID}).
+		Where("Token = ?", c.Token).Find(&con)
+	// check token does not exist
+	if !strings.EqualFold(con.Token, c.Token) {
+		ldb.db.Create(&c)
+		ldb.db.Save(&c)
+		return c, nil
+	}
+	return Connection{}, fmt.Errorf("this connection is already exist")
 }
 
 func (ldb *LegatoDB) GetUserConnections(u *User) ([]Connection, error) {
