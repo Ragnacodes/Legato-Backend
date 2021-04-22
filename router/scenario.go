@@ -2,9 +2,10 @@ package router
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"legato_server/api"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 var scenarioRG = routeGroup{
