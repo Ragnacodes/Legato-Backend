@@ -108,7 +108,7 @@ func addConnection(c *gin.Context) {
 		return
 	}
 
-	err := resolvers.UserUseCase.AddConnectionDB(username, usertoken)
+	connection, err := resolvers.UserUseCase.AddConnectionToDB(username, usertoken)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not add token: %s", err),
@@ -117,7 +117,7 @@ func addConnection(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "token added successfully.",
+		"connection": connection,
 	})
 }
 
@@ -154,7 +154,7 @@ func GetConnections(c *gin.Context) {
 	if loginUser == nil {
 		return
 	}
-	connections, err := resolvers.UserUseCase.GetConnectionsByUsername(username)
+	connections, err := resolvers.UserUseCase.GetConnections(username)
 
 	if err == nil {
 		c.JSON(200, gin.H{
