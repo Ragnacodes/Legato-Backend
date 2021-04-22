@@ -13,7 +13,7 @@ To create a new connection.
 - Response
     ```json
     {
-        "message": "token added"
+        "message": "connection added"
     }
     ```
 ### /api/users/:username/get/connection/:id `GET`
@@ -40,7 +40,7 @@ Request
     {
         "spotify_url": "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:8080/callback&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
     }
-
+    ```
 
 ### /api/users/:username/get/connections `GET`
 get the all  connections of a user as list .
@@ -92,7 +92,7 @@ update name of a connection with id.
 - Response
     ```json
     {
-        "message":  "updated token successfully"
+        "message":  "updated connection successfully"
     }
     ```
 
@@ -101,7 +101,7 @@ get a id and check if there is a connection with this id for a user return corre
 - Response
     ```json
     {
-        "message": "correct token"
+        "message": "correct connection"
     }
     ```
 
@@ -115,7 +115,7 @@ update field token in connection with id.
 - Response
     ```json
     {
-        "message":  "updated token successfully"
+        "message":  "updated connection successfully"
     }
     ```
 
@@ -125,6 +125,6 @@ delete the connection with id.
 - Response
     ```json
     {
-        "message":  "deleted token successfully"
+        "message":  "deleted connection successfully"
     }
     ```
