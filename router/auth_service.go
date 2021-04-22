@@ -73,22 +73,22 @@ const discord_authenticate_url = "https://discord.com/api/oauth2/authorize?acces
 func connection_auth_url(c *gin.Context) {
 	usertoken := api.Connection{}
 	_ = c.BindJSON(&usertoken)
-	if strings.EqualFold(usertoken.Token_type, "spotify") {
+	if strings.EqualFold(usertoken.TokenType, "spotify") {
 		c.JSON(200, gin.H{
 			"url": spotify_authenticate_url,
 		})
 	}
-	if strings.EqualFold(usertoken.Token_type, "google") {
+	if strings.EqualFold(usertoken.TokenType, "google") {
 		c.JSON(200, gin.H{
 			"url": google_authenticate_url,
 		})
 	}
-	if strings.EqualFold(usertoken.Token_type, "git") {
+	if strings.EqualFold(usertoken.TokenType, "git") {
 		c.JSON(200, gin.H{
 			"url": git_authenticate_url,
 		})
 	}
-	if strings.EqualFold(usertoken.Token_type, "discord") {
+	if strings.EqualFold(usertoken.TokenType, "discord") {
 		c.JSON(200, gin.H{
 			"url": discord_authenticate_url,
 		})
