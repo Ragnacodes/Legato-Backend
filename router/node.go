@@ -88,7 +88,8 @@ func addNode(c *gin.Context) {
 	case "webhooks":
 		addedServ, err = resolvers.WebhookUseCase.AddWebhookToScenario(loginUser, uint(scenarioId), newNode)
 		break
-	case "http":
+	case "https":
+		addedServ, err = resolvers.HttpUserCase.AddToScenario(loginUser, uint(scenarioId), newNode)
 		break
 	}
 	if err != nil {
@@ -157,7 +158,8 @@ func updateNode(c *gin.Context) {
 	case "webhooks":
 		err = resolvers.WebhookUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
-	case "http":
+	case "https":
+		err = resolvers.HttpUserCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
 	}
 	if err != nil {

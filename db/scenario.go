@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"legato_server/services"
+	"log"
 )
 
 // Each Scenario describes a schema that includes Handler and Events.
@@ -11,12 +13,11 @@ import (
 // Root is the first Service of the schema that start the scenario.
 type Scenario struct {
 	gorm.Model
-	UserID   uint
-	Name     string
-	IsActive *bool
-	//RootServiceID *uint
-	//RootService   *Service `gorm:"RootServiceID:"`
-	Services []Service
+	UserID       uint
+	Name         string
+	IsActive     *bool
+	RootServices []services.Service `gorm:"-"`
+	Services     []Service
 }
 
 func (s *Scenario) String() string {
@@ -91,11 +92,55 @@ func (ldb *LegatoDB) DeleteUserScenarioById(u *User, scenarioID uint) error {
 	return nil
 }
 
-// Methods
+// Service management methods
 
+// Start
 // To Start scenario
 func (s *Scenario) Start() error {
-	//log.Printf("Scenario root %s is Executing:", s.RootService.Name)
-	//s.RootService.LoadOwner().Execute()
+	log.Println("Preparing scenario to start")
+	err := s.Prepare()
+	if err != nil {
+		return err
+	}
+
+	log.Println("Executing root services of this scenario")
+	for _, serv := range s.RootServices {
+		serv.Execute()
+	}
+
+	return nil
+}
+
+// Prepare
+// To Prepare scenario
+func (s *Scenario) Prepare() error {
+	err := s.LoadRootService()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// LoadRootService
+// To Load Root Service of scenario
+func (s *Scenario) LoadRootService() error {
+	servicesEntities, err := legatoDb.GetScenarioRootServices(*s)
+	if err != nil {
+		return err
+	}
+
+	var ss []services.Service
+	ss = []services.Service{}
+	for _, serv := range servicesEntities {
+		loadedServ, err := serv.Load()
+		if err != nil {
+			return nil
+		}
+
+		ss = append(ss, loadedServ)
+	}
+	s.RootServices = ss
+
 	return nil
 }

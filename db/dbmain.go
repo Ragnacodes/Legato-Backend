@@ -50,5 +50,6 @@ func createSchema(db *gorm.DB) error {
 	_ = db.AutoMigrate(Scenario{})
 	_ = db.AutoMigrate(Service{})
 	_ = db.AutoMigrate(Webhook{})
+	_ = db.AutoMigrate(Http{})
 	return nil
 }

@@ -41,6 +41,12 @@ var scenarioRG = routeGroup{
 			pattern:     "/users/:username/scenarios/:scenario_id",
 			handlerFunc: deleteScenario,
 		},
+		route{
+			name:        "Start a scenario",
+			method:      PATCH,
+			pattern:     "/users/:username/scenarios/:scenario_id",
+			handlerFunc: startScenario,
+		},
 	},
 }
 
@@ -175,5 +181,29 @@ func deleteScenario(c *gin.Context)  {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "scenario is deleted successfully",
+	})
+}
+
+func startScenario(c *gin.Context)  {
+	username := c.Param("username")
+	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
+
+	// Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	// Start that scenario
+	err := resolvers.ScenarioUseCase.StartScenario(loginUser, uint(scenarioId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not start this scenario: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "scenario is started successfully",
 	})
 }

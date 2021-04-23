@@ -33,7 +33,7 @@ func (w *WebhookUseCase) AddWebhookToScenario(u *api.UserInfo, scenarioId uint, 
 		return api.ServiceNode{}, err
 	}
 
-	webhook := converter.DataToWebhook(nw.Data)
+	webhook := converter.DataToWebhookDb(nw.Data)
 	webhook.Service = converter.NewServiceNodeToServiceDb(nw)
 
 	wh, err := w.db.CreateWebhookForScenario(&scenario, webhook)
@@ -83,7 +83,7 @@ func (w *WebhookUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint
 		return err
 	}
 
-	webhook := converter.DataToWebhook(nw.Data)
+	webhook := converter.DataToWebhookDb(nw.Data)
 	webhook.Service = converter.NewServiceNodeToServiceDb(nw)
 
 	err = w.db.UpdateWebhook(&scenario, serviceId, webhook)
