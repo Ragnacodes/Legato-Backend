@@ -91,6 +91,9 @@ func addNode(c *gin.Context) {
 	case "https":
 		addedServ, err = resolvers.HttpUserCase.AddToScenario(loginUser, uint(scenarioId), newNode)
 		break
+	case "telegrams":
+		addedServ, err = resolvers.TelegramUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
 	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

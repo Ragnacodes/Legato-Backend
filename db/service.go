@@ -20,6 +20,7 @@ type Service struct {
 	UserID     uint
 	ScenarioID *uint
 	Data       string
+	SubType    string
 }
 
 func (s *Service) String() string {
@@ -98,7 +99,11 @@ func (s *Service) Load() (services.Service, error) {
 	case httpType:
 		serv, err = legatoDb.GetHttpByService(*s)
 		break
+	case telegramType:
+		serv, err = legatoDb.GetTelegramByService(*s)
+		break
 	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -129,6 +134,12 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 		}
 		break
 	case httpType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+		break
+	case telegramType:
 		err := json.Unmarshal([]byte(s.Data), serviceData)
 		if err != nil {
 			return err

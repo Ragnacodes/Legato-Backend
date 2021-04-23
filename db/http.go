@@ -1,6 +1,7 @@
 package legatoDb
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -92,7 +93,7 @@ func (h Http) Execute(...interface{}) {
 		log.Fatalln(err)
 	}
 
-	_, err = makeHttpRequest(data.Url, data.Method)
+	_, err = makeHttpRequest(data.Url, data.Method, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -125,7 +126,7 @@ func (h Http) Next(...interface{}) {
 }
 
 // Service interface helper functions
-func makeHttpRequest(url string, method string) (res *http.Response, err error) {
+func makeHttpRequest(url string, method string, body []byte) (res *http.Response, err error) {
 	log.Println("Make http request")
 
 	switch method {
@@ -133,6 +134,12 @@ func makeHttpRequest(url string, method string) (res *http.Response, err error) 
 		res, err = http.Get(url)
 		break
 	case strings.ToLower(http.MethodPost):
+		if body != nil {
+			log.Printf("\nurl: %s\nbody:\n%s\n", url, string(body))
+			reqBody := bytes.NewBuffer(body)
+			res, err = http.Post(url, "application/json", reqBody)
+			break
+		}
 		res, err = http.Post(url, "application/json", nil)
 		break
 	}
