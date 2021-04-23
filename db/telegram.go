@@ -13,6 +13,8 @@ const telegramType string = "telegrams"
 // Sub services
 const sendMessage string = "sendMessage"
 const sendMessageEndpoint string = "https://api.telegram.org/bot%s/sendMessage"
+const getChatMember string = "getChatMember"
+const getChatMemberEndpoint string = "https://api.telegram.org/bot%s/getChatMember"
 
 type Telegram struct {
 	gorm.Model
@@ -23,6 +25,11 @@ type Telegram struct {
 type sendMessageData struct {
 	ChatId string   `json:"chat_id"`
 	Text   string `json:"text"`
+}
+
+type getChatMemberData struct {
+	ChatId string   `json:"chat_id"`
+	UserId   string `json:"user_id"`
 }
 
 func (t *Telegram) String() string {
@@ -74,6 +81,15 @@ func (t Telegram) Execute(...interface{}) {
 		}
 
 		_, _ = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
+		break
+	case getChatMember:
+		var data getChatMemberData
+		err = json.Unmarshal([]byte(t.Service.Data), &data)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, _ = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
 		break
 	default:
 		break
