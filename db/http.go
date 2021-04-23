@@ -1,6 +1,7 @@
 package legatoDb
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
@@ -14,9 +15,12 @@ const httpType string = "https"
 
 type Http struct {
 	gorm.Model
-	Url     string
-	Method  string
 	Service Service `gorm:"polymorphic:Owner;"`
+}
+
+type httpRequestData struct {
+	Url    string
+	Method string
 }
 
 func (h *Http) String() string {
@@ -80,7 +84,15 @@ func (h Http) Execute(...interface{}) {
 
 	log.Printf("Executing type (%s) : %s\n", httpType, h.Service.Name)
 
-	_, err = makeHttpRequest(h.Url, h.Method)
+	// Http just has one kind of sub service so we do not need any switch-case statement.
+	// Provide data for make request
+	var data httpRequestData
+	err = json.Unmarshal([]byte(h.Service.Data), &data)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	_, err = makeHttpRequest(data.Url, data.Method)
 	if err != nil {
 		log.Fatalln(err)
 	}

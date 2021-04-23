@@ -1,6 +1,7 @@
 package legatoDb
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
@@ -18,6 +19,7 @@ type Service struct {
 	PosY       int
 	UserID     uint
 	ScenarioID *uint
+	Data       string
 }
 
 func (s *Service) String() string {
@@ -104,27 +106,37 @@ func (s *Service) Load() (services.Service, error) {
 	return serv, nil
 }
 
-// GetServiceData
+// BindServiceData
 // Each one of services have some special data. By giving the Service model
 // this function returns a map of those data.
-func (s *Service) GetServiceData() (map[string]interface{}, error) {
-	data := make(map[string]interface{})
-
+func (s *Service) BindServiceData(serviceData interface{}) error {
 	switch s.OwnerType {
 	case webhookType:
-		break
-	case httpType:
-		h, err := legatoDb.GetHttpByService(*s)
-		if err != nil {
-			return nil, err
+		w, _ := legatoDb.GetWebhookByService(*s)
+		data := &map[string]interface{}{
+			"url":      w.Token,
+			"isEnable": w.IsEnable,
 		}
 
-		data["url"] = h.Url
-		data["method"] = h.Method
+		jsonString, err := json.Marshal(data)
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(jsonString, serviceData)
+		if err != nil {
+			return err
+		}
+		break
+	case httpType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
 		break
 	}
 
-	return data, nil
+	return nil
 }
 
 func (ldb *LegatoDB) AppendChildren(parent *Service, children []Service) {
