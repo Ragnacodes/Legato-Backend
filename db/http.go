@@ -58,6 +58,10 @@ func (ldb *LegatoDB) UpdateHttp(s *Scenario, servId uint, nh Http) error {
 	ldb.db.Model(&serv).Updates(nh.Service)
 	ldb.db.Model(&h).Updates(nh)
 
+	if nh.Service.ParentID == nil {
+		legatoDb.db.Model(&serv).Select("parent_id").Update("parent_id", nil)
+	}
+
 	return nil
 }
 
