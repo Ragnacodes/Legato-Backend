@@ -31,6 +31,14 @@ func (s scenarioUseCase) AddScenario(u *api.UserInfo, ns *api.NewScenario) (api.
 
 	return converter.ScenarioDbToBriefScenario(scenario), nil
 }
+func Find(slice []string, val string) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}
 
 func (s scenarioUseCase) GetUserScenarios(u *api.UserInfo) ([]api.BriefScenario, error) {
 	user := converter.UserInfoToUserDb(*u)
@@ -42,10 +50,21 @@ func (s scenarioUseCase) GetUserScenarios(u *api.UserInfo) ([]api.BriefScenario,
 	var briefScenarios []api.BriefScenario
 	briefScenarios = []api.BriefScenario{}
 	for _, scenario := range scenarios {
-		briefScenarios = append(briefScenarios, converter.ScenarioDbToBriefScenario(scenario))
+		briefScenario := converter.ScenarioDbToBriefScenario(scenario)
+		nodes, noderror := s.db.GetServiceNodes(&scenario)
+		var types []string
+		for _, node := range nodes {
+			if Find(types, node.OwnerType) == false {
+				types = append(types, node.OwnerType)
+			}
+		}
+		if noderror == nil {
+			briefScenario.DigestNodes = types
+			briefScenarios = append(briefScenarios, briefScenario)
+		}
 	}
-
 	return briefScenarios, nil
+
 }
 
 // Deprecated
