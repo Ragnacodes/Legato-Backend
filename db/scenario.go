@@ -3,6 +3,7 @@ package legatoDb
 import (
 	"errors"
 	"fmt"
+
 	"gorm.io/gorm"
 )
 
@@ -98,4 +99,16 @@ func (s *Scenario) Start() error {
 	//log.Printf("Scenario root %s is Executing:", s.RootService.Name)
 	//s.RootService.LoadOwner().Execute()
 	return nil
+}
+
+func (ldb *LegatoDB) GetServiceNodes(scenario *Scenario) ([]*Service, error) {
+	var srv []*Service
+	err := ldb.db.
+		Where(&Service{ScenarioID: &scenario.ID}).
+		Find(&srv).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return srv, nil
 }
