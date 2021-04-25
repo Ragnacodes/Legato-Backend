@@ -31,7 +31,7 @@ func (w *HttpUseCase) AddToScenario(u *api.UserInfo, scenarioId uint, nh api.New
 		return api.ServiceNode{}, err
 	}
 
-	http := converter.DataToHttp(nh.Data)
+	var http legatoDb.Http
 	http.Service = converter.NewServiceNodeToServiceDb(nh)
 
 	h, err := w.db.CreateHttp(&scenario, http)
@@ -39,7 +39,7 @@ func (w *HttpUseCase) AddToScenario(u *api.UserInfo, scenarioId uint, nh api.New
 		return api.ServiceNode{}, err
 	}
 
-	return converter.HttpDbToServiceNode(*h), nil
+	return converter.ServiceDbToServiceNode(h.Service), nil
 }
 
 func (w *HttpUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint, nh api.NewServiceNode) error {
@@ -53,7 +53,7 @@ func (w *HttpUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint, n
 		return err
 	}
 
-	http := converter.DataToHttp(nh.Data)
+	var http legatoDb.Http
 	http.Service = converter.NewServiceNodeToServiceDb(nh)
 
 	err = w.db.UpdateHttp(&scenario, serviceId, http)

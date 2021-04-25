@@ -1,6 +1,8 @@
 package legatoDb
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
@@ -14,9 +16,12 @@ const httpType string = "https"
 
 type Http struct {
 	gorm.Model
-	Url     string
-	Method  string
 	Service Service `gorm:"polymorphic:Owner;"`
+}
+
+type httpRequestData struct {
+	Url    string
+	Method string
 }
 
 func (h *Http) String() string {
@@ -53,6 +58,10 @@ func (ldb *LegatoDB) UpdateHttp(s *Scenario, servId uint, nh Http) error {
 	ldb.db.Model(&serv).Updates(nh.Service)
 	ldb.db.Model(&h).Updates(nh)
 
+	if nh.Service.ParentID == nil {
+		legatoDb.db.Model(&serv).Select("parent_id").Update("parent_id", nil)
+	}
+
 	return nil
 }
 
@@ -80,7 +89,15 @@ func (h Http) Execute(...interface{}) {
 
 	log.Printf("Executing type (%s) : %s\n", httpType, h.Service.Name)
 
-	_, err = makeHttpRequest(h.Url, h.Method)
+	// Http just has one kind of sub service so we do not need any switch-case statement.
+	// Provide data for make request
+	var data httpRequestData
+	err = json.Unmarshal([]byte(h.Service.Data), &data)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	_, err = makeHttpRequest(data.Url, data.Method, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -113,7 +130,7 @@ func (h Http) Next(...interface{}) {
 }
 
 // Service interface helper functions
-func makeHttpRequest(url string, method string) (res *http.Response, err error) {
+func makeHttpRequest(url string, method string, body []byte) (res *http.Response, err error) {
 	log.Println("Make http request")
 
 	switch method {
@@ -121,6 +138,12 @@ func makeHttpRequest(url string, method string) (res *http.Response, err error) 
 		res, err = http.Get(url)
 		break
 	case strings.ToLower(http.MethodPost):
+		if body != nil {
+			log.Printf("\nurl: %s\nbody:\n%s\n", url, string(body))
+			reqBody := bytes.NewBuffer(body)
+			res, err = http.Post(url, "application/json", reqBody)
+			break
+		}
 		res, err = http.Post(url, "application/json", nil)
 		break
 	}

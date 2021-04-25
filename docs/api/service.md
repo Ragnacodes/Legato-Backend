@@ -11,6 +11,7 @@ To add a service (node) to the scenario.
         "parentId": 90,
         "name": "hamintori",
         "type": "webhooks",
+        "subType": "",
         "position": {
             "x": 40,
             "y": 40
@@ -28,6 +29,7 @@ To add a service (node) to the scenario.
             "parentId": 90,
             "name": "hamintori",
             "type": "webhooks",
+            "subType": "",
             "position": {
                 "x": 40,
                 "y": 40
@@ -86,6 +88,53 @@ Data field for each one of services is different.
         }
     }
     ```
+  
+  
+##### Telegram
+- Type = `telegrams`
+
+    - SubType = `sendMessage` (Send a message to the user)
+    - Data request to create:
+        ```json
+        {
+            "data": {
+              "chat_id": "128373",
+              "text": "this is the message!"
+            }
+        }
+        ```
+    
+    - Data response
+        ```json
+        {
+            "data": {
+              "chat_id": "128373",
+              "text": "this is the message!"
+            }
+        }
+        ```
+      
+    - SubType = `getChatMember` (Get user info)
+    - Data request to create:
+        ```json
+        {
+            "data": {
+              "chat_id": "128373",
+              "user_id": "128373"
+            }
+        }
+        ```
+    
+    - Data response
+        ```json
+        {
+            "data": {
+              "chat_id": "128373",
+              "user_id": "128373"
+            }
+        }
+        ```
+
 
 ---------------------------------------
 

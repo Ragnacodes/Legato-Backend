@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"encoding/json"
 	"legato_server/api"
 	legatoDb "legato_server/db"
 )
@@ -12,6 +13,19 @@ func NewServiceNodeToServiceDb(sn api.NewServiceNode) legatoDb.Service {
 	s.Name = sn.Name
 	s.PosX, s.PosY = sn.Position.X, sn.Position.Y
 
+	// Handle sub Type
+	if sn.SubType != nil {
+		s.SubType = *sn.SubType
+	}
+
+	// Handle service data
+	if sn.Data != nil {
+		jsonString, err := json.Marshal(sn.Data)
+		if err == nil {
+			s.Data = string(jsonString)
+		}
+	}
+
 	return s
 }
 
@@ -22,7 +36,8 @@ func ServiceDbToServiceNode(s legatoDb.Service) api.ServiceNode {
 	sn.Type = s.OwnerType
 	sn.Name = s.Name
 	sn.Position = api.Position{X: s.PosX, Y: s.PosY}
-	sn.Data, _ = s.GetServiceData()
+	sn.SubType = &s.SubType
+	_ = s.BindServiceData(&sn.Data)
 
 	return sn
 }

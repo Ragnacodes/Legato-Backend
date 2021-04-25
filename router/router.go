@@ -55,6 +55,7 @@ type Resolver struct {
 	ServiceUseCase  domain.ServiceUseCase
 	WebhookUseCase  domain.WebhookUseCase
 	HttpUserCase    domain.HttpUseCase
+	TelegramUseCase domain.TelegramUseCase
 }
 
 // This Resolver includes all of our use cases so we can handle incoming requests
