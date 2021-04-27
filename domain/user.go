@@ -2,7 +2,6 @@ package domain
 
 import (
 	"legato_server/api"
-	legatoDb "legato_server/db"
 )
 
 type UserUseCase interface {

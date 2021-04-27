@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
 	"legato_server/authenticate"
 	"legato_server/domain"
+
+	"github.com/gin-gonic/gin"
 )
 
 const Authorization = "Authorization"

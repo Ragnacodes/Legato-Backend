@@ -42,7 +42,7 @@ To create new scenarios.
 - Response
     ```json
     {
-        "message": "scenario created successfully.",
+        "message": "scenario is created successfully.",
         "scenario": {
           "id": 22,
           "name": "test title for scenario",
@@ -52,8 +52,29 @@ To create new scenarios.
     }
     ```
 
+### /api/users/:username/scenarios/:scenario_id `PATCH`
+To start the scenarios.
+- Header
+    - `Authorization` = `access_token`
+    
+- Response
+    ```json
+    {
+        "message": "scenario is started successfully"
+    }
+    ```
+
+### /api/users/:username/scenarios/:scenario_id `DELETE`
+To delete specific scenarios.
+- Response
+    ```json
+    {
+        "message": "scenario is deleted successfully."
+    }
+    ```
+
 ### /api/users/:username/scenarios/:scenario_id `GET`
-To get all the scenario details including the service tree.
+To get all the scenario details including the services list.
 - Header
     - `Authorization` = `access_token`
  - Response
@@ -63,73 +84,61 @@ To get all the scenario details including the service tree.
             "id": 1,
             "name": "my favorite scenario2",
             "is_active": true,
-            "graph": {
-                "name": "My initial webhook",
-                "type": "webhook",
-                "children": [
-                    {
-                        "name": "Event 1",
-                        "type": "http",
-                        "children": [],
-                        "position": {
-                           "x": 100,
-                           "y": 0
-                        },
-                        "data": {}
+            "services": [
+                {
+                    "id": 21,
+                    "parentId": null,
+                    "userId": 1,
+                    "name": "My starter webhook",
+                    "type": "webhooks",
+                    "position": {
+                        "x": 0,
+                        "y": 0
                     },
-                    {
-                        "name": "Event 2",
-                        "type": "http",
-                        "children": [
-                            {
-                                "name": "First Http child",
-                                "type": "http",
-                                "children": [],
-                                "position": {
-                                    "x": 200,
-                                    "y": 12
-                                },
-                                "data": {}
-                            },
-                            {
-                                "name": "Event 4",
-                                "type": "http",
-                                "children": [],
-                               "position": {
-                                   "x": 0,
-                                   "y": 13
-                               },
-                                "data": {}
-                            },
-                            {
-                                "name": "Event 5",
-                                "type": "http",
-                                "children": [],
-                               "position": {
-                                   "x": 100,
-                                   "y": 0
-                               },
-                                "data": {}
-                            }
-                        ],
-                        "position": {
-                           "x": 200,
-                           "y": 12
-                        },
-                        "data": {}
-                    }
-                ],
-               "position": {
-                   "x": 200,
-                   "y": 12
-               },
-                "data": {}
-            }
+                    "data": {}
+                },
+                {
+                    "id": 22,
+                    "parentId": 21,
+                    "userId": 1,
+                    "name": "My first http",
+                    "type": "webhooks",
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "data": {}
+                },
+                {
+                    "id": 23,
+                    "parentId": 21,
+                    "userId": 1,
+                    "name": "another http",
+                    "type": "webhooks",
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "data": {}
+                },
+                {
+                    "id": 24,
+                    "parentId": 22,
+                    "userId": 1,
+                    "name": "My second http",
+                    "type": "webhooks",
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "data": {}
+                }
+            ]
         }
     }
      ```
    
-### /api/users/:username/scenarios/:scenario_id `POST`
+### /api/users/:username/scenarios/:scenario_id `PUT`
 To update user scenario.
 - Header
     - `Authorization` = `access_token`
@@ -137,84 +146,71 @@ To update user scenario.
     ```json
     {
         "name": "my test scenario",
-        "is_active": true,
-        "graph": {
-            "name": "Webhook",
-            "type": "webhook",
-            "children": [
-                {
-                    "name": "Event 1",
-                    "type": "http",
-                    "children": [],
-                    "position": {
-                      "x": 0,
-                      "y": 13
-                    },
-                    "data": {}
-                },
-                {
-                    "name": "Event 2",
-                    "type": "http",
-                    "children": [],
-                    "position": {
-                      "x": 0,
-                      "y": 0
-                    },
-                    "data": {}
-                }
-            ],
-            "position": {
-            "x": 100,
-            "y": 13
-            },
-            "data": {}
-        }
+        "is_active": true
     }
     ```
 - Response
     ```json
     {
-        "message": "update scenario successfully",
+        "message": "scenario i updated successfully",
         "scenario": {
             "id": 16,
             "name": "my test scenario",
             "is_active": true,
-            "graph": {
-                "name": "Webhook",
-                "type": "webhook",
-                "children": [
-                    {
-                        "name": "Event 1",
-                        "type": "http",
-                        "children": [],
-                        "position": {
-                          "x": 0,
-                          "y": 13
-                        },
-                        "data": {}
+            "services": [
+                {
+                    "id": 21,
+                    "parentId": null,
+                    "userId": 1,
+                    "name": "My starter webhook",
+                    "type": "webhooks",
+                    "position": {
+                        "x": 0,
+                        "y": 0
                     },
-                    {
-                        "name": "Event 2",
-                        "type": "http",
-                        "children": [],
-                        "position": {
-                          "x": 0,
-                          "y": 0
-                        },
-                        "data": {}
-                    }
-                ],
-                "position": {
-                "x": 100,
-                "y": 13
+                    "data": {}
                 },
-                "data": {}
-            }
+                {
+                    "id": 22,
+                    "parentId": 21,
+                    "userId": 1,
+                    "name": "My first http",
+                    "type": "webhooks",
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "data": {}
+                },
+                {
+                    "id": 23,
+                    "parentId": 21,
+                    "userId": 1,
+                    "name": "another http",
+                    "type": "webhooks",
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "data": {}
+                },
+                {
+                    "id": 24,
+                    "parentId": 22,
+                    "userId": 1,
+                    "name": "My second http",
+                    "type": "webhooks",
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "data": {}
+                }
+            ]
         }
     }
     ```
-
-> **Note:** When a scenario has been created, the `graph` field should be null. 
+> **Note:** At first the services list should be an empty array.
 
 Just pass the changes. For example if you just want to update scenario name the json should look like:
 - Request
@@ -226,13 +222,12 @@ Just pass the changes. For example if you just want to update scenario name the 
 - Response
     ```json
     {
-        "message": "update scenario successfully",
+        "message": "scenario is updated successfully",
         "scenario": {
             "id": 16,
             "name": "another name for scenario",
             "is_active": true,
-            "graph": null
+            "services": []
         }
     }
     ```
-> **Note:** You are not allowed to pass `"graph": null`. It doesn't make any changes.

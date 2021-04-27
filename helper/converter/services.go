@@ -1,57 +1,43 @@
 package converter
 
 import (
+	"encoding/json"
 	"legato_server/api"
 	legatoDb "legato_server/db"
 )
 
-func ServiceDbToService(service *legatoDb.Service) *api.Service {
-	if service == nil {
-		return nil
-	}
-
-	var s api.Service
-	s.Name = service.Name
-	s.Type = service.OwnerType
-	s.Position = api.Position{X: service.Position.X, Y: service.Position.Y}
-	s.Data = struct{}{}
-
-	if len(service.Children) == 0 {
-		s.Children = []api.Service{}
-		return &s
-	}
-
-	var children []api.Service
-	for _, child := range service.Children {
-		childSubGraph := ServiceDbToService(&child)
-		children = append(children, *childSubGraph)
-	}
-
-	s.Children = children
-
-	return &s
-}
-
-func ServiceToServiceDb(service *api.Service, userID uint) legatoDb.Service {
+func NewServiceNodeToServiceDb(sn api.NewServiceNode) legatoDb.Service {
 	var s legatoDb.Service
-	s.Name = service.Name
-	s.OwnerType = service.Type
-	s.Position = legatoDb.Position{X: service.Position.X, Y: service.Position.Y}
-	s.UserID = userID
-	//s.Data = struct{}{}
+	s.ParentID = sn.ParentId
+	s.OwnerType = sn.Type
+	s.Name = sn.Name
+	s.PosX, s.PosY = sn.Position.X, sn.Position.Y
 
-	if len(service.Children) == 0 {
-		s.Children = []legatoDb.Service{}
-		return s
+	// Handle sub Type
+	if sn.SubType != nil {
+		s.SubType = *sn.SubType
 	}
 
-	var children []legatoDb.Service
-	for _, child := range service.Children {
-		childSubGraph := ServiceToServiceDb(&child, userID)
-		children = append(children, childSubGraph)
+	// Handle service data
+	if sn.Data != nil {
+		jsonString, err := json.Marshal(sn.Data)
+		if err == nil {
+			s.Data = string(jsonString)
+		}
 	}
-
-	s.Children = children
 
 	return s
+}
+
+func ServiceDbToServiceNode(s legatoDb.Service) api.ServiceNode {
+	var sn api.ServiceNode
+	sn.Id = s.ID
+	sn.ParentId = s.ParentID
+	sn.Type = s.OwnerType
+	sn.Name = s.Name
+	sn.Position = api.Position{X: s.PosX, Y: s.PosY}
+	sn.SubType = &s.SubType
+	_ = s.BindServiceData(&sn.Data)
+
+	return sn
 }

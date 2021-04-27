@@ -48,25 +48,22 @@ func (s scenarioUseCase) GetUserScenarios(u *api.UserInfo) ([]api.BriefScenario,
 	return briefScenarios, nil
 }
 
-func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId string) (api.FullScenario, error) {
+func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId uint) (api.FullScenario, error) {
 	user := converter.UserInfoToUserDb(*u)
 	scenario, err := s.db.GetUserScenarioById(&user, scenarioId)
 	if err != nil {
 		return api.FullScenario{}, err
 	}
 
-	// Load the whole graph
-	scenario.RootService, _ = s.db.GetServicesGraph(scenario.RootService)
-
 	fullScenario := converter.ScenarioDbToFullScenario(scenario)
 
 	return fullScenario, nil
 }
 
-func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId string, us api.FullScenario) error {
+func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId uint, ns api.NewScenario) error {
 	user := converter.UserInfoToUserDb(*u)
 
-	updatedScenario := converter.FullScenarioToScenarioDb(us, u.ID)
+	updatedScenario := converter.NewScenarioToScenarioDb(ns)
 
 	err := s.db.UpdateUserScenarioById(&user, scenarioId, updatedScenario)
 	if err != nil {
@@ -76,28 +73,28 @@ func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId stri
 	return nil
 }
 
-func (s scenarioUseCase) TestScenario() {
-	//time.Sleep(1500 * time.Millisecond)
-	//log.Println("---------------------------")
-	//log.Println("Testing Scenario mode")
-	//
-	////Create some Webhooks
-	//child := legatoDb.Webhook{Service:legatoDb.Service{Name :"abc"}}
-	//s.db.Db.Save(&child)
-	//root := legatoDb.Webhook{Service: legatoDb.Service{Name: "fuck",
-	//	Children: []legatoDb.Service{child.Service}}}
-	//s.db.Db.Create(&root)
-	//
-	//// Create scenario
-	//println(root.Service.Name)
-	//ns := legatoDb.Scenario{
-	//	Name: "My first scenario",
-	//	RootService: &root.Service,
-	//}
-	//log.Println("hi")
-	//sc := s.db.CreateScenario(ns)
-	//// Start the scenario
-	//log.Println("Going to start the scenario...")
-	//_ = sc.Start()
-	//log.Println("---------------------------")
+func (s scenarioUseCase) DeleteUserScenarioById(u *api.UserInfo, scenarioId uint) error {
+	user := converter.UserInfoToUserDb(*u)
+
+	err := s.db.DeleteUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s scenarioUseCase) StartScenario(u *api.UserInfo, scenarioId uint) error {
+	user := converter.UserInfoToUserDb(*u)
+	scenario, err := s.db.GetUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return err
+	}
+
+	err = scenario.Start()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

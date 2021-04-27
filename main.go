@@ -8,14 +8,20 @@ import (
 	"legato_server/env"
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
-	userUC "legato_server/user/usecase"
+	httpUC "legato_server/services/http"
+	telegramUC "legato_server/services/telegram"
+	serviceUC "legato_server/services/usecase"
 	webhookUC "legato_server/services/webhook"
+	userUC "legato_server/user/usecase"
 	"time"
 )
 
 var userUseCase domain.UserUseCase
 var scenarioUseCase domain.ScenarioUseCase
+var serviceUseCase domain.ServiceUseCase
 var webhookUseCase domain.WebhookUseCase
+var httpUseCase domain.HttpUseCase
+var telegramUseCase domain.TelegramUseCase
 
 func init() {
 	// Load environment variables
@@ -35,21 +41,28 @@ func init() {
 	// Use Cases
 	userUseCase = userUC.NewUserUseCase(appDB, timeoutContext)
 	scenarioUseCase = scenarioUC.NewScenarioUseCase(appDB, timeoutContext)
+	serviceUseCase = serviceUC.NewServiceUseCase(appDB, timeoutContext)
 	webhookUseCase = webhookUC.NewWebhookUseCase(appDB, timeoutContext)
+	httpUseCase = httpUC.NewHttpUseCase(appDB, timeoutContext)
+	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
 
 	// Test single scenario
 	// go scenarioUseCase.TestScenario()
+
 }
 
 func main() {
 	// resolvers include all of our use cases
 	resolvers := router.Resolver{
-		UserUseCase: userUseCase,
+		UserUseCase:     userUseCase,
 		ScenarioUseCase: scenarioUseCase,
-		WebhookUseCase: webhookUseCase,
+		ServiceUseCase:  serviceUseCase,
+		WebhookUseCase:  webhookUseCase,
+		HttpUserCase:    httpUseCase,
+		TelegramUseCase:    telegramUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()

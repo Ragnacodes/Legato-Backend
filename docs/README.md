@@ -3,6 +3,7 @@
 ### APIs
 - [Authentication](api/auth.md)
 - [Scenario](api/scenario.md)
+- [Service](api/service.md)
 - [Webhook](api/webhook.md)
 - [Connection](api/connection.md)
 
