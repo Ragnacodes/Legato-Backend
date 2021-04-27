@@ -112,7 +112,10 @@ func addConnection(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"connection": connection,
+		"Name":       connection.Name,
+		"Token":      connection.Token,
+		"Token_type": connection.TokenType,
+		"Id":         connection.ID,
 	})
 }
 
@@ -149,11 +152,25 @@ func GetConnections(c *gin.Context) {
 	if loginUser == nil {
 		return
 	}
+	type Connection struct {
+		Name      string
+		Token     string
+		TokenType string
+		Id        uint
+	}
+	var Connections []Connection
 	connections, err := resolvers.UserUseCase.GetConnections(username)
-
+	for _, connection := range connections {
+		con := Connection{}
+		con.Id = connection.ID
+		con.Name = connection.Name
+		con.Token = connection.Token
+		con.TokenType = connection.Token_type
+		Connections = append(Connections, con)
+	}
 	if err == nil {
 		c.JSON(200, gin.H{
-			"connections": connections,
+			"connections": Connections,
 		})
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{
