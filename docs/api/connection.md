@@ -26,15 +26,8 @@ To get the user connection with id.
     ```
 
 
-### /api/user/connection/access/token/urls `POST`
-To get the access url for apps you would like to connect.
-`token_type` specifies the service etc. if it is `token_type = "spotify"`,  it will redirect to spotify.
-- Request
-    ```json
-    {
-        "token_type": "discord"
-    }
-    ```
+### /api/user/connection/access/token/:service `GET`
+To get the access url for apps that  you would like to connect.
 - Response
     ```json
     {
