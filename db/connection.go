@@ -71,7 +71,6 @@ func (ldb *LegatoDB) UpdateUserConnectionNameByID(u *User, name string, id uint)
 		if connection.UserID == u.ID {
 			connection.Name = name
 			ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&connection)
-			ldb.db.Model(&connection).Update(connection.Token, name)
 			ldb.db.Save(&connection)
 		} else {
 			return fmt.Errorf("there is no connection with this id for this user")
@@ -116,7 +115,6 @@ func (ldb *LegatoDB) UpdateTokenFieldByID(u *User, Token string, id uint) error 
 		if connection.UserID == u.ID {
 			connection.Token = Token
 			ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&connection)
-			ldb.db.Model(&connection).Update(connection.Token, Token)
 			ldb.db.Save(&connection)
 		} else {
 			return fmt.Errorf("there is no connection with this id for this user")

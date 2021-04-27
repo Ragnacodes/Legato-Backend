@@ -116,7 +116,6 @@ func (u *userUseCase) CreateDefaultUser() error {
 
 	return nil
 }
-
 func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Connection, error) {
 	user, _ := u.db.GetUserByUsername(name)
 	con := legatoDb.Connection{}

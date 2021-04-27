@@ -12,12 +12,13 @@ import (
 
 type User struct {
 	gorm.Model
-	Username  string
-	Email     string
-	Password  string
-	LastLogin time.Time
-	Scenarios []Scenario
-	Services  []Service
+	Username    string
+	Email       string
+	Password    string
+	LastLogin   time.Time
+	Scenarios   []Scenario
+	Services    []Service
+	Connections []Connection
 }
 
 func (u *User) String() string {

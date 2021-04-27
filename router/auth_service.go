@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 	"legato_server/api"
+	"legato_server/env"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,9 +16,9 @@ var ConnectionRG = routeGroup{
 	"Connection routers",
 	routes{
 		route{
-			"Connection urls",
-			POST,
-			"user/connection/access/token/urls",
+			"Connection access urls",
+			GET,
+			"user/connection/access/token/:service",
 			connection_auth_url,
 		},
 		route{
@@ -65,32 +66,26 @@ var ConnectionRG = routeGroup{
 	},
 }
 
-const spotify_authenticate_url = "https://accounts.spotify.com/authorize?client_id=74049abbf6784599a1564060e7c9dc12&redirect_uri=http://localhost:3000/redirect/spotify/&response_type=code&scope=user-read-private&state=abc123"
-const google_authenticate_url = "https://accounts.google.com/o/oauth2/v2/auth?client_id=906955768602-u0nu3ruckq6pcjvune1tulkq3n0kfvrl.apps.googleusercontent.com&response_type=code&scope=https://www.googleapis.com/auth/gmail.readonly&redirect_uri=http://localhost:3000/redirect/gmail/&access_type=offline"
-const git_authenticate_url = "https://github.com/login/oauth/authorize?access_type=online&client_id=Iv1.9f22bc1a9e8e6822&response_type=code&scope=user%3Aemail+repo&state=thisshouldberandom&redirect_uri=http://localhost:3000/redirect/github/"
-const discord_authenticate_url = "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:3000/redirect/discord/&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
-
 func connection_auth_url(c *gin.Context) {
-	usertoken := api.Connection{}
-	_ = c.BindJSON(&usertoken)
-	if strings.EqualFold(usertoken.TokenType, "spotify") {
+	service := c.Param("service")
+	if strings.EqualFold(service, "spotify") {
 		c.JSON(200, gin.H{
-			"url": spotify_authenticate_url,
+			"url": env.Spotify_authenticate_url,
 		})
 	}
-	if strings.EqualFold(usertoken.TokenType, "google") {
+	if strings.EqualFold(service, "google") {
 		c.JSON(200, gin.H{
-			"url": google_authenticate_url,
+			"url": env.Google_authenticate_url,
 		})
 	}
-	if strings.EqualFold(usertoken.TokenType, "git") {
+	if strings.EqualFold(service, "github") {
 		c.JSON(200, gin.H{
-			"url": git_authenticate_url,
+			"url": env.Git_authenticate_url,
 		})
 	}
-	if strings.EqualFold(usertoken.TokenType, "discord") {
+	if strings.EqualFold(service, "discord") {
 		c.JSON(200, gin.H{
-			"url": discord_authenticate_url,
+			"url": env.Discord_authenticate_url,
 		})
 	}
 }

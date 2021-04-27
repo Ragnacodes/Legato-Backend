@@ -219,3 +219,15 @@ func deleteUserWebhook(c *gin.Context) {
 		"message": "webhook is deleted successfully",
 	})
 }
+
+//
+//func webhookExists(WebhookID string) (*legatoDb.Webhook, error) {
+//	if !IsValidUUID(WebhookID) {
+//		return &legatoDb.Webhook{}, errors.New("bad request")
+//	}
+//	wh, err := resolvers.WebhookUseCase.Exists(WebhookID)
+//	if err != nil {
+//		return &legatoDb.Webhook{}, err
+//	}
+//	return wh, nil
+//}

@@ -70,6 +70,7 @@ var legatoRoutesGroups = routeGroups{
 	webhookRG,
 	nodeRG,
 	httpRG,
+	ConnectionRG,
 }
 
 // NewRouter get the resolvers and create *gin.Engine that can handle all

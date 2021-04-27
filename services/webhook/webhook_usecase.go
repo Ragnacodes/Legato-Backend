@@ -157,18 +157,3 @@ func (w *WebhookUseCase) DeleteUserWebhookById(u *api.UserInfo, wid uint) error 
 
 	return nil
 }
-
-func (w *WebhookUseCase) List(u *api.UserInfo) ([]api.WebhookInfo, error) {
-	user := converter.UserInfoToUserDb(*u)
-	webhooks, err := w.db.GetUserWebhooks(&user)
-	if err != nil {
-		return nil, err
-	}
-
-	var WebhookInfos []api.WebhookInfo
-	for _, w := range webhooks {
-		WebhookInfos = append(WebhookInfos, converter.WebhookDbToWebhookInfo(w))
-	}
-
-	return WebhookInfos, nil
-}
