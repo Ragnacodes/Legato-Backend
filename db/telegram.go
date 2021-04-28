@@ -106,7 +106,10 @@ func (t Telegram) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, _ = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
+		_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
+		if err != nil {
+			log.Fatal(err)
+		}
 		break
 	case getChatMember:
 		var data getChatMemberData
@@ -115,7 +118,10 @@ func (t Telegram) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, _ = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
+		_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
+		if err != nil {
+			log.Fatal(err)
+		}
 		break
 	default:
 		break
