@@ -4,7 +4,6 @@ import (
 	"legato_server/api"
 	"legato_server/middleware"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -169,73 +168,5 @@ func checkAuth(c *gin.Context, validUsers []string) *api.UserInfo {
 	c.JSON(http.StatusForbidden, gin.H{
 		"message": "access denied: can not do any actions for this user",
 	})
-	return nil
-}
-func checkAuthForConnection(c *gin.Context, validUsers []string, request string) *api.UserInfo {
-	// Get the user
-	rawData := c.MustGet(middleware.UserKey)
-	if rawData == nil {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied",
-		})
-		return nil
-	}
-
-	loginUser := rawData.(*api.UserInfo)
-	if loginUser == nil {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied",
-		})
-		return nil
-	}
-
-	// Check if validUsers is nil
-	// If it is nil it means any authenticated user is accepted.
-	if validUsers == nil {
-		return loginUser
-	}
-	// If it isn't, Check if the user has access.
-	for _, validUser := range validUsers {
-		if loginUser.Username == validUser {
-			return loginUser
-		}
-	}
-
-	// If the api is not accessible
-	if strings.EqualFold(request, "addtoken") {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not add connection for this user",
-		})
-	}
-	if strings.EqualFold(request, "gettoken") {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not get connection for this user",
-		})
-	}
-	if strings.EqualFold(request, "tokenurl") {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not go to the this url for this user",
-		})
-	}
-	if strings.EqualFold(request, "tokenurl") {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not update this connection for this user",
-		})
-	}
-	if strings.EqualFold(request, "checktoken") {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not find connection with this ID for this user",
-		})
-	}
-	if strings.EqualFold(request, "deletetoken") {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not delete connection with this ID for this user",
-		})
-	}
-	if strings.EqualFold(request, "updatetoken") {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "access denied: can not update connection with this ID for this user",
-		})
-	}
 	return nil
 }
