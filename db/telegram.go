@@ -48,6 +48,33 @@ func (ldb *LegatoDB) CreateTelegram(s *Scenario, telegram Telegram) (*Telegram, 
 }
 
 
+func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram)  error {
+	var serv Service
+	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
+	if err != nil {
+		return err
+	}
+
+	var t Telegram
+	err = ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&t).Error
+	if err != nil {
+		return err
+	}
+	if t.Service.ID != servId {
+		return errors.New("the http service is not in this scenario")
+	}
+
+	ldb.db.Model(&serv).Updates(nt.Service)
+	ldb.db.Model(&t).Updates(nt)
+
+	if t.Service.ParentID == nil {
+		legatoDb.db.Model(&serv).Select("parent_id").Update("parent_id", nil)
+	}
+
+	return nil
+}
+
+
 func (ldb *LegatoDB) GetTelegramByService(serv Service) (*Telegram, error) {
 	var t Telegram
 	err := ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&t).Error
