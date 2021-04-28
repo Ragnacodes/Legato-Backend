@@ -48,10 +48,7 @@ func (ldb *LegatoDB) CreateTelegram(s *Scenario, telegram Telegram) (*Telegram, 
 	return &telegram, nil
 }
 
-<<<<<<< HEAD
-=======
-
-func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram)  error {
+func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram) error {
 	var serv Service
 	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
 	if err != nil {
@@ -77,8 +74,6 @@ func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram)  erro
 	return nil
 }
 
-
->>>>>>> 86a53bcfd771a433ff6f51635be727a80696a602
 func (ldb *LegatoDB) GetTelegramByService(serv Service) (*Telegram, error) {
 	var t Telegram
 	err := ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&t).Error
