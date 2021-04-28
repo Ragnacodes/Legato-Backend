@@ -19,46 +19,46 @@ var ConnectionRG = routeGroup{
 			"Connection access urls",
 			GET,
 			"user/connection/access/token/:service",
-			connectionAuthUrl,
+			connection_auth_url,
 		},
 		route{
-			"Add a connection",
+			"Add Connection",
 			POST,
 			"users/:username/add/connection",
 			addConnection,
 		},
 		route{
-			"Get a connection",
+			"Retrun connection",
 			GET,
 			"users/:username/get/connection/:id",
 			returnConnection,
 		},
 		route{
-			"Get user connections",
+			"Return Connections",
 			GET,
 			"users/:username/get/connections",
 			GetConnections,
 		},
 		route{
-			"Update Token",
+			"update Token",
 			PUT,
 			"users/:username/update/connection/token/:id",
 			UpdateTokenFieldByID,
 		},
 		route{
-			"Check Token",
+			"check Token",
 			GET,
 			"users/:username/check/connection/:id",
 			checkConnection,
 		},
 		route{
-			"Delete Token",
+			"delete Token",
 			DELETE,
 			"users/:username/connection/delete/:id",
 			DeleteConnectionByID,
 		},
 		route{
-			"Ufpdate Token",
+			"update Token",
 			PUT,
 			"users/:username/update/connection/name/:id",
 			UpdateConnectionNameByID,
@@ -66,24 +66,22 @@ var ConnectionRG = routeGroup{
 	},
 }
 
-func connectionAuthUrl(c *gin.Context) {
+func connection_auth_url(c *gin.Context) {
 	service := c.Param("service")
-	if strings.EqualFold(service, "spotify") {
+	switch service {
+	case "spotify":
 		c.JSON(200, gin.H{
 			"url": env.SpotifyAuthenticateUrl,
 		})
-	}
-	if strings.EqualFold(service, "google") {
+	case "google":
 		c.JSON(200, gin.H{
 			"url": env.GoogleAuthenticateUrl,
 		})
-	}
-	if strings.EqualFold(service, "github") {
+	case "github":
 		c.JSON(200, gin.H{
 			"url": env.GitAuthenticateUrl,
 		})
-	}
-	if strings.EqualFold(service, "discord") {
+	case "discord":
 		c.JSON(200, gin.H{
 			"url": env.DiscordAuthenticateUrl,
 		})
@@ -98,7 +96,8 @@ func addConnection(c *gin.Context) {
 	_ = c.BindJSON(&usertoken)
 
 	// Authenticate
-	loginUser := checkAuthForConnection(c, []string{username}, "addtoken")
+	// Auth
+	loginUser := checkAuth(c, []string{username})
 	if loginUser == nil {
 		return
 	}
@@ -121,13 +120,14 @@ func addConnection(c *gin.Context) {
 
 func returnConnection(c *gin.Context) {
 	//this function retuen a connection
-	userConnection := api.Connection{}
+	usertoken := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
-	_ = c.BindJSON(&userConnection)
+	_ = c.BindJSON(&usertoken)
 
 	// Authenticate
-	loginUser := checkAuthForConnection(c, []string{username}, "gettoken")
+	// Auth
+	loginUser := checkAuth(c, []string{username})
 	if loginUser == nil {
 		return
 	}
@@ -148,15 +148,16 @@ func GetConnections(c *gin.Context) {
 	// this function return list of all connections of a user
 	username := c.Param("username")
 	// Authenticate
-	loginUser := checkAuthForConnection(c, []string{username}, "gettoken")
+	// Auth
+	loginUser := checkAuth(c, []string{username})
 	if loginUser == nil {
 		return
 	}
 	type Connection struct {
-		Name      string
-		Token     string
-		TokenType string
-		Id        uint
+		Name       string
+		Token      string
+		Token_type string
+		Id         uint
 	}
 	var Connections []Connection
 	connections, err := resolvers.UserUseCase.GetConnections(username)
@@ -165,7 +166,7 @@ func GetConnections(c *gin.Context) {
 		con.Id = connection.ID
 		con.Name = connection.Name
 		con.Token = connection.Token
-		con.TokenType = connection.Token_type
+		con.Token_type = connection.Token_type
 		Connections = append(Connections, con)
 	}
 	if err == nil {
@@ -181,19 +182,20 @@ func GetConnections(c *gin.Context) {
 
 func UpdateConnectionNameByID(c *gin.Context) {
 	// this function update name of connection with id
-	userConnection := api.Connection{}
+	usertoken := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
-	_ = c.BindJSON(&userConnection)
+	_ = c.BindJSON(&usertoken)
 
 	// Authenticate
-	loginUser := checkAuthForConnection(c, []string{username}, "updatetoken")
+	// Auth
+	loginUser := checkAuth(c, []string{username})
 	if loginUser == nil {
 		return
 	}
 	i, _ := strconv.Atoi(id)
-	userConnection.ID = i
-	err := resolvers.UserUseCase.UpdateUserConnectionNameById(username, userConnection)
+	usertoken.ID = i
+	err := resolvers.UserUseCase.UpdateUserConnectionNameById(username, usertoken)
 	if err == nil {
 		c.JSON(200, gin.H{
 			"message": "update connection successfully",
@@ -210,7 +212,8 @@ func checkConnection(c *gin.Context) {
 	username := c.Param("username")
 	id := c.Param("id")
 	// Authenticate
-	loginUser := checkAuthForConnection(c, []string{username}, "checktoken")
+	// Auth
+	loginUser := checkAuth(c, []string{username})
 	if loginUser == nil {
 		return
 	}
@@ -231,7 +234,8 @@ func DeleteConnectionByID(c *gin.Context) {
 	username := c.Param("username")
 	id := c.Param("id")
 	// Authenticate
-	loginUser := checkAuthForConnection(c, []string{username}, "deletetoken")
+	// Auth
+	loginUser := checkAuth(c, []string{username})
 	if loginUser == nil {
 		return
 	}
@@ -250,19 +254,20 @@ func DeleteConnectionByID(c *gin.Context) {
 
 func UpdateTokenFieldByID(c *gin.Context) {
 	// this function update token field in connection with id
-	userConnection := api.Connection{}
+	usertoken := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
-	_ = c.BindJSON(&userConnection)
+	_ = c.BindJSON(&usertoken)
 
 	// Authenticate
-	loginUser := checkAuthForConnection(c, []string{username}, "updateotoken")
+	// Auth
+	loginUser := checkAuth(c, []string{username})
 	if loginUser == nil {
 		return
 	}
 	i, _ := strconv.Atoi(id)
-	userConnection.ID = i
-	err := resolvers.UserUseCase.UpdateTokenFieldByID(username, userConnection)
+	usertoken.ID = i
+	err := resolvers.UserUseCase.UpdateTokenFieldByID(username, usertoken)
 	if err == nil {
 		c.JSON(200, gin.H{
 			"message": "update connection successfully",
