@@ -95,11 +95,11 @@ To update the name of a connection with id.
     ```
 
 ### /api/"users/:username/check/connection/:id `GET`
-To get the id of a connection and check if there is a connection with this id for a user return correct token
+To get the id of a connection and check if there is a connection with this id for a user return true or false
 - Response
     ```json
     {
-        "message": "correct connection"
+        "message": "true"
     }
     ```
 
