@@ -171,7 +171,7 @@ func checkAuth(c *gin.Context, validUsers []string) *api.UserInfo {
 	})
 	return nil
 }
-func checkAuthforconnection(c *gin.Context, validUsers []string, request string) *api.UserInfo {
+func checkAuthForConnection(c *gin.Context, validUsers []string, request string) *api.UserInfo {
 	// Get the user
 	rawData := c.MustGet(middleware.UserKey)
 	if rawData == nil {
