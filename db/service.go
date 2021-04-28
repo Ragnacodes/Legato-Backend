@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"legato_server/services"
+
+	"gorm.io/gorm"
 )
 
 type Service struct {

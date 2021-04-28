@@ -2,7 +2,7 @@ package domain
 
 import (
 	"legato_server/api"
-	"legato_server/db"
+	legatoDb "legato_server/db"
 )
 
 type WebhookUseCase interface {

@@ -1,10 +1,11 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"legato_server/api"
 	"legato_server/middleware"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 const Authorization = "Authorization"

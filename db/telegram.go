@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"log"
+
+	"gorm.io/gorm"
 )
 
 const telegramType string = "telegrams"
@@ -23,13 +24,13 @@ type Telegram struct {
 }
 
 type sendMessageData struct {
-	ChatId string   `json:"chat_id"`
+	ChatId string `json:"chat_id"`
 	Text   string `json:"text"`
 }
 
 type getChatMemberData struct {
-	ChatId string   `json:"chat_id"`
-	UserId   string `json:"user_id"`
+	ChatId string `json:"chat_id"`
+	UserId string `json:"user_id"`
 }
 
 func (t *Telegram) String() string {
@@ -47,8 +48,7 @@ func (ldb *LegatoDB) CreateTelegram(s *Scenario, telegram Telegram) (*Telegram, 
 	return &telegram, nil
 }
 
-
-func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram)  error {
+func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram) error {
 	var serv Service
 	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
 	if err != nil {
@@ -73,7 +73,6 @@ func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram)  erro
 
 	return nil
 }
-
 
 func (ldb *LegatoDB) GetTelegramByService(serv Service) (*Telegram, error) {
 	var t Telegram
