@@ -3,9 +3,11 @@ package legatoDb
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"legato_server/services"
+
 	"log"
+
+	"gorm.io/gorm"
 )
 
 // Each Scenario describes a schema that includes Handler and Events.

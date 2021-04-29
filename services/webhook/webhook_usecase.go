@@ -152,7 +152,7 @@ func (w *WebhookUseCase) DeleteUserWebhookById(u *api.UserInfo, wid uint) error 
 
 	err = w.db.DeleteSeparateWebhookById(&user, wid)
 	if err != nil {
-		return  err
+		return err
 	}
 
 	return nil

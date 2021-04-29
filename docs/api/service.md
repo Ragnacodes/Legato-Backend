@@ -94,46 +94,48 @@ Data field for each one of services is different.
 - Type = `telegrams`
 
     - SubType = `sendMessage` (Send a message to the user)
-    - Data request to create:
-        ```json
-        {
-            "data": {
-              "chat_id": "128373",
-              "text": "this is the message!"
+        - Data request to create:
+            ```json
+            {
+                "data": {
+                  "key": "17312061423:AAHkpaaUswee",
+                  "chat_id": "128373",
+                  "text": "this is the message!"
+                }
             }
-        }
-        ```
-    
-    - Data response
-        ```json
-        {
-            "data": {
-              "chat_id": "128373",
-              "text": "this is the message!"
+            ```
+        
+        - Data response
+            ```json
+            {
+                "data": {
+                  "key": "17312061423:AAHkpaaUswee",
+                  "chat_id": "128373",
+                  "text": "this is the message!"
+                }
             }
-        }
-        ```
+            ```
       
     - SubType = `getChatMember` (Get user info)
-    - Data request to create:
-        ```json
-        {
-            "data": {
-              "chat_id": "128373",
-              "user_id": "128373"
+        - Data request to create:
+            ```json
+            {
+                "data": {
+                  "chat_id": "128373",
+                  "user_id": "128373"
+                }
             }
-        }
-        ```
-    
-    - Data response
-        ```json
-        {
-            "data": {
-              "chat_id": "128373",
-              "user_id": "128373"
+            ```
+        
+        - Data response
+            ```json
+            {
+                "data": {
+                  "chat_id": "128373",
+                  "user_id": "128373"
+                }
             }
-        }
-        ```
+            ```
 
 
 ---------------------------------------

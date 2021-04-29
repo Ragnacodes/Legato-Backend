@@ -2,10 +2,11 @@ package router
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"legato_server/api"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 var nodeRG = routeGroup{
@@ -94,8 +95,10 @@ func addNode(c *gin.Context) {
 	case "telegrams":
 		addedServ, err = resolvers.TelegramUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
 		break
-	case "spotifys":
+	case "spotifies":
 		addedServ, err = resolvers.SpotifyUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+	default:
+		break
 	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -165,6 +168,11 @@ func updateNode(c *gin.Context) {
 		break
 	case "https":
 		err = resolvers.HttpUserCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	case "telegrams":
+		err = resolvers.TelegramUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	default:
 		break
 	}
 	if err != nil {

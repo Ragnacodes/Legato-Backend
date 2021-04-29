@@ -10,7 +10,7 @@ type ServiceNode struct {
 	ParentId *uint       `json:"parentId"`
 	Name     string      `json:"name"`
 	Type     string      `json:"type"`
-	SubType  *string      `json:"subType"`
+	SubType  *string     `json:"subType"`
 	Position Position    `json:"position"`
 	Data     interface{} `json:"data"`
 }
@@ -19,7 +19,7 @@ type NewServiceNode struct {
 	ParentId *uint       `json:"parentId"`
 	Name     string      `json:"name"`
 	Type     string      `json:"type"`
-	SubType  *string      `json:"subType"`
+	SubType  *string     `json:"subType"`
 	Position Position    `json:"position"`
 	Data     interface{} `json:"data"`
 }

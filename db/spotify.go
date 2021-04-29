@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const spotifyType string = "spotifys"
+const spotifyType string = "spotifies"
 const addTrackToPlaylist string = "addToPlaylist"
 const getTopTracks string = "getTopTracks"
 const redirectURI = "http://localhost:8080/api/callback/"

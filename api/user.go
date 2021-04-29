@@ -1,9 +1,9 @@
 package api
 
 type NewUser struct {
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type RefreshToken struct {
@@ -11,12 +11,18 @@ type RefreshToken struct {
 }
 
 type UserInfo struct {
-	ID        uint
-	Email     string `json:"email"`
-	Username  string `json:"username"`
+	ID       uint
+	Email    string `json:"email"`
+	Username string `json:"username"`
 }
 
 type UserCredential struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+type Connection struct {
+	ID        int    `json:"id"`
+	TokenType string `json:"token_type"`
+	Name      string `json:"name"`
+	Token     string `json:"token"`
 }

@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"log"
+
+	"gorm.io/gorm"
 )
 
 const telegramType string = "telegrams"
@@ -23,13 +24,13 @@ type Telegram struct {
 }
 
 type sendMessageData struct {
-	ChatId string   `json:"chat_id"`
+	ChatId string `json:"chat_id"`
 	Text   string `json:"text"`
 }
 
 type getChatMemberData struct {
-	ChatId string   `json:"chat_id"`
-	UserId   string `json:"user_id"`
+	ChatId string `json:"chat_id"`
+	UserId string `json:"user_id"`
 }
 
 func (t *Telegram) String() string {
@@ -47,6 +48,31 @@ func (ldb *LegatoDB) CreateTelegram(s *Scenario, telegram Telegram) (*Telegram, 
 	return &telegram, nil
 }
 
+func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram) error {
+	var serv Service
+	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
+	if err != nil {
+		return err
+	}
+
+	var t Telegram
+	err = ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&t).Error
+	if err != nil {
+		return err
+	}
+	if t.Service.ID != servId {
+		return errors.New("the http service is not in this scenario")
+	}
+
+	ldb.db.Model(&serv).Updates(nt.Service)
+	ldb.db.Model(&t).Updates(nt)
+
+	if t.Service.ParentID == nil {
+		legatoDb.db.Model(&serv).Select("parent_id").Update("parent_id", nil)
+	}
+
+	return nil
+}
 
 func (ldb *LegatoDB) GetTelegramByService(serv Service) (*Telegram, error) {
 	var t Telegram
@@ -80,7 +106,10 @@ func (t Telegram) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, _ = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
+		_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
+		if err != nil {
+			log.Fatal(err)
+		}
 		break
 	case getChatMember:
 		var data getChatMemberData
@@ -89,7 +118,10 @@ func (t Telegram) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, _ = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
+		_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
+		if err != nil {
+			log.Fatal(err)
+		}
 		break
 	default:
 		break

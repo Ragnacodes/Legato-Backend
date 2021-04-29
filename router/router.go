@@ -2,9 +2,10 @@ package router
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"legato_server/domain"
 	"legato_server/middleware"
+
+	"github.com/gin-gonic/gin"
 )
 
 const API = "api"
@@ -71,6 +72,7 @@ var legatoRoutesGroups = routeGroups{
 	nodeRG,
 	httpRG,
 	spotifyRG,
+	ConnectionRG,
 }
 
 // NewRouter get the resolvers and create *gin.Engine that can handle all

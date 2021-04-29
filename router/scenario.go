@@ -2,10 +2,11 @@ package router
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"legato_server/api"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 var scenarioRG = routeGroup{
@@ -160,7 +161,7 @@ func updateScenario(c *gin.Context) {
 	})
 }
 
-func deleteScenario(c *gin.Context)  {
+func deleteScenario(c *gin.Context) {
 	username := c.Param("username")
 	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
@@ -180,11 +181,11 @@ func deleteScenario(c *gin.Context)  {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "scenario is deleted successfully",
+		"message": "scenario is deleted successfully",
 	})
 }
 
-func startScenario(c *gin.Context)  {
+func startScenario(c *gin.Context) {
 	username := c.Param("username")
 	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
@@ -204,6 +205,6 @@ func startScenario(c *gin.Context)  {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "scenario is started successfully",
+		"message": "scenario is started successfully",
 	})
 }

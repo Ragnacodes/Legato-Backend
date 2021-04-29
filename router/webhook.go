@@ -2,11 +2,12 @@ package router
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"legato_server/api"
 	"net/http"
 	"regexp"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 const Webhook = "Webhook"
