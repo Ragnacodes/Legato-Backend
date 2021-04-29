@@ -31,7 +31,7 @@ To login to your spotify account
 
 
 ### /api/users/:username/spotify/playlists `GET`
-To get list of all user webhooks. 
+To get list of all user playlists. 
 - Header
     - `Authorization` = `access_token`
 
