@@ -19,6 +19,15 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+
+    #create required env file
+    - name: Make envfile
+      uses: SpicyPizza/create-envfile@v1
+      with:
+        envkey_SPOTIFY_ID: ${{ secrets.SPOTIFY_ID }}
+        envkey_SPOTIFY_SECRET: ${{ secrets.SPOTIFY_SECRET }}
+        directory: deployments/dev/
+        file_name: web.env
     
     # Setup 
     - name: Build the docker-compose stack
