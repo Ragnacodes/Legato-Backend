@@ -102,6 +102,9 @@ func (s *Service) Load() (services.Service, error) {
 	case telegramType:
 		serv, err = legatoDb.GetTelegramByService(*s)
 		break
+	case spotifyType:
+		serv, err = legatoDb.GetSpotifyByService(*s)
+		break
 	}
 
 	if err != nil {
@@ -140,6 +143,12 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 		}
 		break
 	case telegramType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+		break
+	case spotifyType:
 		err := json.Unmarshal([]byte(s.Data), serviceData)
 		if err != nil {
 			return err

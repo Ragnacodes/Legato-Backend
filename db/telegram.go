@@ -55,13 +55,13 @@ func (ldb *LegatoDB) GetTelegramByService(serv Service) (*Telegram, error) {
 		return nil, err
 	}
 	if t.ID != uint(serv.OwnerID) {
-		return nil, errors.New("the http service is not in this scenario")
+		return nil, errors.New("the telegram service is not in this scenario")
 	}
 
 	return &t, nil
 }
 
-// Service Interface for Http
+// Service Interface for telegram
 func (t Telegram) Execute(...interface{}) {
 	log.Println("*******Starting Telegram Service*******")
 
