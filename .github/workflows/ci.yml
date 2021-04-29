@@ -17,17 +17,19 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+    - uses: actions/checkout@v2
+    
     #create required env file
     - name: Make envfile
       uses: SpicyPizza/create-envfile@v1
       with:
         envkey_SPOTIFY_ID: ${{ secrets.SPOTIFY_ID }}
         envkey_SPOTIFY_SECRET: ${{ secrets.SPOTIFY_SECRET }}
-        directory: ./deployments/dev/
+        directory: ${{github.workspace}}/deployments/dev/
         file_name: web.env
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-    
+    - name: LS
+      run: ls -R
     # Setup 
     - name: Build the docker-compose stack
       run: docker-compose -f docker-compose-dev.yml up -d
