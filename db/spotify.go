@@ -18,9 +18,19 @@ const addTrackToPlaylist string = "addToPlaylist"
 const getTopTracks string = "getTopTracks"
  
 var (
-	auth  = spotify.NewAuthenticator(redirectURI, spotify.ScopeUserReadPrivate)
-	redirectURI = fmt.Sprintf("%s/api/callback/", env.ENV.WebUrl)
+	scopes = []string{spotify.ScopePlaylistModifyPrivate, spotify.ScopeUserReadPrivate}
+	auth  = getAuth
+	redirectURI = getRedirectURI
 ) 
+
+
+func getRedirectURI() string{
+	return fmt.Sprintf("%s/api/callback/", env.ENV.WebUrl)
+}
+ 
+func getAuth() spotify.Authenticator{
+	return spotify.NewAuthenticator(redirectURI(), scopes...)
+}
 
 type Spotify struct {
 	gorm.Model
@@ -131,7 +141,7 @@ func (t Spotify) Execute(...interface{}) {
 	var nextData interface{}
 	log.Printf("Executing type (%s) : %s\n", spotifyType, t.Service.Name)
 	token := DbTokenToOauth2(t.Token)
-	client := auth.NewClient(&token)
+	client := auth().NewClient(&token)
 	switch t.Service.SubType {
 		case addTrackToPlaylist:
 			var data addToPlaylistData

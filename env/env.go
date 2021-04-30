@@ -79,8 +79,8 @@ func LoadEnv() {
 	}
 
 	envWebUrl := os.Getenv("WEB_URL")
-	if envWebHost == "" {
-		envWebHost = DefaultWebUrl
+	if envWebUrl == "" {
+		envWebUrl = DefaultWebUrl
 	}
 
 	ENV = env{

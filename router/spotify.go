@@ -41,11 +41,20 @@ var spotifyRG = routeGroup{
 
 
 var (
-	auth  = spotify.NewAuthenticator(redirectURI, spotify.ScopeUserReadPrivate)
+	redirectURI = getRedirectURI
+	scopes = []string{spotify.ScopePlaylistModifyPrivate, spotify.ScopeUserReadPrivate}
+	auth  = getAuth
 	ch    = make(chan *oauth2.Token)
 	state = "abc123"
-	redirectURI = fmt.Sprintf("%s/api/callback/", env.ENV.WebUrl)
 )
+
+func getRedirectURI() string{
+	return fmt.Sprintf("%s/api/callback/", env.ENV.WebUrl)
+}
+ 
+func getAuth() spotify.Authenticator{
+	return spotify.NewAuthenticator(redirectURI(), scopes...)
+}
 
 func ReadUserPlaylists(c *gin.Context) {
 	username := c.Param("username")
@@ -63,7 +72,7 @@ func ReadUserPlaylists(c *gin.Context) {
 		return
 	}
 
-	client := auth.NewClient(token)
+	client := auth().NewClient(token)
 	
 	playLists, err := client.CurrentUsersPlaylists()
 	if err!= nil{
@@ -86,8 +95,8 @@ func loginSpotify(c *gin.Context) {
 	if loginUser == nil {
 		return
 	}
-
-	url := auth.AuthURL(state)
+	fmt.Println(getRedirectURI())
+	url := auth().AuthURL(state)
 	fmt.Println("Please log in to Spotify by visiting the following page in your browser:", url)
 
 	// wait for auth to complete
@@ -95,7 +104,7 @@ func loginSpotify(c *gin.Context) {
 	
 	err := resolvers.SpotifyUseCase.CreateSpotifyToken(*loginUser, token)
 	// use the token to get an authenticated client
-	client := auth.NewClient(token)
+	client := auth().NewClient(token)
 	// use the client to make calls that require authorization
 	user, err := client.CurrentUser()
 	if err != nil {
@@ -110,7 +119,7 @@ func loginSpotify(c *gin.Context) {
 }
 
 func completeAuth(c *gin.Context) {
-	tok, err := auth.Token(state, c.Request)
+	tok, err := auth().Token(state, c.Request)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": fmt.Sprintf("Couldn't get token"),
