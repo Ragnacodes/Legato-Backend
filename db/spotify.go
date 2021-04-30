@@ -85,7 +85,7 @@ func (ldb *LegatoDB) UpdateSpotify(s *Scenario, servId uint, nt Spotify) error {
 		return err
 	}
 
-	var t Telegram
+	var t Spotify
 	err = ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&t).Error
 	if err != nil {
 		return err
