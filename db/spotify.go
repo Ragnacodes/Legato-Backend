@@ -134,7 +134,7 @@ func (ldb *LegatoDB) GetSpotifyByService(serv Service) (*Spotify, error) {
 func (t Spotify) Execute(...interface{}) {
 	log.Println("*******Starting Spotify Service*******")
 
-	err := legatoDb.db.Preload("Service").Find(&t).Error
+	err := legatoDb.db.Preload("Service").Preload("Token").Find(&t).Error
 	if err != nil {
 		panic(err)
 	}
@@ -191,7 +191,10 @@ func (t Spotify) Next(...interface{}) {
 
 func addTrackToPlaylistHandler(client *spotify.Client, data addToPlaylistData){
 	
-	client.AddTracksToPlaylist(spotify.ID(data.PlaylistId), spotify.ID(data.TrackId))
+	_, err := client.AddTracksToPlaylist(spotify.ID(data.PlaylistId), spotify.ID(data.TrackId))
+	if err!= nil{
+		fmt.Println(err)
+	}
 }
 
 func getUserTopTracksHandler(client *spotify.Client) *spotify.FullTrackPage{

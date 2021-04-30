@@ -42,7 +42,7 @@ var spotifyRG = routeGroup{
 
 var (
 	redirectURI = getRedirectURI
-	scopes = []string{spotify.ScopePlaylistModifyPrivate, spotify.ScopeUserReadPrivate}
+	scopes = []string{spotify.ScopePlaylistModifyPrivate, spotify.ScopeUserReadPrivate, spotify.ScopePlaylistModifyPublic, spotify.ScopeUserTopRead}
 	auth  = getAuth
 	ch    = make(chan *oauth2.Token)
 	state = "abc123"
