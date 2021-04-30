@@ -78,6 +78,33 @@ func (ldb *LegatoDB) CreateSpotify(s *Scenario, spotify Spotify) (*Spotify, erro
 }
 
 
+func (ldb *LegatoDB) UpdateSpotify(s *Scenario, servId uint, nt Spotify) error {
+	var serv Service
+	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
+	if err != nil {
+		return err
+	}
+
+	var t Telegram
+	err = ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&t).Error
+	if err != nil {
+		return err
+	}
+	if t.Service.ID != servId {
+		return errors.New("the spotify service is not in this scenario")
+	}
+
+	ldb.db.Model(&serv).Updates(nt.Service)
+	ldb.db.Model(&t).Updates(nt)
+
+	if t.Service.ParentID == nil {
+		legatoDb.db.Model(&serv).Select("parent_id").Update("parent_id", nil)
+	}
+
+	return nil
+}
+
+
 func (ldb *LegatoDB) GetSpotifyByService(serv Service) (*Spotify, error) {
 	var t Spotify
 	err := ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&t).Error

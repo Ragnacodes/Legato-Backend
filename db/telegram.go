@@ -61,7 +61,7 @@ func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram) error
 		return err
 	}
 	if t.Service.ID != servId {
-		return errors.New("the http service is not in this scenario")
+		return errors.New("the telegram service is not in this scenario")
 	}
 
 	ldb.db.Model(&serv).Updates(nt.Service)

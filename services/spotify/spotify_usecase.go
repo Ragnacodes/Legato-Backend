@@ -62,3 +62,26 @@ func (tu *SpotifyUseCase) CreateSpotifyToken(user api.UserInfo, token *oauth2.To
 	}
 	return nil
 }
+
+func (tu *SpotifyUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint, nt api.NewServiceNode) error {
+	user, err := tu.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return err
+	}
+
+	scenario, err := tu.db.GetUserScenarioById(&user, scenarioId)
+	if err != nil {
+		return err
+	}
+
+	var spotify legatoDb.Spotify
+	spotify.Service = converter.NewServiceNodeToServiceDb(nt)
+	
+
+	err = tu.db.UpdateSpotify(&scenario, serviceId, spotify)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

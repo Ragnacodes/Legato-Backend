@@ -172,6 +172,9 @@ func updateNode(c *gin.Context) {
 	case "telegrams":
 		err = resolvers.TelegramUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
+	case "spotifies":
+		err = resolvers.SpotifyUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
 	default:
 		break
 	}
