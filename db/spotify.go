@@ -50,8 +50,8 @@ type Token struct {
 }
 
 type addToPlaylistData struct {
-	PlaylistId string   `json:"chat_id"`
-	TrackId   string `json:"text"`
+	PlaylistId string   `json:"PlaylistId"`
+	TrackId   string `json:"TrackId"`
 }
 
 func (t *Spotify) String() string {
@@ -149,13 +149,12 @@ func (t Spotify) Execute(...interface{}) {
 			if err != nil {
 				log.Fatal(err)
 			}
-
-			addTrackToPlaylistHandler(client, data)
+			addTrackToPlaylistHandler(&client, data)
 			break
 
 		case getTopTracks:
 
-			nextData = getUserTopTracksHandler(client)
+			nextData = getUserTopTracksHandler(&client)
 			break
 			
 		default:
@@ -166,7 +165,7 @@ func (t Spotify) Execute(...interface{}) {
 }
 
 func (t Spotify) Post() {
-	log.Printf("Executing type (%s) node in background : %s\n", httpType, t.Service.Name)
+	log.Printf("Executing type (%s) node in background : %s\n", spotifyType, t.Service.Name)
 }
 
 func (t Spotify) Next(...interface{}) {
@@ -190,12 +189,12 @@ func (t Spotify) Next(...interface{}) {
 }
 
 
-func addTrackToPlaylistHandler(client spotify.Client, data addToPlaylistData){
+func addTrackToPlaylistHandler(client *spotify.Client, data addToPlaylistData){
 	
 	client.AddTracksToPlaylist(spotify.ID(data.PlaylistId), spotify.ID(data.TrackId))
 }
 
-func getUserTopTracksHandler(client spotify.Client) *spotify.FullTrackPage{
+func getUserTopTracksHandler(client *spotify.Client) *spotify.FullTrackPage{
 	list, _ := client.CurrentUsersTopTracks()
 	return list
 }
