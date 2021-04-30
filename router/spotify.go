@@ -2,13 +2,13 @@ package router
 
 import (
 	"fmt"
+	"legato_server/env"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
-	
 )
 
 
@@ -38,12 +38,13 @@ var spotifyRG = routeGroup{
 	},
 }
 
-const redirectURI = "http://localhost:8080/api/callback/"
+
 
 var (
 	auth  = spotify.NewAuthenticator(redirectURI, spotify.ScopeUserReadPrivate)
 	ch    = make(chan *oauth2.Token)
 	state = "abc123"
+	redirectURI = fmt.Sprintf("%s/api/callback/", env.ENV.WebUrl)
 )
 
 func ReadUserPlaylists(c *gin.Context) {
@@ -65,7 +66,6 @@ func ReadUserPlaylists(c *gin.Context) {
 	client := auth.NewClient(token)
 	
 	playLists, err := client.CurrentUsersPlaylists()
-	fmt.Printf("%v", playLists.Playlists)
 	if err!= nil{
 		c.JSON(http.StatusNotFound, gin.H{
 				"message": err,

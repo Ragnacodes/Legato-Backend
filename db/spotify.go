@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"legato_server/env"
 	"log"
 	"time"
 
@@ -15,9 +16,10 @@ import (
 const spotifyType string = "spotifies"
 const addTrackToPlaylist string = "addToPlaylist"
 const getTopTracks string = "getTopTracks"
-const redirectURI = "http://localhost:8080/api/callback/"
+ 
 var (
 	auth  = spotify.NewAuthenticator(redirectURI, spotify.ScopeUserReadPrivate)
+	redirectURI = fmt.Sprintf("%s/api/callback/", env.ENV.WebUrl)
 ) 
 
 type Spotify struct {
