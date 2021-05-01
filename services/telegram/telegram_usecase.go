@@ -20,10 +20,6 @@ func NewTelegramUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Tel
 	}
 }
 
-func (tu *TelegramUseCase) Test() {
-
-}
-
 func (tu *TelegramUseCase) AddToScenario(u *api.UserInfo, scenarioId uint, nt api.NewServiceNode) (api.ServiceNode, error) {
 	user, err := tu.db.GetUserByUsername(u.Username)
 	if err != nil {
