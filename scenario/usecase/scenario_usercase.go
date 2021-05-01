@@ -51,17 +51,13 @@ func (s scenarioUseCase) GetUserScenarios(u *api.UserInfo) ([]api.BriefScenario,
 	briefScenarios = []api.BriefScenario{}
 	for _, scenario := range scenarios {
 		briefScenario := converter.ScenarioDbToBriefScenario(scenario)
-		nodes, noderror := s.db.GetServiceNodes(&scenario)
-		var types []string
-		for _, node := range nodes {
-			if Find(types, node.OwnerType) == false {
-				types = append(types, node.OwnerType)
+		nodes, er := s.db.GetServiceNodes(&scenario)
+		if er == nil {
+			for _, node := range nodes {
+				briefScenario.DigestNodes = append(briefScenario.DigestNodes, node.OwnerType)
 			}
 		}
-		if noderror == nil {
-			briefScenario.DigestNodes = types
-			briefScenarios = append(briefScenarios, briefScenario)
-		}
+		briefScenarios = append(briefScenarios, briefScenario)
 	}
 	return briefScenarios, nil
 
