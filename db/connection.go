@@ -9,10 +9,10 @@ import (
 
 type Connection struct {
 	gorm.Model
-	Token      string
-	Token_type string
-	UserID     uint
-	Name       string
+	Token     string
+	TokenType string
+	UserID    uint
+	Name      string
 }
 
 func (ldb *LegatoDB) AddConnection(u *User, c Connection) (Connection, error) {

@@ -19,7 +19,7 @@ var ConnectionRG = routeGroup{
 			"Connection access urls",
 			GET,
 			"user/connection/access/token/:service",
-			connection_auth_url,
+			connectionAuthUrl,
 		},
 		route{
 			"Add Connection",
@@ -66,7 +66,7 @@ var ConnectionRG = routeGroup{
 	},
 }
 
-func connection_auth_url(c *gin.Context) {
+func connectionAuthUrl(c *gin.Context) {
 	service := c.Param("service")
 	switch service {
 	case "spotify":
@@ -92,8 +92,8 @@ func addConnection(c *gin.Context) {
 	// this function add connection
 
 	username := c.Param("username")
-	usertoken := api.Connection{}
-	_ = c.BindJSON(&usertoken)
+	userToken := api.Connection{}
+	_ = c.BindJSON(&userToken)
 
 	// Authenticate
 	// Auth
@@ -102,7 +102,7 @@ func addConnection(c *gin.Context) {
 		return
 	}
 
-	connection, err := resolvers.UserUseCase.AddConnectionToDB(username, usertoken)
+	connection, err := resolvers.UserUseCase.AddConnectionToDB(username, userToken)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not add token: %s", err),
@@ -113,17 +113,17 @@ func addConnection(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"Name":       connection.Name,
 		"Token":      connection.Token,
-		"Token_type": connection.TokenType,
+		"TokenType": connection.TokenType,
 		"Id":         connection.ID,
 	})
 }
 
 func returnConnection(c *gin.Context) {
-	//this function retuen a connection
-	usertoken := api.Connection{}
+	//this function return a connection
+	userToken := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
-	_ = c.BindJSON(&usertoken)
+	_ = c.BindJSON(&userToken)
 
 	// Authenticate
 	// Auth
@@ -166,7 +166,7 @@ func GetConnections(c *gin.Context) {
 		con.Id = connection.ID
 		con.Name = connection.Name
 		con.Token = connection.Token
-		con.Token_type = connection.Token_type
+		con.Token_type = connection.TokenType
 		Connections = append(Connections, con)
 	}
 	if err == nil {
@@ -182,10 +182,10 @@ func GetConnections(c *gin.Context) {
 
 func UpdateConnectionNameByID(c *gin.Context) {
 	// this function update name of connection with id
-	usertoken := api.Connection{}
+	userToken := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
-	_ = c.BindJSON(&usertoken)
+	_ = c.BindJSON(&userToken)
 
 	// Authenticate
 	// Auth
@@ -194,8 +194,8 @@ func UpdateConnectionNameByID(c *gin.Context) {
 		return
 	}
 	i, _ := strconv.Atoi(id)
-	usertoken.ID = i
-	err := resolvers.UserUseCase.UpdateUserConnectionNameById(username, usertoken)
+	userToken.ID = i
+	err := resolvers.UserUseCase.UpdateUserConnectionNameById(username, userToken)
 	if err == nil {
 		c.JSON(200, gin.H{
 			"message": "update connection successfully",
@@ -254,10 +254,10 @@ func DeleteConnectionByID(c *gin.Context) {
 
 func UpdateTokenFieldByID(c *gin.Context) {
 	// this function update token field in connection with id
-	usertoken := api.Connection{}
+	userToken := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
-	_ = c.BindJSON(&usertoken)
+	_ = c.BindJSON(&userToken)
 
 	// Authenticate
 	// Auth
@@ -266,8 +266,8 @@ func UpdateTokenFieldByID(c *gin.Context) {
 		return
 	}
 	i, _ := strconv.Atoi(id)
-	usertoken.ID = i
-	err := resolvers.UserUseCase.UpdateTokenFieldByID(username, usertoken)
+	userToken.ID = i
+	err := resolvers.UserUseCase.UpdateTokenFieldByID(username, userToken)
 	if err == nil {
 		c.JSON(200, gin.H{
 			"message": "update connection successfully",
