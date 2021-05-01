@@ -26,8 +26,10 @@ To login to your spotify account
     200 ok
     ```json
     {
-    "message": "You are logged in as: spotifyUsername"
-    }```
+      "message": "You are logged in as: spotifyUsername"
+    }
+    ```
+  
 
 
 ### /api/users/:username/spotify/playlists `GET`
@@ -154,4 +156,4 @@ To get list of all user playlists.
             "uri": "spotify:playlist:39busjRx7Hfu5PLHBqlE40"
         }
     ]
-```
+    ```

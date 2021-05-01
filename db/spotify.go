@@ -54,8 +54,8 @@ type addToPlaylistData struct {
 	TrackId   string `json:"TrackId"`
 }
 
-func (t *Spotify) String() string {
-	return fmt.Sprintf("(@Spotify: %+v)", *t)
+func (sp *Spotify) String() string {
+	return fmt.Sprintf("(@Spotify: %+v)", *sp)
 }
 
 // Database methods
@@ -90,7 +90,7 @@ func (ldb *LegatoDB) CreateSpotify(s *Scenario, spotify Spotify) (*Spotify, erro
 }
 
 
-func (ldb *LegatoDB) UpdateSpotify(s *Scenario, servId uint, ns Spotify) error {
+func (ldb *LegatoDB) UpdateSpotify(s *Scenario, servId uint, nsp Spotify) error {
 	var serv Service
 	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
 	if err != nil {
@@ -106,10 +106,10 @@ func (ldb *LegatoDB) UpdateSpotify(s *Scenario, servId uint, ns Spotify) error {
 		return errors.New("the spotify service is not in this scenario")
 	}
 
-	ldb.db.Model(&serv).Updates(ns.Service)
-	ldb.db.Model(&sp).Updates(ns)
+	ldb.db.Model(&serv).Updates(nsp.Service)
+	ldb.db.Model(&sp).Updates(nsp)
 
-	if sp.Service.ParentID == nil {
+	if nsp.Service.ParentID == nil {
 		legatoDb.db.Model(&serv).Select("parent_id").Update("parent_id", nil)
 	}
 
@@ -164,19 +164,19 @@ func (sp Spotify) Execute(...interface{}) {
 	sp.Next(nextData)
 }
 
-func (t Spotify) Post() {
-	log.Printf("Executing type (%s) node in background : %s\n", spotifyType, t.Service.Name)
+func (sp Spotify) Post() {
+	log.Printf("Executing type (%s) node in background : %s\n", spotifyType, sp.Service.Name)
 }
 
-func (t Spotify) Next(...interface{}) {
-	err := legatoDb.db.Preload("Service.Children").Find(&t).Error
+func (sp Spotify) Next(...interface{}) {
+	err := legatoDb.db.Preload("Service.Children").Find(&sp).Error
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Executing \"%s\" Children \n", t.Service.Name)
+	log.Printf("Executing \"%s\" Children \n", sp.Service.Name)
 
-	for _, node := range t.Service.Children {
+	for _, node := range sp.Service.Children {
 		serv, err := node.Load()
 		if err != nil {
 			log.Println("error in loading services in Next()")
@@ -185,7 +185,7 @@ func (t Spotify) Next(...interface{}) {
 		serv.Execute()
 	}
 
-	log.Printf("*******End of \"%s\"*******", t.Service.Name)
+	log.Printf("*******End of \"%s\"*******", sp.Service.Name)
 }
 
 
