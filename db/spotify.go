@@ -90,26 +90,26 @@ func (ldb *LegatoDB) CreateSpotify(s *Scenario, spotify Spotify) (*Spotify, erro
 }
 
 
-func (ldb *LegatoDB) UpdateSpotify(s *Scenario, servId uint, nt Spotify) error {
+func (ldb *LegatoDB) UpdateSpotify(s *Scenario, servId uint, ns Spotify) error {
 	var serv Service
 	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
 	if err != nil {
 		return err
 	}
 
-	var t Spotify
-	err = ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&t).Error
+	var sp Spotify
+	err = ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&sp).Error
 	if err != nil {
 		return err
 	}
-	if t.Service.ID != servId {
+	if sp.Service.ID != servId {
 		return errors.New("the spotify service is not in this scenario")
 	}
 
-	ldb.db.Model(&serv).Updates(nt.Service)
-	ldb.db.Model(&t).Updates(nt)
+	ldb.db.Model(&serv).Updates(ns.Service)
+	ldb.db.Model(&sp).Updates(ns)
 
-	if t.Service.ParentID == nil {
+	if sp.Service.ParentID == nil {
 		legatoDb.db.Model(&serv).Select("parent_id").Update("parent_id", nil)
 	}
 
@@ -131,21 +131,21 @@ func (ldb *LegatoDB) GetSpotifyByService(serv Service) (*Spotify, error) {
 }
 
 // Service Interface for Http
-func (t Spotify) Execute(...interface{}) {
+func (sp Spotify) Execute(...interface{}) {
 	log.Println("*******Starting Spotify Service*******")
 
-	err := legatoDb.db.Preload("Service").Preload("Token").Find(&t).Error
+	err := legatoDb.db.Preload("Service").Preload("Token").Find(&sp).Error
 	if err != nil {
 		panic(err)
 	}
 	var nextData interface{}
-	log.Printf("Executing type (%s) : %s\n", spotifyType, t.Service.Name)
-	token := DbTokenToOauth2(t.Token)
+	log.Printf("Executing type (%s) : %s\n", spotifyType, sp.Service.Name)
+	token := DbTokenToOauth2(sp.Token)
 	client := auth().NewClient(&token)
-	switch t.Service.SubType {
+	switch sp.Service.SubType {
 		case addTrackToPlaylist:
 			var data addToPlaylistData
-			err = json.Unmarshal([]byte(t.Service.Data), &data)
+			err = json.Unmarshal([]byte(sp.Service.Data), &data)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -161,7 +161,7 @@ func (t Spotify) Execute(...interface{}) {
 			break
 	}
 
-	t.Next(nextData)
+	sp.Next(nextData)
 }
 
 func (t Spotify) Post() {
