@@ -22,43 +22,43 @@ var ConnectionRG = routeGroup{
 			connectionAuthUrl,
 		},
 		route{
-			"Add Connection",
+			"Add a connection",
 			POST,
 			"users/:username/add/connection",
 			addConnection,
 		},
 		route{
-			"Retrun connection",
+			"Get a connection",
 			GET,
 			"users/:username/get/connection/:id",
 			returnConnection,
 		},
 		route{
-			"Return Connections",
+			"Get user connections",
 			GET,
 			"users/:username/get/connections",
 			GetConnections,
 		},
 		route{
-			"update Token",
+			"Update Token",
 			PUT,
 			"users/:username/update/connection/token/:id",
 			UpdateTokenFieldByID,
 		},
 		route{
-			"check Token",
+			"Check Token",
 			GET,
 			"users/:username/check/connection/:id",
 			checkConnection,
 		},
 		route{
-			"delete Token",
+			"Delete Token",
 			DELETE,
 			"users/:username/connection/delete/:id",
 			DeleteConnectionByID,
 		},
 		route{
-			"update Token",
+			"Ufpdate Token",
 			PUT,
 			"users/:username/update/connection/name/:id",
 			UpdateConnectionNameByID,
@@ -154,10 +154,10 @@ func GetConnections(c *gin.Context) {
 		return
 	}
 	type Connection struct {
-		Name       string
-		Token      string
-		Token_type string
-		Id         uint
+		Name      string
+		Token     string
+		TokenType string
+		Id        uint
 	}
 	var Connections []Connection
 	connections, err := resolvers.UserUseCase.GetConnections(username)
@@ -166,7 +166,7 @@ func GetConnections(c *gin.Context) {
 		con.Id = connection.ID
 		con.Name = connection.Name
 		con.Token = connection.Token
-		con.Token_type = connection.TokenType
+		con.TokenType = connection.TokenType
 		Connections = append(Connections, con)
 	}
 	if err == nil {
