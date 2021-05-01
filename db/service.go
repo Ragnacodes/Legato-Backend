@@ -125,6 +125,7 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 		data := &map[string]interface{}{
 			"url":      w.Token,
 			"isEnable": w.IsEnable,
+			"id":		w.ID,
 		}
 
 		jsonString, err := json.Marshal(data)
