@@ -31,14 +31,6 @@ func (s scenarioUseCase) AddScenario(u *api.UserInfo, ns *api.NewScenario) (api.
 
 	return converter.ScenarioDbToBriefScenario(scenario), nil
 }
-func Find(slice []string, val string) bool {
-	for _, item := range slice {
-		if item == val {
-			return true
-		}
-	}
-	return false
-}
 
 func (s scenarioUseCase) GetUserScenarios(u *api.UserInfo) ([]api.BriefScenario, error) {
 	user := converter.UserInfoToUserDb(*u)
@@ -51,16 +43,16 @@ func (s scenarioUseCase) GetUserScenarios(u *api.UserInfo) ([]api.BriefScenario,
 	briefScenarios = []api.BriefScenario{}
 	for _, scenario := range scenarios {
 		briefScenario := converter.ScenarioDbToBriefScenario(scenario)
-		nodes, er := s.db.GetServiceNodes(&scenario)
-		if er == nil {
+		nodes, err := s.db.GetScenarioNodeTypes(&scenario)
+		if err == nil {
 			for _, node := range nodes {
 				briefScenario.DigestNodes = append(briefScenario.DigestNodes, node.OwnerType)
 			}
 		}
 		briefScenarios = append(briefScenarios, briefScenario)
 	}
-	return briefScenarios, nil
 
+	return briefScenarios, nil
 }
 
 func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId uint) (api.FullScenario, error) {
