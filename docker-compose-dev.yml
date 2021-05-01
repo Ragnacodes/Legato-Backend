@@ -7,6 +7,8 @@ services:
     volumes:
       - ./:/usr/src/app
     command: [ "go", "run", "main.go" ]
+    env_file:
+      - deployments/dev/web.env
     ports:
       - "8080:8080"
     container_name: legato_server

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/spf13/viper"
 	"legato_server/authenticate"
 	"legato_server/db"
 	"legato_server/domain"
@@ -9,11 +8,14 @@ import (
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
 	httpUC "legato_server/services/http"
+	spotifyUC "legato_server/services/spotify"
 	telegramUC "legato_server/services/telegram"
 	serviceUC "legato_server/services/usecase"
 	webhookUC "legato_server/services/webhook"
 	userUC "legato_server/user/usecase"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 var userUseCase domain.UserUseCase
@@ -22,11 +24,11 @@ var serviceUseCase domain.ServiceUseCase
 var webhookUseCase domain.WebhookUseCase
 var httpUseCase domain.HttpUseCase
 var telegramUseCase domain.TelegramUseCase
+var spotifyUseCase domain.SpotifyUseCase
 
 func init() {
 	// Load environment variables
 	env.LoadEnv()
-
 	// Generate random jwt key
 	authenticate.GenerateRandomKey()
 
@@ -45,7 +47,7 @@ func init() {
 	webhookUseCase = webhookUC.NewWebhookUseCase(appDB, timeoutContext)
 	httpUseCase = httpUC.NewHttpUseCase(appDB, timeoutContext)
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
-
+	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
 
@@ -63,6 +65,7 @@ func main() {
 		WebhookUseCase:  webhookUseCase,
 		HttpUserCase:    httpUseCase,
 		TelegramUseCase:    telegramUseCase,
+		SpotifyUseCase:  spotifyUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()

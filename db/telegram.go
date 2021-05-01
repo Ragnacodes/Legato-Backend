@@ -61,7 +61,7 @@ func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram) error
 		return err
 	}
 	if t.Service.ID != servId {
-		return errors.New("the http service is not in this scenario")
+		return errors.New("the telegram service is not in this scenario")
 	}
 
 	ldb.db.Model(&serv).Updates(nt.Service)
@@ -81,13 +81,13 @@ func (ldb *LegatoDB) GetTelegramByService(serv Service) (*Telegram, error) {
 		return nil, err
 	}
 	if t.ID != uint(serv.OwnerID) {
-		return nil, errors.New("the http service is not in this scenario")
+		return nil, errors.New("the telegram service is not in this scenario")
 	}
 
 	return &t, nil
 }
 
-// Service Interface for Http
+// Service Interface for telegram
 func (t Telegram) Execute(...interface{}) {
 	log.Println("*******Starting Telegram Service*******")
 

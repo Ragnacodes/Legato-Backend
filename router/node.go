@@ -95,6 +95,8 @@ func addNode(c *gin.Context) {
 	case "telegrams":
 		addedServ, err = resolvers.TelegramUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
 		break
+	case "spotifies":
+		addedServ, err = resolvers.SpotifyUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
 	default:
 		break
 	}
@@ -169,6 +171,9 @@ func updateNode(c *gin.Context) {
 		break
 	case "telegrams":
 		err = resolvers.TelegramUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	case "spotifies":
+		err = resolvers.SpotifyUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
 	default:
 		break

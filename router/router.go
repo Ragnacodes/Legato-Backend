@@ -57,6 +57,7 @@ type Resolver struct {
 	WebhookUseCase  domain.WebhookUseCase
 	HttpUserCase    domain.HttpUseCase
 	TelegramUseCase domain.TelegramUseCase
+	SpotifyUseCase  domain.SpotifyUseCase
 }
 
 // This Resolver includes all of our use cases so we can handle incoming requests
@@ -70,6 +71,7 @@ var legatoRoutesGroups = routeGroups{
 	webhookRG,
 	nodeRG,
 	httpRG,
+	spotifyRG,
 	ConnectionRG,
 }
 

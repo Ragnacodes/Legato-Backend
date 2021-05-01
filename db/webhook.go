@@ -213,7 +213,6 @@ func (w Webhook) Execute(...interface{}) {
 	w.IsEnable = true
 	legatoDb.db.Save(&w)
 
-	w.Next()
 }
 
 func (w Webhook) Post() {

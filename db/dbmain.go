@@ -54,6 +54,8 @@ func createSchema(db *gorm.DB) error {
 	_ = db.AutoMigrate(Webhook{})
 	_ = db.AutoMigrate(Http{})
 	_ = db.AutoMigrate(Telegram{})
+	_ = db.AutoMigrate(Spotify{})
+	_ = db.AutoMigrate(Token{})
 
 	return nil
 }
