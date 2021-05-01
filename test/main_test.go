@@ -28,10 +28,10 @@ func TestHelloWorld(t *testing.T) {
 
 	resolvers := router.Resolver{}
 
-	router := router.NewRouter(&resolvers)
-	// Grab our router
+	r := router.NewRouter(&resolvers)
+	// Grab our r
 	// Perform a GET request with that handler.
-	w := performRequest(router, "GET", "/api/ping")
+	w := performRequest(r, "GET", "/api/ping")
 	// Assert we encoded correctly,
 	// the request gives a 200
 	assert.Equal(t, http.StatusOK, w.Code)

@@ -33,7 +33,7 @@ func (w *WebhookUseCase) AddWebhookToScenario(u *api.UserInfo, scenarioId uint, 
 		return api.ServiceNode{}, err
 	}
 
-	webhook := converter.DataToWebhook(nw.Data)
+	webhook := converter.DataToWebhookDb(nw.Data)
 	webhook.Service = converter.NewServiceNodeToServiceDb(nw)
 
 	wh, err := w.db.CreateWebhookForScenario(&scenario, webhook)
@@ -60,16 +60,17 @@ func (w *WebhookUseCase) CreateSeparateWebhook(u *api.UserInfo, nw api.NewSepara
 	return converter.WebhookDbToWebhookInfo(*wh), nil
 }
 
-func (w *WebhookUseCase) Exists(ids string) (*legatoDb.Webhook, error) {
+func (w *WebhookUseCase) Exists(ids string) (*api.WebhookInfo, error) {
 	id, err := uuid.FromString(ids)
 	if err != nil {
-		return &legatoDb.Webhook{}, err
+		return &api.WebhookInfo{}, err
 	}
 	wh, err := w.db.GetWebhookByUUID(id)
 	if err != nil {
-		return &legatoDb.Webhook{}, err
+		return &api.WebhookInfo{}, err
 	}
-	return wh, nil
+	info := converter.WebhookDbToWebhookInfo(*wh)
+	return &info, nil
 }
 
 func (w *WebhookUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint, nw api.NewServiceNode) error {
@@ -83,7 +84,7 @@ func (w *WebhookUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint
 		return err
 	}
 
-	webhook := converter.DataToWebhook(nw.Data)
+	webhook := converter.DataToWebhookDb(nw.Data)
 	webhook.Service = converter.NewServiceNodeToServiceDb(nw)
 
 	err = w.db.UpdateWebhook(&scenario, serviceId, webhook)
@@ -152,8 +153,19 @@ func (w *WebhookUseCase) DeleteUserWebhookById(u *api.UserInfo, wid uint) error 
 
 	err = w.db.DeleteSeparateWebhookById(&user, wid)
 	if err != nil {
-		return  err
+		return err
 	}
 
+	return nil
+}
+
+func (w *WebhookUseCase)TriggerWebhook(wid string, data map[string]interface{}) error{
+	id, _ := uuid.FromString(wid)
+	
+	wh, err := w.db.GetWebhookByUUID(id)
+	if err!=nil{
+		return err
+	}
+	wh.Next(data)
 	return nil
 }

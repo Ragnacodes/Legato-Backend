@@ -6,11 +6,11 @@ import (
 	"legato_server/env"
 	"log"
 
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
-const webhookType string = "webhook"
+const webhookType string = "webhooks"
 
 type Webhook struct {
 	gorm.Model
@@ -107,6 +107,31 @@ func (ldb *LegatoDB) UpdateSeparateWebhook(u *User, wid uint, nwh Webhook) error
 	return nil
 }
 
+func (ldb *LegatoDB) GetWebhookByService(serv Service) (*Webhook, error) {
+	var wh Webhook
+	err := ldb.db.Where("id = ?", serv.OwnerID).Preload("Service").Find(&wh).Error
+	if err != nil {
+		return nil, err
+	}
+	if wh.ID != uint(serv.OwnerID) {
+		return nil, errors.New("the webhook service is not in this scenario")
+	}
+
+	return &wh, nil
+}
+
+func (ldb *LegatoDB) GetScenarioRootServices(s Scenario) ([]Service, error) {
+	var ss []Service
+	err := ldb.db.Where("parent_id is NULL").
+		Where("scenario_id = ?", s.ID).
+		Find(&ss).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return ss, nil
+}
+
 func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (*Webhook, error) {
 	webhook := Webhook{}
 	ldb.db.Where(&Webhook{Token: uuid}).Preload("Service").First(&webhook)
@@ -175,23 +200,23 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 }
 
 // Service Interface for Webhook
-
 func (w Webhook) Execute(...interface{}) {
+	log.Println("*******Starting Webhook Service*******")
+
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Executing %s node: %s\n", "webhook", w.Service.Name)
+	log.Printf("Executing type (%s) : %s\n", webhookType, w.Service.Name)
 
 	w.IsEnable = true
 	legatoDb.db.Save(&w)
 
-	w.Next()
 }
 
 func (w Webhook) Post() {
-	log.Printf("Executing %s node in background: %s\n", "webhook", w.Service.Name)
+	log.Printf("Executing type (%s) node in background : %s\n", webhookType, w.Service.Name)
 }
 
 func (w Webhook) Next(...interface{}) {
@@ -200,7 +225,16 @@ func (w Webhook) Next(...interface{}) {
 		panic(err)
 	}
 
+	log.Printf("Executing \"%s\" Children \n", w.Service.Name)
+
 	for _, node := range w.Service.Children {
-		node.LoadOwner().Execute()
+		serv, err := node.Load()
+		if err != nil {
+			log.Println("error in loading services in Next()")
+			return
+		}
+		serv.Execute()
 	}
+
+	log.Printf("*******End of \"%s\"*******", w.Service.Name)
 }

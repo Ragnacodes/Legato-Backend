@@ -2,10 +2,11 @@ package router
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"legato_server/api"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 var nodeRG = routeGroup{
@@ -88,7 +89,15 @@ func addNode(c *gin.Context) {
 	case "webhooks":
 		addedServ, err = resolvers.WebhookUseCase.AddWebhookToScenario(loginUser, uint(scenarioId), newNode)
 		break
-	case "http":
+	case "https":
+		addedServ, err = resolvers.HttpUserCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	case "telegrams":
+		addedServ, err = resolvers.TelegramUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	case "spotifies":
+		addedServ, err = resolvers.SpotifyUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+	default:
 		break
 	}
 	if err != nil {
@@ -157,7 +166,16 @@ func updateNode(c *gin.Context) {
 	case "webhooks":
 		err = resolvers.WebhookUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
-	case "http":
+	case "https":
+		err = resolvers.HttpUserCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	case "telegrams":
+		err = resolvers.TelegramUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	case "spotifies":
+		err = resolvers.SpotifyUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	default:
 		break
 	}
 	if err != nil {

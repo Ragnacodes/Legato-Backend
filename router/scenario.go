@@ -2,10 +2,11 @@ package router
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"legato_server/api"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 var scenarioRG = routeGroup{
@@ -40,6 +41,12 @@ var scenarioRG = routeGroup{
 			method:      DELETE,
 			pattern:     "/users/:username/scenarios/:scenario_id",
 			handlerFunc: deleteScenario,
+		},
+		route{
+			name:        "Start a scenario",
+			method:      PATCH,
+			pattern:     "/users/:username/scenarios/:scenario_id",
+			handlerFunc: startScenario,
 		},
 	},
 }
@@ -154,7 +161,7 @@ func updateScenario(c *gin.Context) {
 	})
 }
 
-func deleteScenario(c *gin.Context)  {
+func deleteScenario(c *gin.Context) {
 	username := c.Param("username")
 	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
@@ -174,6 +181,30 @@ func deleteScenario(c *gin.Context)  {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "scenario is deleted successfully",
+		"message": "scenario is deleted successfully",
+	})
+}
+
+func startScenario(c *gin.Context) {
+	username := c.Param("username")
+	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
+
+	// Auth
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	// Start that scenario
+	err := resolvers.ScenarioUseCase.StartScenario(loginUser, uint(scenarioId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not start this scenario: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "scenario is started successfully",
 	})
 }

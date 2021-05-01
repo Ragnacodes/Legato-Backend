@@ -11,6 +11,7 @@ To add a service (node) to the scenario.
         "parentId": 90,
         "name": "hamintori",
         "type": "webhooks",
+        "subType": "",
         "position": {
             "x": 40,
             "y": 40
@@ -28,6 +29,7 @@ To add a service (node) to the scenario.
             "parentId": 90,
             "name": "hamintori",
             "type": "webhooks",
+            "subType": "",
             "position": {
                 "x": 40,
                 "y": 40
@@ -80,11 +82,61 @@ Data field for each one of services is different.
     ```json
     {
         "data": {
+          "id": 23,
           "url": "http://localhost:8080/api/ping",
           "method": "get"
         }
     }
     ```
+  
+  
+##### Telegram
+- Type = `telegrams`
+
+    - SubType = `sendMessage` (Send a message to the user)
+        - Data request to create:
+            ```json
+            {
+                "data": {
+                  "key": "17312061423:AAHkpaaUswee",
+                  "chat_id": "128373",
+                  "text": "this is the message!"
+                }
+            }
+            ```
+        
+        - Data response
+            ```json
+            {
+                "data": {
+                  "key": "17312061423:AAHkpaaUswee",
+                  "chat_id": "128373",
+                  "text": "this is the message!"
+                }
+            }
+            ```
+      
+    - SubType = `getChatMember` (Get user info)
+        - Data request to create:
+            ```json
+            {
+                "data": {
+                  "chat_id": "128373",
+                  "user_id": "128373"
+                }
+            }
+            ```
+        
+        - Data response
+            ```json
+            {
+                "data": {
+                  "chat_id": "128373",
+                  "user_id": "128373"
+                }
+            }
+            ```
+
 
 ---------------------------------------
 
@@ -103,7 +155,6 @@ To get all services (nodes) in that user scenarios.
                 "userId": 1,
                 "name": "another http",
                 "type": "webhooks",
-                "children": [],
                 "position": {
                     "x": 0,
                     "y": 0
@@ -116,7 +167,6 @@ To get all services (nodes) in that user scenarios.
                 "userId": 1,
                 "name": "My starter webhook",
                 "type": "webhooks",
-                "children": [],
                 "position": {
                     "x": 0,
                     "y": 0
@@ -129,7 +179,6 @@ To get all services (nodes) in that user scenarios.
                 "userId": 1,
                 "name": "updated",
                 "type": "webhooks",
-                "children": [],
                 "position": {
                     "x": 40,
                     "y": 40
@@ -142,7 +191,6 @@ To get all services (nodes) in that user scenarios.
                 "userId": 1,
                 "name": "New http added 22333",
                 "type": "webhooks",
-                "children": [],
                 "position": {
                     "x": 123,
                     "y": 200
@@ -155,7 +203,6 @@ To get all services (nodes) in that user scenarios.
                 "userId": 1,
                 "name": "updated",
                 "type": "webhooks",
-                "children": [],
                 "position": {
                     "x": 40,
                     "y": 40

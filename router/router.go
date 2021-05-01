@@ -2,9 +2,10 @@ package router
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"legato_server/domain"
 	"legato_server/middleware"
+
+	"github.com/gin-gonic/gin"
 )
 
 const API = "api"
@@ -54,6 +55,9 @@ type Resolver struct {
 	ScenarioUseCase domain.ScenarioUseCase
 	ServiceUseCase  domain.ServiceUseCase
 	WebhookUseCase  domain.WebhookUseCase
+	HttpUserCase    domain.HttpUseCase
+	TelegramUseCase domain.TelegramUseCase
+	SpotifyUseCase  domain.SpotifyUseCase
 }
 
 // This Resolver includes all of our use cases so we can handle incoming requests
@@ -66,6 +70,9 @@ var legatoRoutesGroups = routeGroups{
 	scenarioRG,
 	webhookRG,
 	nodeRG,
+	httpRG,
+	spotifyRG,
+	ConnectionRG,
 }
 
 // NewRouter get the resolvers and create *gin.Engine that can handle all

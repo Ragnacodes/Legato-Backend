@@ -2,7 +2,7 @@ package converter
 
 import (
 	"legato_server/api"
-	"legato_server/db"
+	legatoDb "legato_server/db"
 	"strings"
 )
 

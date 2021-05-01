@@ -2,10 +2,11 @@ package legatoDb
 
 import (
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"legato_server/env"
 	"log"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type LegatoDB struct {
@@ -47,8 +48,14 @@ func Connect() (*LegatoDB, error) {
 // for all of our models.
 func createSchema(db *gorm.DB) error {
 	_ = db.AutoMigrate(User{})
+	_ = db.AutoMigrate(Connection{})
 	_ = db.AutoMigrate(Scenario{})
 	_ = db.AutoMigrate(Service{})
 	_ = db.AutoMigrate(Webhook{})
+	_ = db.AutoMigrate(Http{})
+	_ = db.AutoMigrate(Telegram{})
+	_ = db.AutoMigrate(Spotify{})
+	_ = db.AutoMigrate(Token{})
+
 	return nil
 }

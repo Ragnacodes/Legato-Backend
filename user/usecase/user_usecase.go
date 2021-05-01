@@ -116,3 +116,74 @@ func (u *userUseCase) CreateDefaultUser() error {
 
 	return nil
 }
+func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Connection, error) {
+	user, _ := u.db.GetUserByUsername(name)
+	con := legatoDb.Connection{}
+	con.Name = ut.Name
+	con.Token = ut.Token
+	con.TokenType = ut.TokenType
+	con.UserID = uint(ut.ID)
+	c, err := u.db.AddConnection(&user, con)
+	if err != nil {
+		return api.Connection{}, err
+	}
+	ut.ID = int(c.ID)
+	return ut, nil
+}
+
+func (u *userUseCase) GetConnectionByID(username string, id uint) (legatoDb.Connection, error) {
+	user, _ := u.db.GetUserByUsername(username)
+	connection, err := u.db.GetUserConnectionById(&user, id)
+	return connection, err
+}
+
+func (u *userUseCase) GetConnections(username string) ([]legatoDb.Connection, error) {
+	user, _ := u.db.GetUserByUsername(username)
+	connections, err := u.db.GetUserConnections(&user)
+	if err != nil {
+		return nil, err
+	}
+	return connections, nil
+}
+
+func (u *userUseCase) UpdateUserConnectionNameById(username string, ut api.Connection) error {
+	user, _ := u.db.GetUserByUsername(username)
+
+	err := u.db.UpdateUserConnectionNameByID(&user, ut.Name, uint(ut.ID))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *userUseCase) CheckConnectionByID(username string, id uint) error {
+	user, _ := u.db.GetUserByUsername(username)
+	err := u.db.CheckConnectionByID(&user, id)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func (u *userUseCase) DeleteUserConnectionById(username string, id uint) error {
+	user, _ := u.db.GetUserByUsername(username)
+	err := u.db.DeleteConnectionByID(&user, id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func (u *userUseCase) UpdateTokenFieldByID(username string, ut api.Connection) error {
+	user, _ := u.db.GetUserByUsername(username)
+	err := u.db.UpdateTokenFieldByID(&user, ut.Token, uint(ut.ID))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

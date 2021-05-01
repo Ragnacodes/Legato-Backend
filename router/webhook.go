@@ -1,12 +1,16 @@
 package router
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"legato_server/api"
+	"log"
 	"net/http"
 	"regexp"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 const Webhook = "Webhook"
@@ -20,12 +24,12 @@ var webhookRG = routeGroup{
 			"/users/:username/services/webhooks",
 			createNewWebhook,
 		},
-		//route{
-		//	"Webhook Trigger",
-		//	POST,
-		//	"/services/webhook/:webhookid",
-		//	handleWebhookData,
-		//},
+		route{
+			"Webhook Trigger",
+			POST,
+			"/services/webhook/:webhookid",
+			handleWebhookData,
+		},
 		route{
 			"Update Webhook",
 			PUT,
@@ -53,37 +57,37 @@ var webhookRG = routeGroup{
 	},
 }
 
-//func handleWebhookData(c *gin.Context) {
-//	param := c.Param("webhookid")
-//
-//	wh, err := webhookExists(param)
-//	if err != nil {
-//		c.JSON(http.StatusBadRequest,
-//			gin.H{"message": err.Error()},
-//		)
-//		return
-//	}
-//	if !wh.IsEnable {
-//		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-//			"message": "webhook is not enabled",
-//		})
-//		return
-//	}
-//	webhookData := make(map[string]interface{})
-//	err = json.NewDecoder(c.Request.Body).Decode(&webhookData)
-//	if err != nil {
-//		c.JSON(http.StatusNotFound, gin.H{
-//			"message": err.Error(),
-//		})
-//		return
-//	}
-//	log.Println("webhook with id ", param)
-//	log.Println("got payload: ")
-//	for k, v := range webhookData {
-//		log.Printf("%s : %v\n", k, v)
-//	}
-//	wh.Next(webhookData)
-//}
+func handleWebhookData(c *gin.Context) {
+	param := c.Param("webhookid")
+
+	wh, err := webhookExists(param)
+	if err != nil {
+		c.JSON(http.StatusBadRequest,
+			gin.H{"message": err.Error()},
+		)
+		return
+	}
+	if !wh.IsEnable {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"message": "webhook is not enabled",
+		})
+		return
+	}
+	webhookData := make(map[string]interface{})
+	err = json.NewDecoder(c.Request.Body).Decode(&webhookData)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	log.Println("webhook with id ", param)
+	log.Println("got payload: ")
+	for k, v := range webhookData {
+		log.Printf("%s : %v\n", k, v)
+	}
+	resolvers.WebhookUseCase.TriggerWebhook(param, webhookData)
+}
 
 func createNewWebhook(c *gin.Context) {
 	username := c.Param("username")
@@ -219,14 +223,14 @@ func deleteUserWebhook(c *gin.Context) {
 	})
 }
 
-//
-//func webhookExists(WebhookID string) (*legatoDb.Webhook, error) {
-//	if !IsValidUUID(WebhookID) {
-//		return &legatoDb.Webhook{}, errors.New("bad request")
-//	}
-//	wh, err := resolvers.WebhookUseCase.Exists(WebhookID)
-//	if err != nil {
-//		return &legatoDb.Webhook{}, err
-//	}
-//	return wh, nil
-//}
+
+func webhookExists(WebhookID string) (api.WebhookInfo, error) {
+	if !IsValidUUID(WebhookID) {
+		return api.WebhookInfo{}, errors.New("bad request")
+	}
+	wh, err := resolvers.WebhookUseCase.Exists(WebhookID)
+	if err != nil {
+		return api.WebhookInfo{}, err
+	}
+	return *wh, nil
+}

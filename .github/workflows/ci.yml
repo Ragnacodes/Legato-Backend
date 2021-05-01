@@ -13,13 +13,23 @@ jobs:
   # The "build" workflow
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest    
+    env:
+      SPOTIFY_ID: ${{ secrets.SPOTIFY_ID }}
+      SPOTIFY_SECRET: ${{ secrets.SPOTIFY_SECRET }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     
+    #create required env file
+    - name: Make envfile 
+      run: |
+        echo "SPOTIFY_ID = $SPOTIFY_ID \nSPOTIFY_SECRET = $SPOTIFY_SECRET" \
+        > ${{github.workspace}}/deployments/dev/web.env
+
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: LS
+      run: ls -R
     # Setup 
     - name: Build the docker-compose stack
       run: docker-compose -f docker-compose-dev.yml up -d

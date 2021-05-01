@@ -2,7 +2,7 @@ package converter
 
 import (
 	"legato_server/api"
-	"legato_server/db"
+	legatoDb "legato_server/db"
 )
 
 func WebhookDbToWebhookInfo(s legatoDb.Webhook) api.WebhookInfo {
@@ -23,7 +23,7 @@ func WebhookToWebhookDb(s api.WebhookInfo) legatoDb.Webhook {
 	return wh
 }
 
-func DataToWebhook(data interface{}) legatoDb.Webhook {
+func DataToWebhookDb(data interface{}) legatoDb.Webhook {
 	var w legatoDb.Webhook
 	if data != nil {
 		_ = data.(map[string]interface{})
