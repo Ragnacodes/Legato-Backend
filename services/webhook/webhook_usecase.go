@@ -44,13 +44,13 @@ func (w *WebhookUseCase) AddWebhookToScenario(u *api.UserInfo, scenarioId uint, 
 	return converter.WebhookDbToServiceNode(*wh), nil
 }
 
-func (w *WebhookUseCase) CreateSeparateWebhook(u *api.UserInfo, nw api.WebhookInfo) (api.WebhookInfo, error) {
+func (w *WebhookUseCase) CreateSeparateWebhook(u *api.UserInfo, nw api.NewSeparateWebhook) (api.WebhookInfo, error) {
 	user, err := w.db.GetUserByUsername(u.Username)
 	if err != nil {
 		return api.WebhookInfo{}, err
 	}
 
-	webhook := converter.WebhookToWebhookDb(nw)
+	webhook := converter.NewSeparateWebhookToWebhook(nw)
 
 	wh, err := w.db.CreateSeparateWebhook(&user, webhook)
 	if err != nil {
@@ -95,13 +95,13 @@ func (w *WebhookUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint
 	return nil
 }
 
-func (w *WebhookUseCase) UpdateSeparateWebhook(u *api.UserInfo, wid uint, nw api.WebhookInfo) error {
+func (w *WebhookUseCase) UpdateSeparateWebhook(u *api.UserInfo, wid uint, nw api.NewSeparateWebhook) error {
 	user, err := w.db.GetUserByUsername(u.Username)
 	if err != nil {
 		return err
 	}
 
-	nwh := converter.WebhookToWebhookDb(nw)
+	nwh := converter.NewSeparateWebhookToWebhook(nw)
 
 	err = w.db.UpdateSeparateWebhook(&user, wid, nwh)
 	if err != nil {

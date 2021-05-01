@@ -92,7 +92,7 @@ func handleWebhookData(c *gin.Context) {
 func createNewWebhook(c *gin.Context) {
 	username := c.Param("username")
 
-	nwh := api.WebhookInfo{}
+	nwh := api.NewSeparateWebhook{}
 	_ = c.BindJSON(&nwh)
 
 	// Authenticate
@@ -147,7 +147,7 @@ func updateUserWebhooks(c *gin.Context) {
 	username := c.Param("username")
 	webhookId, _ := strconv.Atoi(c.Param("webhook_id"))
 
-	nwh := api.WebhookInfo{}
+	nwh := api.NewSeparateWebhook{}
 	_ = c.BindJSON(&nwh)
 
 	// Authenticate
