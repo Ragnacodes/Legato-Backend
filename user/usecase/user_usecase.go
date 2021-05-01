@@ -121,7 +121,7 @@ func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Con
 	con := legatoDb.Connection{}
 	con.Name = ut.Name
 	con.Token = ut.Token
-	con.Token_type = ut.TokenType
+	con.TokenType = ut.TokenType
 	con.UserID = uint(ut.ID)
 	c, err := u.db.AddConnection(&user, con)
 	if err != nil {

@@ -37,8 +37,10 @@ func (tu *TelegramUseCase) AddToScenario(u *api.UserInfo, scenarioId uint, nt ap
 
 	var telegram legatoDb.Telegram
 	telegram.Service = converter.NewServiceNodeToServiceDb(nt)
-	if key, ok := nt.Data.(map[string]interface{})["key"]; ok {
-		telegram.Key = key.(string)
+	if nt.Data != nil {
+		if key, ok := nt.Data.(map[string]interface{})["key"]; ok {
+			telegram.Key = key.(string)
+		}
 	}
 
 	h, err := tu.db.CreateTelegram(&scenario, telegram)
@@ -62,8 +64,10 @@ func (tu *TelegramUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId ui
 
 	var telegram legatoDb.Telegram
 	telegram.Service = converter.NewServiceNodeToServiceDb(nt)
-	if key, ok := nt.Data.(map[string]interface{})["key"]; ok {
-		telegram.Key = key.(string)
+	if nt.Data != nil {
+		if key, ok := nt.Data.(map[string]interface{})["key"]; ok {
+			telegram.Key = key.(string)
+		}
 	}
 
 	err = tu.db.UpdateTelegram(&scenario, serviceId, telegram)

@@ -146,3 +146,19 @@ func (s *Scenario) LoadRootService() error {
 
 	return nil
 }
+
+type OwnerType struct {
+	OwnerType string
+}
+
+func (ldb *LegatoDB) GetScenarioNodeTypes(scenario *Scenario) (t []OwnerType, err error) {
+	err = ldb.db.Distinct("OwnerType").Model(&Service{}).
+		Where(&Service{ScenarioID: &scenario.ID}).
+		Find(&t).Error
+
+	if err != nil {
+		return []OwnerType{}, err
+	}
+
+	return t, nil
+}

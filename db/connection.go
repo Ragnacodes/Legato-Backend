@@ -9,10 +9,10 @@ import (
 
 type Connection struct {
 	gorm.Model
-	Token      string
-	Token_type string
-	UserID     uint
-	Name       string
+	Token     string
+	TokenType string
+	UserID    uint
+	Name      string
 }
 
 func (ldb *LegatoDB) AddConnection(u *User, c Connection) (Connection, error) {
@@ -34,7 +34,7 @@ func (ldb *LegatoDB) AddConnection(u *User, c Connection) (Connection, error) {
 func (ldb *LegatoDB) GetUserConnections(u *User) ([]Connection, error) {
 	user, _ := ldb.GetUserByUsername(u.Username)
 	var connections []Connection
-	ldb.db.Model(&user).Association("Connections").Find(&connections)
+	_ = ldb.db.Model(&user).Association("Connections").Find(&connections)
 
 	return connections, nil
 }

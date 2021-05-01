@@ -67,7 +67,7 @@ func (ldb *LegatoDB) UpdateTelegram(s *Scenario, servId uint, nt Telegram) error
 	ldb.db.Model(&serv).Updates(nt.Service)
 	ldb.db.Model(&t).Updates(nt)
 
-	if t.Service.ParentID == nil {
+	if nt.Service.ParentID == nil {
 		legatoDb.db.Model(&serv).Select("parent_id").Update("parent_id", nil)
 	}
 
