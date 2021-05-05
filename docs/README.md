@@ -5,6 +5,7 @@
 - [Scenario](api/scenario.md)
 - [Service](api/service.md)
 - [Webhook](api/webhook.md)
+- [Spotify](api/spotify.md)
 - [Connection](api/connection.md)
 
 ### Defaults

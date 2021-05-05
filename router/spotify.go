@@ -1,14 +1,17 @@
 package router
 
 import (
+	"context"
 	"fmt"
 	"legato_server/env"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 
@@ -30,10 +33,16 @@ var spotifyRG = routeGroup{
 		},
 
 		route{
-			"spotify auth callback",
+			"get user playlists",
 			GET,
 			"/users/:username/spotify/playlists",
 			ReadUserPlaylists,
+		},
+		route{
+			"get a track info",
+			GET,
+			"/services/spotify/track/:id",
+			getTrackInfo,
 		},
 	},
 }
@@ -137,4 +146,32 @@ func completeAuth(c *gin.Context) {
 
 	log.Println("Login Completed!")
 	ch <- tok
+}
+
+func getTrackInfo(c *gin.Context) {
+
+	config := &clientcredentials.Config{
+		ClientID:     os.Getenv("SPOTIFY_ID"),
+		ClientSecret: os.Getenv("SPOTIFY_SECRET"),
+		TokenURL:     spotify.TokenURL,
+	}
+	token, err := config.Token(context.Background())
+	if err != nil {
+		log.Fatalf("couldn't get token: %v", err)
+	}
+
+	client := spotify.Authenticator{}.NewClient(token)
+	
+	trackId := c.Param("id")
+	// handle track info
+	
+	trackInfo, err := client.GetTrack(spotify.ID(trackId))
+	if err!= nil{
+		c.JSON(http.StatusNotFound, gin.H{
+				"message": err,
+		})
+		return
+	}
+	
+	c.JSON(http.StatusOK, trackInfo)
 }
