@@ -1,4 +1,25 @@
 # Webhook
+- Type = `webhooks`
+
+### SubTypes & Data
+Adding webhook to scenario. There is not any sub type yet.
+- Data request to create:
+    ```json
+    {
+        "data": {}
+    }
+    ```
+
+- Data response
+    ```json
+    {
+        "data": {
+            "url": "http://localhost:8080/api/services/webhook/1d96b814-2b6a-4e61-8360-d0580bbc332a",
+            "active": false
+        }
+    }
+    ```
+   
 
 ### /users/:username/services/webhooks `POST`
 To create a new separate webhook.

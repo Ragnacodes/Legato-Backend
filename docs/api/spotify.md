@@ -1,18 +1,20 @@
 # Spotify
+- Type = `spotifies`
 
-### SubType
+### SubTypes & Data
 When adding spotify node
-- "addToPlaylist"
-   Data:
-    ```json
-    {
-        "TrackId" : "ersgrt53mSr32Qq0srgya",  
-        "PlaylistId" : "5vC3aemdQGzV8Dq0eroyDa"
-    }
-    ``` 
+- ```addToPlaylist```
+    - Data request to create:
     
-- "getTopTracks"
-    Data: empty
+        ```json
+        {
+            "TrackId" : "ersgrt53mSr32Qq0srgya",  
+            "PlaylistId" : "5vC3aemdQGzV8Dq0eroyDa"
+        }
+        ``` 
+    
+- ```getTopTracks```
+   
 
 ### /api/services/spotify/track/:trackid `GET`
 Get Spotify catalog information for a single track identified by its unique Spotify ID. 
@@ -123,7 +125,7 @@ To login to your spotify account
 
 
 ### /api/users/:username/spotify/playlists `GET`
-To get list of all user playlists. 
+****To get list of all user playlists. 
 - Header
     - `Authorization` = `access_token`
 
