@@ -66,7 +66,7 @@ func addScenario(c *gin.Context) {
 	// Add scenario
 	createdScenario, err := resolvers.ScenarioUseCase.AddScenario(loginUser, &newScenario)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("can not create scenario: %s", err),
 		})
 		return

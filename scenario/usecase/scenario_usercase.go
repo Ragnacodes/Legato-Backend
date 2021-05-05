@@ -22,9 +22,12 @@ func NewScenarioUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Sce
 
 func (s scenarioUseCase) AddScenario(u *api.UserInfo, ns *api.NewScenario) (api.BriefScenario, error) {
 	user, _ := s.db.GetUserByUsername(u.Username)
-	scenario := converter.NewScenarioToScenarioDb(*ns)
+	scenario, err := converter.NewScenarioToScenarioDb(*ns)
+	if err != nil {
+		return api.BriefScenario{}, err
+	}
 
-	err := s.db.AddScenario(&user, &scenario)
+	err = s.db.AddScenario(&user, &scenario)
 	if err != nil {
 		return api.BriefScenario{}, err
 	}
@@ -70,9 +73,12 @@ func (s scenarioUseCase) GetUserScenarioById(u *api.UserInfo, scenarioId uint) (
 func (s scenarioUseCase) UpdateUserScenarioById(u *api.UserInfo, scenarioId uint, ns api.NewScenario) error {
 	user := converter.UserInfoToUserDb(*u)
 
-	updatedScenario := converter.NewScenarioToScenarioDb(ns)
+	updatedScenario, err := converter.NewScenarioToScenarioDb(ns)
+	if err != nil {
+		return err
+	}
 
-	err := s.db.UpdateUserScenarioById(&user, scenarioId, updatedScenario)
+	err = s.db.UpdateUserScenarioById(&user, scenarioId, updatedScenario)
 	if err != nil {
 		return err
 	}

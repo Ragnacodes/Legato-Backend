@@ -1,18 +1,22 @@
 package converter
 
 import (
+	"errors"
 	"legato_server/api"
 	legatoDb "legato_server/db"
 	"math/rand"
 )
 
-func NewScenarioToScenarioDb(ns api.NewScenario) legatoDb.Scenario {
+func NewScenarioToScenarioDb(ns api.NewScenario) (legatoDb.Scenario, error) {
 	s := legatoDb.Scenario{}
 	s.Name = ns.Name
 	s.IsActive = ns.IsActive
+	if s.IsActive == nil {
+		return legatoDb.Scenario{}, errors.New("isActive can not be empty")
+	}
 	s.Services = []legatoDb.Service{}
 
-	return s
+	return s, nil
 }
 
 func ScenarioDbToBriefScenario(s legatoDb.Scenario) api.BriefScenario {
