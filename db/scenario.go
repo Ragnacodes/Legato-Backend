@@ -106,9 +106,12 @@ func (s *Scenario) Start() error {
 	}
 
 	log.Println("Executing root services of this scenario")
-	for _, serv := range s.RootServices {
-		serv.Execute()
-	}
+	go func() {
+		for _, serv := range s.RootServices {
+			serv.Execute()
+		}
+	}()
+	log.Println("Executing finished")
 
 	return nil
 }
