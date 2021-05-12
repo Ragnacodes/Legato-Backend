@@ -21,7 +21,21 @@ services:
   #      volumes:
   #        - .:/go/src/legato_server
   #      command: ["go", "test", "./..."]
-  
+
+  legato_scheduler:
+    build:
+      context: .
+      dockerfile: deployments/dev/Dockerfile
+    volumes:
+      - ./:/usr/src/app
+    command: [ "go", "run", "cmd/legato_scheduler/main.go" ]
+    ports:
+      - "8090:8090"
+    container_name: legato_scheduler
+    depends_on:
+      - redis
+      - legato_server
+
   database:
     image: "postgres"
     volumes:
@@ -49,11 +63,12 @@ services:
       - pgadmin:/root/.pgadmin
     ports:
       - "5050:80"
-  
+
   redis:
     image: "redis:6.2.3"
     ports:
-      - "6379:6379"  
+      - "6379:6379"
+
 volumes:
   postgres_data:
   pgadmin:
