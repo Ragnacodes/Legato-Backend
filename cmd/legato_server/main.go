@@ -64,7 +64,7 @@ func main() {
 		ServiceUseCase:  serviceUseCase,
 		WebhookUseCase:  webhookUseCase,
 		HttpUserCase:    httpUseCase,
-		TelegramUseCase:    telegramUseCase,
+		TelegramUseCase: telegramUseCase,
 		SpotifyUseCase:  spotifyUseCase,
 	}
 
