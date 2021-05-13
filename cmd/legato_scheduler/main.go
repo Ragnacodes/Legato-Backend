@@ -1,7 +1,14 @@
 package main
 
-import "log"
+import (
+	"legato_server/scheduler"
+	"log"
+)
+
+func init() {
+	log.Println("Starting the scheduler server.")
+}
 
 func main() {
-	log.Println("Hello world")
+	_ = scheduler.NewRouter().Run(":8090")
 }

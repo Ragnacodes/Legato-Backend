@@ -16,6 +16,12 @@ var initialRG = routeGroup{
 			ping,
 		},
 		route{
+			"Ping Pong test for schedule server",
+			GET,
+			"ping-schedule",
+			pingSchedule,
+		},
+		route{
 			"Get Default User",
 			GET,
 			"auth/admin",
@@ -25,6 +31,19 @@ var initialRG = routeGroup{
 }
 
 func ping(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
+}
+
+func pingSchedule(c *gin.Context) {
+	_, err := http.Post("http://192.168.1.20:8090/api/schedule/scenario/2", "application/json", nil)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"message": err,
+		})
+		return
+	}
 	c.JSON(200, gin.H{
 		"message": "pong",
 	})
