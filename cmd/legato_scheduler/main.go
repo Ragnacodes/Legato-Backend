@@ -15,10 +15,15 @@ func init() {
 	}
 
 	time.Sleep(3 * time.Second)
-	log.Println("Starting the scheduler server.")
+
+	log.Println("Start log stats")
+	go scheduler.LogStats()
+
+	log.Println("Start Consuming")
+	go scheduler.Listen()
 }
 
 func main() {
-	go scheduler.LogStats()
+	log.Println("Starting the scheduler server.")
 	_ = scheduler.NewRouter().Run(":8090")
 }

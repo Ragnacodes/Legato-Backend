@@ -11,12 +11,14 @@ import (
 	"time"
 )
 
+const queueName = "legato_scheduler"
+
 var Redis *redis.Client
 
 var QueueFactory taskq.Factory
 var MainQueue taskq.Queue
 
-type legatoTasks []*taskq.Task
+type legatoTasks map[string]*taskq.Task
 
 func CreateQueue(redisAddress string) error {
 	log.Println("Connecting to redis....")
@@ -26,10 +28,10 @@ func CreateQueue(redisAddress string) error {
 
 	QueueFactory = redisq.NewFactory()
 	MainQueue = QueueFactory.RegisterQueue(&taskq.QueueOptions{
-		Name:  "api-worker",
+		Name:  queueName,
 		Redis: Redis,
 	})
-	
+
 	return nil
 }
 

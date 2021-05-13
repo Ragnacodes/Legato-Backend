@@ -1,5 +1,5 @@
 package scheduler
 
 type NewStartScenarioSchedule struct {
-	Date       *string `json:"subType"`
+	Date *string `json:"subType"`
 }

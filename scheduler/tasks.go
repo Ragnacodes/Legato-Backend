@@ -5,12 +5,16 @@ import (
 	"log"
 )
 
+const StartScenarioTask = "StartScenarioTask"
+
 var Tasks = legatoTasks{
-	taskq.RegisterTask(&taskq.TaskOptions{
-		Name: "start_scenario",
-		Handler: func(scenarioID string) error {
-			log.Println("scenario should start here")
-			return nil
-		},
+	StartScenarioTask: taskq.RegisterTask(&taskq.TaskOptions{
+		Name:    StartScenarioTask,
+		Handler: startScenario,
 	}),
+}
+
+func startScenario(scenarioID int) error {
+	log.Printf("scenario %d should start here\n", scenarioID)
+	return nil
 }
