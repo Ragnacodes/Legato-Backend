@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 const queueName = "legato_scheduler"
@@ -36,9 +35,9 @@ func CreateQueue(redisAddress string) error {
 }
 
 func LogStats() {
-	for range time.Tick(3 * time.Second) {
-		log.Println("checking...")
-	}
+	//for range time.Tick(3 * time.Second) {
+	//	log.Println("checking...")
+	//}
 }
 
 func WaitSignal() os.Signal {

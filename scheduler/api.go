@@ -1,5 +1,13 @@
 package scheduler
 
+import "time"
+
+// NewStartScenarioSchedule represent new request for scheduling a scenario.
+// ScheduledTime is the time that scenario should be started.
+// SystemTime is the time that this scheduling occurred.
+// Actually client send a request with the user SystemTime and ScheduledTime.
+// So it considers ScheduledTime - SystemTime as a delay.
 type NewStartScenarioSchedule struct {
-	Date *string `json:"subType"`
+	ScheduledTime time.Time `json:"scheduledTime"`
+	SystemTime    time.Time `json:"systemTime"`
 }

@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"strconv"
-	"time"
 )
 
 var schedulerRoutes = routes{
@@ -20,11 +19,14 @@ var schedulerRoutes = routes{
 func scheduleStartScenario(c *gin.Context) {
 	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
-	log.Printf("Request new schedule on scenairo %d", scenarioId)
+	sss := NewStartScenarioSchedule{}
+	_ = c.BindJSON(&sss)
+
+	log.Printf("Request new schedule for scenairo %d in %+v", scenarioId, sss.ScheduledTime)
 
 	// Adding to the main queue
 	msg := Tasks[StartScenarioTask].WithArgs(context.Background(), scenarioId)
-	msg.Delay = time.Second * 3
+	msg.Delay = sss.ScheduledTime.Sub(sss.SystemTime)
 	err := MainQueue.Add(msg)
 	if err != nil {
 		c.JSON(500, gin.H{
