@@ -11,6 +11,7 @@ import (
 )
 
 const queueName = "legato_scheduler"
+const AccessToken = "Tqqc5He3/;cD,-z/RD'q~QH/BMaXCyw}9pT+D?*7"
 
 var Redis *redis.Client
 

@@ -3,7 +3,9 @@ package scheduler
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"legato_server/api"
 	"log"
+	"net/http"
 	"strconv"
 )
 
@@ -19,7 +21,7 @@ var schedulerRoutes = routes{
 func scheduleStartScenario(c *gin.Context) {
 	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
-	sss := NewStartScenarioSchedule{}
+	sss := api.NewStartScenarioSchedule{}
 	_ = c.BindJSON(&sss)
 
 	log.Printf("Request new schedule for scenairo %d in %+v", scenarioId, sss.ScheduledTime)
@@ -35,7 +37,7 @@ func scheduleStartScenario(c *gin.Context) {
 		return
 	}
 
-	c.JSON(500, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"message": "Your scenario scheduled successfully.",
 	})
 }

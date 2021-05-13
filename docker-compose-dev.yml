@@ -14,6 +14,7 @@ services:
     container_name: legato_server
     depends_on:
       - database
+      - legato_scheduler
   #    tests:
   #      build:
   #        context: .
@@ -34,7 +35,6 @@ services:
     container_name: legato_scheduler
     depends_on:
       - redis
-      - legato_server
 
   database:
     image: "postgres"

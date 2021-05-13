@@ -50,7 +50,19 @@ func (ldb *LegatoDB) GetUserScenarioById(u *User, scenarioId uint) (Scenario, er
 		Where(&Scenario{UserID: u.ID}).
 		Where("id = ?", scenarioId).
 		Preload("Services").
-		//Preload("RootService").
+		Find(&sc).Error
+	if err != nil {
+		return Scenario{}, err
+	}
+
+	return sc, nil
+}
+
+func (ldb *LegatoDB) GetScenarioById(scenarioId uint) (Scenario, error) {
+	var sc Scenario
+	err := ldb.db.
+		Where("id = ?", scenarioId).
+		Preload("Services").
 		Find(&sc).Error
 	if err != nil {
 		return Scenario{}, err
