@@ -64,6 +64,31 @@ To start the scenarios.
     }
     ```
 
+### /api/users/:username/scenarios/:scenario_id/schedule `POST`
+To schedule the scenarios. `systemTime` is the user's current time.
+`scheduledTime` is the time the user set to schedule the scenario.
+It is needed to send both of them. Consider the case that the server time
+is not as same as the user. With having both of these fields we calculate
+the duration `scheduledTime - systemTime`.
+The given time format should be RFC3339.
+- Header
+    - `Authorization` = `access_token`
+    
+- Response
+    ```json
+    {
+        "systemTime": "2021-05-14T02:16:00+04:30",
+        "scheduledTime": "2021-05-14T03:00:04+04:30"
+    }
+    ```
+  
+- Response
+    ```json
+    {
+        "message": "scenario is scheduled successfully for 2021-05-14 03:00:04 +0430 +0430"
+    }
+    ```
+  
 ### /api/users/:username/scenarios/:scenario_id `DELETE`
 To delete specific scenarios.
 - Response
