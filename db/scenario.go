@@ -2,16 +2,16 @@ package legatoDb
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"legato_server/api"
 	"legato_server/env"
 	"legato_server/services"
+	"log"
 	"net/http"
 	"time"
-
-	"log"
 
 	"gorm.io/gorm"
 )
@@ -21,12 +21,13 @@ import (
 // Root is the first Service of the schema that start the scenario.
 type Scenario struct {
 	gorm.Model
-	UserID       uint
-	Name         string
-	IsActive     *bool
-	Interval     int32
-	RootServices []services.Service `gorm:"-"`
-	Services     []Service
+	UserID        uint
+	Name          string
+	IsActive      *bool
+	Interval      int32
+	RootServices  []services.Service `gorm:"-"`
+	Services      []Service
+	ScheduleToken []byte
 }
 
 func (s *Scenario) String() string {
@@ -125,20 +126,38 @@ func (ldb *LegatoDB) UpdateScenarioIntervalById(u *User, scenarioID uint, interv
 	return nil
 }
 
+func generateRandomKey() []byte {
+	key := make([]byte, 8)
+	if _, err := rand.Read(key); err != nil {
+		panic(err)
+	}
+	fmt.Printf("Key: %b \n", key)
+
+	return key
+}
+
+func (ldb *LegatoDB) SetNewScheduleToken(u *User, scenarioID uint) ([]byte, error) {
+	var scenario Scenario
+	ldb.db.Where(&Scenario{UserID: u.ID}).Where("id = ?", scenarioID).Find(&scenario)
+	if scenario.ID != scenarioID {
+		return []byte{}, errors.New("the scenario is not in user scenarios")
+	}
+
+	// Generate new token
+	token := generateRandomKey()
+
+	ldb.db.Model(&scenario).Updates(&Scenario{ScheduleToken: token})
+
+	return token, nil
+}
+
 // Service management methods
 
 // Start
 // To Start scenario
 // isInstantMode specify whether the scenario started instantly or not.
 // when the isInstantMode is ture the scenario just executed once.
-func (s *Scenario) Start(isInstantMode bool) error {
-	if s.IsActive == nil {
-		return errors.New("this scenario has null isActive field")
-	}
-
-	if !(*s.IsActive) && !isInstantMode {
-		return nil
-	}
+func (s *Scenario) Start() error {
 
 	log.Println("Preparing scenario to start")
 	err := s.Prepare()
@@ -154,16 +173,17 @@ func (s *Scenario) Start(isInstantMode bool) error {
 	}()
 	log.Println("Executing finished")
 
-	if isInstantMode {
-		return nil
-	}
+	return nil
+}
 
+func (s Scenario) Schedule(scheduleToken []byte) error {
 	if s.Interval != 0 {
 		log.Printf("Scheduling the scenario for %d minutes later\n", s.Interval)
 		minutes := time.Duration(s.Interval) * time.Minute
 		schedule := &api.NewStartScenarioSchedule{
 			ScheduledTime: time.Now().Add(minutes),
 			SystemTime:    time.Now(),
+			Token:         scheduleToken,
 		}
 		// Make http request to enqueue this job
 		schedulerUrl := fmt.Sprintf("%s/api/schedule/scenario/%d", env.ENV.SchedulerUrl, s.ID)

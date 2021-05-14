@@ -39,7 +39,7 @@ func scheduleStartScenario(c *gin.Context) {
 	log.Printf("Request new schedule for scenairo %d in %+v", scenarioId, sss.ScheduledTime)
 
 	// Adding to the main queue
-	msg := Tasks[StartScenarioTask].WithArgs(context.Background(), scenarioId)
+	msg := Tasks[StartScenarioTask].WithArgs(context.Background(), scenarioId, sss.Token)
 	msg.Delay = sss.ScheduledTime.Sub(sss.SystemTime)
 	err := MainQueue.Add(msg)
 	if err != nil {

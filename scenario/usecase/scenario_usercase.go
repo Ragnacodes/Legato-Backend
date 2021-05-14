@@ -111,7 +111,7 @@ func (s scenarioUseCase) StartScenarioInstantly(u *api.UserInfo, scenarioId uint
 		return err
 	}
 
-	err = scenario.Start(true)
+	err = scenario.Start()
 	if err != nil {
 		return err
 	}
@@ -121,13 +121,32 @@ func (s scenarioUseCase) StartScenarioInstantly(u *api.UserInfo, scenarioId uint
 
 // ForceStartScenario is not accessible for users.
 // It is used for starting the scheduled scenarios by scheduler.
-func (s scenarioUseCase) ForceStartScenario(scenarioId uint) error {
+func (s scenarioUseCase) ForceStartScenario(scenarioId uint, scheduleToken []byte) error {
 	scenario, err := s.db.GetScenarioById(scenarioId)
 	if err != nil {
 		return err
 	}
 
-	err = scenario.Start(false)
+	log.Println(scenario.ScheduleToken)
+	log.Println(scheduleToken)
+	if !bytes.Equal(scenario.ScheduleToken, scheduleToken) {
+		return errors.New("unfortunately the token has been expired")
+	}
+
+	if scenario.IsActive == nil {
+		return errors.New("this scenario has null isActive field")
+	}
+
+	if !(*scenario.IsActive) {
+		return errors.New("this scenario is inactive")
+	}
+
+	err = scenario.Start()
+	if err != nil {
+		return err
+	}
+
+	err = scenario.Schedule(scheduleToken)
 	if err != nil {
 		return err
 	}
@@ -141,6 +160,19 @@ func (s scenarioUseCase) Schedule(u *api.UserInfo, scenarioId uint, schedule *ap
 	if err != nil {
 		return err
 	}
+
+	// Update the interval for this scenario
+	err = s.db.UpdateScenarioIntervalById(&user, scenarioId, schedule.Interval)
+	if err != nil {
+		return err
+	}
+
+	// Generate a new schedule token
+	token, err := s.db.SetNewScheduleToken(&user, scenarioId)
+	if err != nil {
+		return err
+	}
+	schedule.Token = token
 
 	// Make http request to enqueue this job
 	schedulerUrl := fmt.Sprintf("%s/api/schedule/scenario/%d", env.ENV.SchedulerUrl, scenarioId)

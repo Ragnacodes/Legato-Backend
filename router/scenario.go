@@ -232,6 +232,9 @@ func startScenario(c *gin.Context) {
 func forceStartScenario(c *gin.Context) {
 	scenarioId, _ := strconv.Atoi(c.Param("scenario_id"))
 
+	sss := api.NewStartScenarioSchedule{}
+	_ = c.BindJSON(&sss)
+
 	// Check if it is scheduler
 	// It should be more secure later
 	if c.GetHeader("Authorization") != scheduler.AccessToken {
@@ -244,7 +247,7 @@ func forceStartScenario(c *gin.Context) {
 	}
 
 	// Start that scenario because of the scheduler signal
-	err := resolvers.ScenarioUseCase.ForceStartScenario(uint(scenarioId))
+	err := resolvers.ScenarioUseCase.ForceStartScenario(uint(scenarioId), sss.Token)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
