@@ -71,6 +71,8 @@ It is needed to send both of them. Consider the case that the server time
 is not as same as the user. With having both of these fields we calculate
 the duration `scheduledTime - systemTime`.
 The given time format should be RFC3339.
+`interval` is the period time to repeat starting scenario. Value 0 meant to
+start the scenario once. 
 - Header
     - `Authorization` = `access_token`
     
@@ -78,7 +80,8 @@ The given time format should be RFC3339.
     ```json
     {
         "systemTime": "2021-05-14T02:16:00+04:30",
-        "scheduledTime": "2021-05-14T03:00:04+04:30"
+        "scheduledTime": "2021-05-14T03:00:04+04:30",
+        "interval": 2
     }
     ```
   
@@ -109,6 +112,7 @@ To get all the scenario details including the services list.
             "id": 1,
             "name": "my favorite scenario2",
             "is_active": true,
+            "interval": 20,
             "services": [
                 {
                     "id": 21,
@@ -182,6 +186,7 @@ To update user scenario.
             "id": 16,
             "name": "my test scenario",
             "is_active": true,
+            "interval": 20,
             "services": [
                 {
                     "id": 21,
