@@ -22,6 +22,7 @@ func ScenarioDbToBriefScenario(s legatoDb.Scenario) api.BriefScenario {
 	bs := api.BriefScenario{}
 	bs.ID = s.ID
 	bs.Name = s.Name
+	bs.Interval = s.Interval
 	bs.IsActive = s.IsActive
 	bs.DigestNodes = []string{}
 

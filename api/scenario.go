@@ -8,6 +8,7 @@ type NewScenario struct {
 type BriefScenario struct {
 	ID          uint     `json:"id"`
 	Name        string   `json:"name"`
+	Interval    int32     `json:"interval"`
 	IsActive    *bool    `json:"isActive"`
 	DigestNodes []string `json:"nodes"`
 }
