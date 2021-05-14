@@ -112,6 +112,7 @@ To get all the scenario details including the services list.
             "id": 1,
             "name": "my favorite scenario2",
             "is_active": true,
+            "lastScheduledTime": "2021-05-13T22:09:40Z",
             "interval": 20,
             "services": [
                 {
@@ -186,6 +187,7 @@ To update user scenario.
             "id": 16,
             "name": "my test scenario",
             "is_active": true,
+            "lastScheduledTime": "2021-05-13T22:09:40Z",
             "interval": 20,
             "services": [
                 {

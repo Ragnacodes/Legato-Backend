@@ -4,6 +4,7 @@ import (
 	"errors"
 	"legato_server/api"
 	legatoDb "legato_server/db"
+	"time"
 )
 
 func NewScenarioToScenarioDb(ns api.NewScenario) (legatoDb.Scenario, error) {
@@ -34,6 +35,7 @@ func ScenarioDbToFullScenario(s legatoDb.Scenario) api.FullScenario {
 	fs.ID = s.ID
 	fs.Name = s.Name
 	fs.IsActive = s.IsActive
+	fs.LastScheduledTime = s.LastScheduledTime.Format(time.RFC3339)
 	fs.Interval = s.Interval
 	// Services
 	var services []api.ServiceNode

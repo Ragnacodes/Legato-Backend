@@ -21,13 +21,14 @@ import (
 // Root is the first Service of the schema that start the scenario.
 type Scenario struct {
 	gorm.Model
-	UserID        uint
-	Name          string
-	IsActive      *bool
-	Interval      int32
-	RootServices  []services.Service `gorm:"-"`
-	Services      []Service
-	ScheduleToken []byte
+	UserID            uint
+	Name              string
+	IsActive          *bool
+	Interval          int32
+	RootServices      []services.Service `gorm:"-"`
+	Services          []Service
+	ScheduleToken     []byte
+	LastScheduledTime time.Time
 }
 
 func (s *Scenario) String() string {
@@ -114,14 +115,16 @@ func (ldb *LegatoDB) DeleteUserScenarioById(u *User, scenarioID uint) error {
 	return nil
 }
 
-func (ldb *LegatoDB) UpdateScenarioIntervalById(u *User, scenarioID uint, interval int32) error {
+func (ldb *LegatoDB) UpdateScenarioScheduleInfoById(
+	u *User, scenarioID uint, lastScheduledTime time.Time, interval int32,
+) error {
 	var scenario Scenario
 	ldb.db.Where(&Scenario{UserID: u.ID}).Where("id = ?", scenarioID).Find(&scenario)
 	if scenario.ID != scenarioID {
 		return errors.New("the scenario is not in user scenarios")
 	}
 
-	ldb.db.Model(&scenario).Updates(&Scenario{Interval: interval})
+	ldb.db.Model(&scenario).Updates(&Scenario{Interval: interval, LastScheduledTime: lastScheduledTime})
 
 	return nil
 }

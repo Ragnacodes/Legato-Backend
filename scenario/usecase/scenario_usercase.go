@@ -161,8 +161,8 @@ func (s scenarioUseCase) Schedule(u *api.UserInfo, scenarioId uint, schedule *ap
 		return err
 	}
 
-	// Update the interval for this scenario
-	err = s.db.UpdateScenarioIntervalById(&user, scenarioId, schedule.Interval)
+	// Update the time and interval for this scenario
+	err = s.db.UpdateScenarioScheduleInfoById(&user, scenarioId, schedule.ScheduledTime, schedule.Interval)
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func (s scenarioUseCase) SetInterval(u *api.UserInfo, scenarioId uint, interval 
 	}
 
 	// Update the interval for this scenario
-	err = s.db.UpdateScenarioIntervalById(&user, scenarioId, interval.Interval)
+	err = s.db.UpdateScenarioScheduleInfoById(&user, scenarioId, time.Now(), interval.Interval)
 	if err != nil {
 		return err
 	}
