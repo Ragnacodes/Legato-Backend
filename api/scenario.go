@@ -16,6 +16,10 @@ type FullScenario struct {
 	ID       uint          `json:"id"`
 	Name     string        `json:"name"`
 	IsActive *bool         `json:"isActive"`
-	Interval int           `json:"interval"`
+	Interval int32         `json:"interval"`
 	Services []ServiceNode `json:"services"`
+}
+
+type NewScenarioInterval struct {
+	Interval int32 `json:"interval"`
 }

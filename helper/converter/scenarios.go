@@ -4,7 +4,6 @@ import (
 	"errors"
 	"legato_server/api"
 	legatoDb "legato_server/db"
-	"math/rand"
 )
 
 func NewScenarioToScenarioDb(ns api.NewScenario) (legatoDb.Scenario, error) {
@@ -12,7 +11,7 @@ func NewScenarioToScenarioDb(ns api.NewScenario) (legatoDb.Scenario, error) {
 	s.Name = ns.Name
 	s.IsActive = ns.IsActive
 	if s.IsActive == nil {
-		return legatoDb.Scenario{}, errors.New("isActive can not be empty")
+		return legatoDb.Scenario{}, errors.New("isActive can not be null")
 	}
 	s.Services = []legatoDb.Service{}
 
@@ -34,7 +33,7 @@ func ScenarioDbToFullScenario(s legatoDb.Scenario) api.FullScenario {
 	fs.ID = s.ID
 	fs.Name = s.Name
 	fs.IsActive = s.IsActive
-	fs.Interval = rand.Intn(2)
+	fs.Interval = s.Interval
 	// Services
 	var services []api.ServiceNode
 	services = []api.ServiceNode{}

@@ -11,6 +11,7 @@ type ScenarioUseCase interface {
 	UpdateUserScenarioById(userInfo *api.UserInfo, scenarioId uint, updated api.NewScenario) error
 	DeleteUserScenarioById(u *api.UserInfo, scenarioId uint) error
 	Schedule(u *api.UserInfo, scenarioId uint, schedule *api.NewStartScenarioSchedule) error
-	StartScenario(u *api.UserInfo, scenarioId uint) error
+	StartScenarioInstantly(u *api.UserInfo, scenarioId uint) error
 	ForceStartScenario(scenarioId uint) error
+	SetInterval(userInfo *api.UserInfo, scenarioId uint, interval *api.NewScenarioInterval) error
 }

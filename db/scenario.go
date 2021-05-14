@@ -1,9 +1,15 @@
 package legatoDb
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"legato_server/api"
+	"legato_server/env"
 	"legato_server/services"
+	"net/http"
+	"time"
 
 	"log"
 
@@ -18,6 +24,7 @@ type Scenario struct {
 	UserID       uint
 	Name         string
 	IsActive     *bool
+	Interval     int32
 	RootServices []services.Service `gorm:"-"`
 	Services     []Service
 }
@@ -106,11 +113,33 @@ func (ldb *LegatoDB) DeleteUserScenarioById(u *User, scenarioID uint) error {
 	return nil
 }
 
+func (ldb *LegatoDB) UpdateScenarioIntervalById(u *User, scenarioID uint, interval int32) error {
+	var scenario Scenario
+	ldb.db.Where(&Scenario{UserID: u.ID}).Where("id = ?", scenarioID).Find(&scenario)
+	if scenario.ID != scenarioID {
+		return errors.New("the scenario is not in user scenarios")
+	}
+
+	ldb.db.Model(&scenario).Updates(&Scenario{Interval: interval})
+
+	return nil
+}
+
 // Service management methods
 
 // Start
 // To Start scenario
-func (s *Scenario) Start() error {
+// isInstantMode specify whether the scenario started instantly or not.
+// when the isInstantMode is ture the scenario just executed once.
+func (s *Scenario) Start(isInstantMode bool) error {
+	if s.IsActive == nil {
+		return errors.New("this scenario has null isActive field")
+	}
+
+	if !(*s.IsActive) && !isInstantMode {
+		return nil
+	}
+
 	log.Println("Preparing scenario to start")
 	err := s.Prepare()
 	if err != nil {
@@ -124,6 +153,31 @@ func (s *Scenario) Start() error {
 		}
 	}()
 	log.Println("Executing finished")
+
+	if isInstantMode {
+		return nil
+	}
+
+	if s.Interval != 0 {
+		log.Printf("Scheduling the scenario for %d minutes later\n", s.Interval)
+		minutes := time.Duration(s.Interval) * time.Minute
+		schedule := &api.NewStartScenarioSchedule{
+			ScheduledTime: time.Now().Add(minutes),
+			SystemTime:    time.Now(),
+		}
+		// Make http request to enqueue this job
+		schedulerUrl := fmt.Sprintf("%s/api/schedule/scenario/%d", env.ENV.SchedulerUrl, s.ID)
+		body, err := json.Marshal(schedule)
+		if err != nil {
+			return err
+		}
+		reqBody := bytes.NewBuffer(body)
+		_, err = http.Post(schedulerUrl, "application/json", reqBody)
+		if err != nil {
+			return err
+		}
+		log.Println("Scenario Scheduled successfully")
+	}
 
 	return nil
 }
