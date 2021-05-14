@@ -11,11 +11,23 @@ import (
 
 var schedulerRoutes = routes{
 	{
+		name:        "Health check",
+		method:      GET,
+		pattern:     "ping",
+		handlerFunc: pingPong,
+	},
+	{
 		name:        "Schedule to start scenario",
 		method:      POST,
 		pattern:     "schedule/scenario/:scenario_id",
 		handlerFunc: scheduleStartScenario,
 	},
+}
+
+func pingPong(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
 }
 
 func scheduleStartScenario(c *gin.Context) {

@@ -1,7 +1,9 @@
 package router
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"legato_server/env"
 	"net/http"
 )
 
@@ -37,7 +39,7 @@ func ping(c *gin.Context) {
 }
 
 func pingSchedule(c *gin.Context) {
-	_, err := http.Post("http://192.168.1.20:8090/api/schedule/scenario/1", "application/json", nil)
+	_, err := http.Get(fmt.Sprintf("%s/api/ping", env.ENV.SchedulerUrl))
 	if err != nil {
 		c.JSON(400, gin.H{
 			"message": err,

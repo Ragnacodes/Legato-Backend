@@ -1,15 +1,17 @@
 package main
 
 import (
+	"legato_server/env"
 	"legato_server/scheduler"
 	"log"
 	"time"
 )
 
-const redisAddress = "192.168.1.20:6379"
-
 func init() {
-	err := scheduler.CreateQueue(redisAddress)
+	// Load environment variables
+	env.LoadEnv()
+
+	err := scheduler.CreateQueue(env.ENV.RedisHost)
 	if err != nil {
 		panic(err)
 	}

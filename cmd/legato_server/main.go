@@ -29,6 +29,7 @@ var spotifyUseCase domain.SpotifyUseCase
 func init() {
 	// Load environment variables
 	env.LoadEnv()
+
 	// Generate random jwt key
 	authenticate.GenerateRandomKey()
 

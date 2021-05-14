@@ -7,6 +7,7 @@ import (
 	"legato_server/api"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
+	"legato_server/env"
 	"legato_server/helper/converter"
 	"net/http"
 	"time"
@@ -130,7 +131,6 @@ func (s scenarioUseCase) ForceStartScenario(scenarioId uint) error {
 	return nil
 }
 
-
 func (s scenarioUseCase) Schedule(u *api.UserInfo, scenarioId uint, schedule *api.NewStartScenarioSchedule) error {
 	user := converter.UserInfoToUserDb(*u)
 	_, err := s.db.GetUserScenarioById(&user, scenarioId)
@@ -139,7 +139,7 @@ func (s scenarioUseCase) Schedule(u *api.UserInfo, scenarioId uint, schedule *ap
 	}
 
 	// Make http request to enqueue this job
-	schedulerUrl  := fmt.Sprintf("http://192.168.1.20:8090/api/schedule/scenario/%d", scenarioId)
+	schedulerUrl := fmt.Sprintf("%s/api/schedule/scenario/%d", env.ENV.SchedulerUrl, scenarioId)
 	body, err := json.Marshal(schedule)
 	if err != nil {
 		return err
