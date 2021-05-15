@@ -124,7 +124,7 @@ func (ldb *LegatoDB) UpdateScenarioScheduleInfoById(
 		return errors.New("the scenario is not in user scenarios")
 	}
 
-	ldb.db.Model(&scenario).Updates(&Scenario{Interval: interval, LastScheduledTime: lastScheduledTime})
+	ldb.db.Model(&scenario).Updates(&map[string]interface{}{"interval": interval, "last_scheduled_time": lastScheduledTime})
 
 	return nil
 }

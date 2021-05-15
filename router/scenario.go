@@ -285,8 +285,17 @@ func scheduleScenario(c *gin.Context) {
 		return
 	}
 
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scenarioId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("scenario is scheduled successfully for %s", sss.ScheduledTime.String()),
+		"message":  fmt.Sprintf("scenario is scheduled successfully for %v", sss.ScheduledTime),
+		"scenario": scenario,
 	})
 }
 
