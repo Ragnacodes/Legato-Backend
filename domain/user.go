@@ -19,5 +19,5 @@ type UserUseCase interface {
 	UpdateUserConnectionNameById(username string, ut api.Connection) error
 	CheckConnectionByID(username string, id uint) error
 	DeleteUserConnectionById(username string, id uint) error
-	UpdateTokenFieldByID(username string, ut api.Connection) error
+	UpdateDataConnectionByID(username string, ut api.Connection) error
 }
