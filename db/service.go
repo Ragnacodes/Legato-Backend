@@ -106,6 +106,10 @@ func (s *Service) Load() (services.Service, error) {
 	case spotifyType:
 		serv, err = legatoDb.GetSpotifyByService(*s)
 		break
+	case sshType:
+		serv, err = legatoDb.GetSshByService(*s)
+		break
+
 	}
 
 	if err != nil {
@@ -125,7 +129,7 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 		data := &map[string]interface{}{
 			"url":      w.Token,
 			"isEnable": w.IsEnable,
-			"id":		w.ID,
+			"id":       w.ID,
 		}
 
 		jsonString, err := json.Marshal(data)
@@ -156,6 +160,13 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 			return err
 		}
 		break
+	case sshType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+		break
+
 	}
 
 	return nil
