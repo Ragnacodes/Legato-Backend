@@ -184,11 +184,10 @@ func (u *userUseCase) DeleteUserConnectionById(username string, id uint) error {
 
 	return nil
 }
-func (u *userUseCase) UpdateTokenFieldByID(username string, ut api.Connection) error {
+func (u *userUseCase) UpdateDataConnectionByID(username string, ut api.Connection) error {
 	user, _ := u.db.GetUserByUsername(username)
-	con := legatoDb.Connection{}
-	json.Unmarshal([]byte(con.Data), ut.Data)
-	err := u.db.UpdateTokenFieldByID(&user, con.Data, uint(ut.ID))
+	jsonString, err := json.Marshal(ut.Data)
+	err = u.db.UpdateDataFieldByID(&user, string(jsonString), uint(ut.ID))
 
 	if err != nil {
 		return err
