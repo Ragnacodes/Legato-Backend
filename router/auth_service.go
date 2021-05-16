@@ -40,25 +40,25 @@ var ConnectionRG = routeGroup{
 			GetConnections,
 		},
 		route{
-			"Update Token",
+			"Update data",
 			PUT,
-			"users/:username/update/connection/token/:id",
-			UpdateTokenFieldByID,
+			"users/:username/update/connection/data/:id",
+			UpdateDataFieldByID,
 		},
 		route{
-			"Check Token",
+			"Check connection",
 			GET,
 			"users/:username/check/connection/:id",
 			checkConnection,
 		},
 		route{
-			"Delete Token",
+			"Delete connection",
 			DELETE,
 			"users/:username/connection/delete/:id",
 			DeleteConnectionByID,
 		},
 		route{
-			"Ufpdate Token",
+			"Update name",
 			PUT,
 			"users/:username/update/connection/name/:id",
 			UpdateConnectionNameByID,
@@ -92,8 +92,8 @@ func addConnection(c *gin.Context) {
 	// this function add connection
 
 	username := c.Param("username")
-	userToken := api.Connection{}
-	_ = c.BindJSON(&userToken)
+	connection := api.Connection{}
+	_ = c.BindJSON(&connection)
 
 	// Authenticate
 	// Auth
@@ -101,10 +101,10 @@ func addConnection(c *gin.Context) {
 	if loginUser == nil {
 		return
 	}
-	connection, err := resolvers.UserUseCase.AddConnectionToDB(username, userToken)
+	connection, err := resolvers.UserUseCase.AddConnectionToDB(username, connection)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("can not add token: %s", err),
+			"message": fmt.Sprintf("can not add connection: %s", err),
 		})
 		return
 	}
@@ -118,10 +118,10 @@ func addConnection(c *gin.Context) {
 
 func returnConnection(c *gin.Context) {
 	//this function return a connection
-	userToken := api.Connection{}
+	connection := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
-	_ = c.BindJSON(&userToken)
+	_ = c.BindJSON(&connection)
 
 	// Authenticate
 	// Auth
@@ -130,10 +130,11 @@ func returnConnection(c *gin.Context) {
 		return
 	}
 	i, _ := strconv.Atoi(id)
-	token, err := resolvers.UserUseCase.GetConnectionByID(username, uint(i))
-	if err == nil && !strings.EqualFold(token.Data, "") {
+	conn, err := resolvers.UserUseCase.GetConnectionByID(username, uint(i))
+	if err == nil && !strings.EqualFold(conn.Data, "") {
 		c.JSON(200, gin.H{
-			"token": token.Data,
+			"data": conn.Data,
+			"name": conn.Name,
 		})
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -178,10 +179,10 @@ func GetConnections(c *gin.Context) {
 
 func UpdateConnectionNameByID(c *gin.Context) {
 	// this function update name of connection with id
-	userToken := api.Connection{}
+	connection := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
-	_ = c.BindJSON(&userToken)
+	_ = c.BindJSON(&connection)
 
 	// Authenticate
 	// Auth
@@ -190,8 +191,8 @@ func UpdateConnectionNameByID(c *gin.Context) {
 		return
 	}
 	i, _ := strconv.Atoi(id)
-	userToken.ID = i
-	err := resolvers.UserUseCase.UpdateUserConnectionNameById(username, userToken)
+	connection.ID = i
+	err := resolvers.UserUseCase.UpdateUserConnectionNameById(username, connection)
 	if err == nil {
 		c.JSON(200, gin.H{
 			"message": "update connection successfully",
@@ -248,12 +249,12 @@ func DeleteConnectionByID(c *gin.Context) {
 	}
 }
 
-func UpdateTokenFieldByID(c *gin.Context) {
-	// this function update token field in connection with id
-	userToken := api.Connection{}
+func UpdateDataFieldByID(c *gin.Context) {
+	// this function update data field in connection with id
+	connection := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
-	_ = c.BindJSON(&userToken)
+	_ = c.BindJSON(&connection)
 
 	// Authenticate
 	// Auth
@@ -262,8 +263,8 @@ func UpdateTokenFieldByID(c *gin.Context) {
 		return
 	}
 	i, _ := strconv.Atoi(id)
-	userToken.ID = i
-	err := resolvers.UserUseCase.UpdateTokenFieldByID(username, userToken)
+	connection.ID = i
+	err := resolvers.UserUseCase.UpdateDataConnectionByID(username, connection)
 	if err == nil {
 		c.JSON(200, gin.H{
 			"message": "update connection successfully",
