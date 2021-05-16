@@ -2,33 +2,22 @@ package legatoDb
 
 import (
 	"fmt"
-	"strings"
 
 	"gorm.io/gorm"
 )
 
 type Connection struct {
 	gorm.Model
-	Token     string
-	TokenType string
-	UserID    uint
-	Name      string
+	UserID uint
+	Name   string
+	Data   string
 }
 
 func (ldb *LegatoDB) AddConnection(u *User, c Connection) (Connection, error) {
 	c.UserID = u.ID
-	con := Connection{}
-
-	ldb.db.
-		Where(&Connection{UserID: u.ID}).
-		Where("Token = ?", c.Token).Find(&con)
-	// check token does not exist
-	if !strings.EqualFold(con.Token, c.Token) {
-		ldb.db.Create(&c)
-		ldb.db.Save(&c)
-		return c, nil
-	}
-	return Connection{}, fmt.Errorf("this connection is already exist")
+	ldb.db.Create(&c)
+	err := ldb.db.Save(&c).Error
+	return c, err
 }
 
 func (ldb *LegatoDB) GetUserConnections(u *User) ([]Connection, error) {
@@ -54,8 +43,6 @@ func (ldb *LegatoDB) GetUserConnectionById(u *User, id uint) (Connection, error)
 		Where(&Connection{UserID: u.ID}).
 		Where("ID = ?", id).Find(&con).Error
 	if err != nil {
-		conect := Connection{}
-		conect.Token = "couldn' find connection"
 		return Connection{}, fmt.Errorf("can not find connection")
 	}
 	return con, nil
@@ -105,7 +92,7 @@ func (ldb *LegatoDB) DeleteConnectionByID(u *User, id uint) error {
 	return err
 }
 
-func (ldb *LegatoDB) UpdateTokenFieldByID(u *User, Token string, id uint) error {
+func (ldb *LegatoDB) UpdateTokenFieldByID(u *User, data string, id uint) error {
 	var connection Connection
 
 	err := ldb.db.Take(&Connection{}).
@@ -113,7 +100,7 @@ func (ldb *LegatoDB) UpdateTokenFieldByID(u *User, Token string, id uint) error 
 
 	if err == nil {
 		if connection.UserID == u.ID {
-			connection.Token = Token
+			connection.Data = data
 			ldb.db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&connection)
 			ldb.db.Save(&connection)
 		} else {
