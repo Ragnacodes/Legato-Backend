@@ -92,7 +92,7 @@ func (ldb *LegatoDB) DeleteConnectionByID(u *User, id uint) error {
 	return err
 }
 
-func (ldb *LegatoDB) UpdateTokenFieldByID(u *User, data string, id uint) error {
+func (ldb *LegatoDB) UpdateDataFieldByID(u *User, data string, id uint) error {
 	var connection Connection
 
 	err := ldb.db.Take(&Connection{}).
