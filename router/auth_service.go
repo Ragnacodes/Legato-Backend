@@ -101,7 +101,6 @@ func addConnection(c *gin.Context) {
 	if loginUser == nil {
 		return
 	}
-
 	connection, err := resolvers.UserUseCase.AddConnectionToDB(username, userToken)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -111,10 +110,9 @@ func addConnection(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"Name":       connection.Name,
-		"Token":      connection.Token,
-		"TokenType": connection.TokenType,
-		"Id":         connection.ID,
+		"Name": connection.Name,
+		"Data": connection.Data,
+		"Id":   connection.ID,
 	})
 }
 
@@ -133,9 +131,9 @@ func returnConnection(c *gin.Context) {
 	}
 	i, _ := strconv.Atoi(id)
 	token, err := resolvers.UserUseCase.GetConnectionByID(username, uint(i))
-	if err == nil && !strings.EqualFold(token.Token, "") {
+	if err == nil && !strings.EqualFold(token.Data, "") {
 		c.JSON(200, gin.H{
-			"token": token.Token,
+			"token": token.Data,
 		})
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -154,10 +152,9 @@ func GetConnections(c *gin.Context) {
 		return
 	}
 	type Connection struct {
-		Name      string
-		Token     string
-		TokenType string
-		Id        uint
+		Name string
+		Data string
+		Id   uint
 	}
 	var Connections []Connection
 	connections, err := resolvers.UserUseCase.GetConnections(username)
@@ -165,8 +162,7 @@ func GetConnections(c *gin.Context) {
 		con := Connection{}
 		con.Id = connection.ID
 		con.Name = connection.Name
-		con.Token = connection.Token
-		con.TokenType = connection.TokenType
+		con.Data = connection.Data
 		Connections = append(Connections, con)
 	}
 	if err == nil {
