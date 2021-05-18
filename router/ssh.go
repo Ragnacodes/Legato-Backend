@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/ssh"
@@ -32,14 +33,8 @@ var sshRG = routeGroup{
 		route{
 			"check password",
 			POST,
-			"/check/ssh/pass",
-			checkPassSSH,
-		},
-		route{
-			"check sshkey",
-			POST,
-			"/check/ssh/key",
-			checkKeySSH,
+			"/check/ssh/:type",
+			checkSSHInfo,
 		},
 	},
 }
@@ -118,43 +113,47 @@ func uploadFile(c *gin.Context) {
 	})
 }
 
-func checkPassSSH(c *gin.Context) {
-	data := SSHLoginWithPass{}
-	_ = c.BindJSON(&data)
-	config := &ssh.ClientConfig{
-		User: data.Username,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(data.Password),
-		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+func checkSSHInfo(c *gin.Context) {
+	Type := c.Param("type")
+	if strings.EqualFold(Type, "password") {
+		data := SSHLoginWithPass{}
+		_ = c.BindJSON(&data)
+
+		config := &ssh.ClientConfig{
+			User: data.Username,
+			Auth: []ssh.AuthMethod{
+				ssh.Password(data.Password),
+			},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		}
+		_, err := ssh.Dial("tcp", data.Host+":22", config)
+
+		if err != nil {
+			c.JSON(503, err.Error())
+		}
+	} else {
+		data := SSHLoginWithKey{}
+		_ = c.BindJSON(&data)
+		signer, err := ssh.ParsePrivateKey([]byte(data.Sshkey))
+
+		if err != nil {
+			c.JSON(503, "could not parse private key")
+		}
+		config := &ssh.ClientConfig{
+			User: data.Username,
+			Auth: []ssh.AuthMethod{
+				ssh.PublicKeys(signer),
+			},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		}
+		_, err = ssh.Dial("tcp", data.Host+":22", config)
+
+		if err != nil {
+			c.JSON(503, err)
+		}
 	}
-	_, err := ssh.Dial("tcp", data.Host+":22", config)
+	c.JSON(200, gin.H{
+		"massage": "OK",
+	})
 
-	if err != nil {
-		c.JSON(500, err.Error())
-	}
-}
-
-func checkKeySSH(c *gin.Context) {
-	data := SSHLoginWithKey{}
-	_ = c.BindJSON(&data)
-	signer, err := ssh.ParsePrivateKey([]byte(data.Sshkey))
-
-	if err != nil {
-		c.JSON(500, err)
-	}
-
-	config := &ssh.ClientConfig{
-		User: data.Username,
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-	}
-
-	_, err = ssh.Dial("tcp", data.Host+":22", config)
-
-	if err != nil {
-		c.JSON(500, err)
-	}
 }
