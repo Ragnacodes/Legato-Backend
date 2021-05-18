@@ -158,6 +158,7 @@ func GetConnections(c *gin.Context) {
 		Name string
 		Data string
 		Id   uint
+		Type string
 	}
 	var Connections []Connection
 	connections, err := resolvers.UserUseCase.GetConnections(username)
@@ -166,6 +167,7 @@ func GetConnections(c *gin.Context) {
 		con.Id = connection.ID
 		con.Name = connection.Name
 		con.Data = connection.Data
+		con.Type = connection.Type
 		Connections = append(Connections, con)
 	}
 	if err == nil {
