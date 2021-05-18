@@ -11,6 +11,7 @@ type Connection struct {
 	UserID uint
 	Name   string
 	Data   string
+	Type   string
 }
 
 func (ldb *LegatoDB) AddConnection(u *User, c Connection) (Connection, error) {
