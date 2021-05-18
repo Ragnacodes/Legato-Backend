@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/ssh"
 )
 
 var sshRG = routeGroup{
@@ -28,7 +29,30 @@ var sshRG = routeGroup{
 			"/extract/sshkey/file",
 			uploadFile,
 		},
+		route{
+			"check password",
+			POST,
+			"/check/ssh/pass",
+			checkPassSSH,
+		},
+		route{
+			"check sshkey",
+			POST,
+			"/check/ssh/key",
+			checkKeySSH,
+		},
 	},
+}
+
+type SSHLoginWithPass struct {
+	Host     string `json:"host"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+type SSHLoginWithKey struct {
+	Host     string `json:"host"`
+	Username string `json:"username"`
+	Sshkey   string `json:"sshKey"`
 }
 
 // func createSshService(c *gin.Context) {
@@ -65,7 +89,6 @@ func getUserSshs(c *gin.Context) {
 		return
 	}
 
-	// Get Webhooks
 	usersshs, err := resolvers.SshUseCase.GetSshs(username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -93,4 +116,45 @@ func uploadFile(c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, gin.H{
 		"SshKey": string(byteContainer[0:file.Size]),
 	})
+}
+
+func checkPassSSH(c *gin.Context) {
+	data := SSHLoginWithPass{}
+	_ = c.BindJSON(&data)
+	config := &ssh.ClientConfig{
+		User: data.Username,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(data.Password),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+	_, err := ssh.Dial("tcp", data.Host+":22", config)
+
+	if err != nil {
+		c.JSON(500, err.Error())
+	}
+}
+
+func checkKeySSH(c *gin.Context) {
+	data := SSHLoginWithKey{}
+	_ = c.BindJSON(&data)
+	signer, err := ssh.ParsePrivateKey([]byte(data.Sshkey))
+
+	if err != nil {
+		c.JSON(500, err)
+	}
+
+	config := &ssh.ClientConfig{
+		User: data.Username,
+		Auth: []ssh.AuthMethod{
+			ssh.PublicKeys(signer),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+
+	_, err = ssh.Dial("tcp", data.Host+":22", config)
+
+	if err != nil {
+		c.JSON(500, err)
+	}
 }
