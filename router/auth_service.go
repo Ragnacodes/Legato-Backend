@@ -136,6 +136,7 @@ func returnConnection(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"data": conn.Data,
 			"name": conn.Name,
+			"type": conn.Type,
 		})
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{
