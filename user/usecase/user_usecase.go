@@ -130,6 +130,7 @@ func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Con
 	jsonString, err := json.Marshal(data)
 	con.Data = string(jsonString)
 	con.UserID = uint(ut.ID)
+	con.Type = ut.Type
 	c, err := u.db.AddConnection(&user, con)
 	if err != nil {
 		return api.Connection{}, err
