@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 
 	"golang.org/x/crypto/ssh"
 	"gorm.io/gorm"
@@ -134,7 +135,8 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 	// Connect to host
 	client, err := ssh.Dial("tcp", myssh.Host+":"+"22", config)
 	if err != nil {
-		log.Print(err)
+		fmt.Errorf("unable to authenticate username or password is incorrect")
+
 	}
 	defer client.Close()
 
@@ -163,7 +165,7 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 	var b bytes.Buffer
 	sess.Stdout = &b
 	if err := sess.Run(commandsInOneLine); err != nil {
-		panic("Failed to run: " + err.Error())
+		log.Print("Failed to run: " + err.Error())
 	}
 	fmt.Print(b.String())
 	stdin.Close()
@@ -174,11 +176,11 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 
 }
 func ConnectWithSShKey(myssh Ssh, commands []string) {
-
 	signer, err := ssh.ParsePrivateKey([]byte(myssh.SshKey))
 
 	if err != nil {
 		log.Print(err)
+
 	}
 
 	config := &ssh.ClientConfig{
@@ -192,7 +194,8 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 	// Connect to host
 	client, err := ssh.Dial("tcp", myssh.Host+":"+"22", config)
 	if err != nil {
-		log.Print(err)
+		fmt.Errorf("unable to authenticate username or sshkey is incorrect")
+
 	}
 	defer client.Close()
 
@@ -221,7 +224,7 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 	var b bytes.Buffer
 	sess.Stdout = &b
 	if err := sess.Run(commandsInOneLine); err != nil {
-		panic("Failed to run: " + err.Error())
+		fmt.Errorf("Failed to run: " + err.Error())
 	}
 	fmt.Print(b.String())
 	stdin.Close()
@@ -244,7 +247,7 @@ func (ss Ssh) Execute(...interface{}) {
 	myssh := Ssh{}
 	err = json.Unmarshal([]byte(ss.Service.Data), &dataWithPass)
 
-	if err == nil {
+	if strings.Contains(myssh.Service.Data, "password") == true {
 		flag = true
 	}
 
@@ -253,6 +256,8 @@ func (ss Ssh) Execute(...interface{}) {
 	if err1 == nil {
 
 	}
+	fmt.Print("ppppppppppppppppppppppppppppppppppppppp\n")
+	fmt.Print(flag, "   flagggggggggggggggggggg\n")
 	switch flag {
 	case true:
 		myssh.Username = dataWithPass.Username
@@ -262,7 +267,7 @@ func (ss Ssh) Execute(...interface{}) {
 
 	case false:
 		myssh.Username = datawithkey.Username
-		myssh.Password = datawithkey.SshKey
+		myssh.SshKey = datawithkey.SshKey
 		myssh.Host = datawithkey.Host
 		ConnectWithSShKey(myssh, datawithkey.Commands)
 
