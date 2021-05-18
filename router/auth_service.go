@@ -113,6 +113,7 @@ func addConnection(c *gin.Context) {
 		"Name": connection.Name,
 		"Data": connection.Data,
 		"Id":   connection.ID,
+		"Type": connection.Type,
 	})
 }
 
