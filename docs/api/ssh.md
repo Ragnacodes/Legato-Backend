@@ -88,3 +88,24 @@ To get the all  connections of a user as list .
      
     ]
     `
+    
+
+### /api/check/ssh/:type `POST`
+
+- Header
+    - `Authorization` = `access_token`
+ - Data request to create:
+    ```json
+    {
+        "host":"37.152.181.64",
+        "username":"reza",
+        "password":"password"
+    }
+}
+    ```
+ - Response
+     ```json
+        {
+    "massage": "OK"
+    }
+    `
