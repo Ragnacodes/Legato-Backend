@@ -46,8 +46,8 @@ type updateData struct {
 	Commands     []string `json:"commands"`
 }
 
-func (t *Ssh) String() string {
-	return fmt.Sprintf("(@SSH: %+v)", *t)
+func (ss *Ssh) String() string {
+	return fmt.Sprintf("(@SSH: %+v)", *ss)
 }
 
 func (ldb *LegatoDB) CreateSshForScenario(s *Scenario, ssh Ssh) (*Ssh, error) {
@@ -75,14 +75,14 @@ func (ldb *LegatoDB) CreateSshForScenario(s *Scenario, ssh Ssh) (*Ssh, error) {
 }
 
 func (ldb *LegatoDB) GetSshByID(id uint, u *User) (Ssh, error) {
-	var ssh Ssh
-	err := ldb.db.Where(&Connection{UserID: u.ID}).Where("ID = ?", id).Find(&ssh).Error
+	var s Ssh
+	err := ldb.db.Where(&Connection{UserID: u.ID}).Where("ID = ?", id).Find(&s).Error
 	if err != nil {
 		return Ssh{}, err
 	}
-	return ssh, nil
+	return s, nil
 }
-func (ldb *LegatoDB) GetUserSshs(u *User) ([]Ssh, error) {
+func (ldb *LegatoDB) GetUserSsh(u *User) ([]Ssh, error) {
 	var services []Service
 	err := ldb.db.Select("id").Where(&Service{UserID: u.ID}).Find(&services).Error
 	if err != nil {
@@ -135,20 +135,24 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 	// Connect to host
 	client, err := ssh.Dial("tcp", myssh.Host+":"+"22", config)
 	if err != nil {
-		fmt.Errorf("unable to authenticate username or password is incorrect")
-
+		log.Println("unable to authenticate username or password is incorrect")
 	}
 	defer client.Close()
 
-	// Create sesssion
-	sess, err := client.NewSession()
+	if client == nil {
+		log.Println("client is null")
+		return
+	}
+
+	// Create session
+	session, err := client.NewSession()
 	if err != nil {
 		log.Print("Failed to create session: ", err)
 	}
-	defer sess.Close()
+	defer session.Close()
 
-	// StdinPipe for commands
-	stdin, err := sess.StdinPipe()
+	// Std in Pipe for commands
+	stdIn, err := session.StdinPipe()
 	if err != nil {
 		log.Print(err)
 	}
@@ -163,16 +167,14 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 
 	}
 	var b bytes.Buffer
-	sess.Stdout = &b
-	if err := sess.Run(commandsInOneLine); err != nil {
+	session.Stdout = &b
+	if err := session.Run(commandsInOneLine); err != nil {
 		log.Print("Failed to run: " + err.Error())
 	}
-	fmt.Print(b.String())
-	stdin.Close()
-	sess.Close()
-	client.Close()
+	_ = stdIn.Close()
+	_ = session.Close()
+	_ = client.Close()
 	// Uncomment to store in variable
-	//fmt.Println(b.String())
 
 }
 func ConnectWithSShKey(myssh Ssh, commands []string) {
@@ -194,20 +196,24 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 	// Connect to host
 	client, err := ssh.Dial("tcp", myssh.Host+":"+"22", config)
 	if err != nil {
-		fmt.Errorf("unable to authenticate username or sshkey is incorrect")
-
+		log.Println("unable to authenticate username or sshkey is incorrect")
 	}
 	defer client.Close()
 
-	// Create sesssion
-	sess, err := client.NewSession()
+	if client == nil {
+		log.Println("client is null")
+		return
+	}
+
+	// Create a new session
+	session, err := client.NewSession()
 	if err != nil {
 		log.Print("Failed to create session: ", err)
 	}
-	defer sess.Close()
+	defer session.Close()
 
-	// StdinPipe for commands
-	stdin, err := sess.StdinPipe()
+	// Std in Pipe for commands
+	stdIn, err := session.StdinPipe()
 	if err != nil {
 		log.Print(err)
 	}
@@ -222,14 +228,13 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 
 	}
 	var b bytes.Buffer
-	sess.Stdout = &b
-	if err := sess.Run(commandsInOneLine); err != nil {
-		fmt.Errorf("Failed to run: " + err.Error())
+	session.Stdout = &b
+	if err := session.Run(commandsInOneLine); err != nil {
+		log.Println("Failed to run: " + err.Error())
 	}
-	fmt.Print(b.String())
-	stdin.Close()
-	sess.Close()
-	client.Close()
+	_ = stdIn.Close()
+	_ = session.Close()
+	_ = client.Close()
 
 }
 
@@ -239,37 +244,35 @@ func (ss Ssh) Execute(...interface{}) {
 
 	err := legatoDb.db.Preload("Service").Find(&ss).Error
 	if err != nil {
-		fmt.Print(err)
+		log.Println(err)
 	}
 
 	var dataWithPass loginWithPasswordData
 	flag := false
-	myssh := Ssh{}
+	mySsh := Ssh{}
 	err = json.Unmarshal([]byte(ss.Service.Data), &dataWithPass)
 
-	if strings.Contains(myssh.Service.Data, "password") == true {
+	if strings.Contains(mySsh.Service.Data, "password") == true {
 		flag = true
 	}
 
-	var datawithkey loginWithSshKeyData
-	err1 := json.Unmarshal([]byte(ss.Service.Data), &datawithkey)
+	var dataWithkey loginWithSshKeyData
+	err1 := json.Unmarshal([]byte(ss.Service.Data), &dataWithkey)
 	if err1 == nil {
 
 	}
-	fmt.Print("ppppppppppppppppppppppppppppppppppppppp\n")
-	fmt.Print(flag, "   flagggggggggggggggggggg\n")
 	switch flag {
 	case true:
-		myssh.Username = dataWithPass.Username
-		myssh.Password = dataWithPass.Password
-		myssh.Host = dataWithPass.Host
-		ConnectWithUserPass(myssh, dataWithPass.Commands)
+		mySsh.Username = dataWithPass.Username
+		mySsh.Password = dataWithPass.Password
+		mySsh.Host = dataWithPass.Host
+		ConnectWithUserPass(mySsh, dataWithPass.Commands)
 
 	case false:
-		myssh.Username = datawithkey.Username
-		myssh.SshKey = datawithkey.SshKey
-		myssh.Host = datawithkey.Host
-		ConnectWithSShKey(myssh, datawithkey.Commands)
+		mySsh.Username = dataWithkey.Username
+		mySsh.SshKey = dataWithkey.SshKey
+		mySsh.Host = dataWithkey.Host
+		ConnectWithSShKey(mySsh, dataWithkey.Commands)
 
 	}
 	ss.Next()
@@ -317,7 +320,7 @@ func (ldb *LegatoDB) UpdateSsh(s *Scenario, servId uint, ssh Ssh) error {
 	var a updateData
 	err = json.Unmarshal([]byte(ssh.Service.Data), &a)
 	if err != nil {
-		fmt.Errorf("con not update ssh")
+		log.Println("con not update ssh")
 	}
 
 	if a.ConnectionId != 0 {

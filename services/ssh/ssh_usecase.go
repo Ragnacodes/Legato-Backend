@@ -43,7 +43,7 @@ func (ss *SshUseCase) GetSshs(username string) ([]api.SshInfo, error) {
 		return nil, err
 	}
 
-	sshs, err := ss.db.GetUserSshs(&user)
+	sshs, err := ss.db.GetUserSsh(&user)
 	if err != nil {
 		return nil, err
 	}
