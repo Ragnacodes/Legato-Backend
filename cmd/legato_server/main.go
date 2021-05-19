@@ -2,13 +2,14 @@ package main
 
 import (
 	"legato_server/authenticate"
-	"legato_server/db"
+	legatoDb "legato_server/db"
 	"legato_server/domain"
 	"legato_server/env"
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
 	httpUC "legato_server/services/http"
 	spotifyUC "legato_server/services/spotify"
+	sshUC "legato_server/services/ssh"
 	telegramUC "legato_server/services/telegram"
 	serviceUC "legato_server/services/usecase"
 	webhookUC "legato_server/services/webhook"
@@ -25,6 +26,7 @@ var webhookUseCase domain.WebhookUseCase
 var httpUseCase domain.HttpUseCase
 var telegramUseCase domain.TelegramUseCase
 var spotifyUseCase domain.SpotifyUseCase
+var sshUseCase domain.SshUseCase
 
 func init() {
 	// Load environment variables
@@ -49,6 +51,8 @@ func init() {
 	httpUseCase = httpUC.NewHttpUseCase(appDB, timeoutContext)
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
+	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
+
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
 
@@ -67,6 +71,7 @@ func main() {
 		HttpUserCase:    httpUseCase,
 		TelegramUseCase: telegramUseCase,
 		SpotifyUseCase:  spotifyUseCase,
+		SshUseCase:      sshUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()
