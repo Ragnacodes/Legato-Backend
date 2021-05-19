@@ -4,27 +4,25 @@ To create a new connection.
 - Request
     ```json
     {
-    "data": {
-            
+        "data": {
             "host": "37.152.181.64",
             "password": "sko192j3h",
             "username": "reza"
-     },
-    "name" :"ssh5"
-   
-}
+         },
+        "name" :"ssh5"
+    }
     ```
 - Response
     ```json
-  {
-    "Data": {
-        "host": "37.152.181.64",
-        "password": "sko192j3h",
-        "username": "reza"
-    },
-    "Id": 26,
-    "Name": "ssh5"
-}
+    {
+        "Data": {
+            "host": "37.152.181.64",
+            "password": "sko192j3h",
+            "username": "reza"
+        },
+        "Id": 26,
+        "Name": "ssh5"
+    }
     ```
 ### /api/users/:username/get/connection/:id `GET`
 To get the user connection with id.
@@ -32,13 +30,13 @@ To get the user connection with id.
 - Response
     ```json
     {
-    "Data": {
-        "host": "37.152.181.64",
-        "password": "sko192j3h",
-        "username": "reza"
-    },
-    "Name": "ssh5"
-}
+        "Data": {
+            "host": "37.152.181.64",
+            "password": "sko192j3h",
+            "username": "reza"
+        },
+        "Name": "ssh5"
+    }
     ```
 
 
@@ -100,7 +98,7 @@ To update the name of a connection with id.
     }
     ```
 
-### /api/"users/:username/check/connection/:id `GET`
+### /api/users/:username/check/connection/:id `GET`
 To get the id of a connection and check if there is a connection with this id for a user return true or false
 - Response
     ```json
