@@ -8,14 +8,20 @@ type NewScenario struct {
 type BriefScenario struct {
 	ID          uint     `json:"id"`
 	Name        string   `json:"name"`
+	Interval    int32    `json:"interval"`
 	IsActive    *bool    `json:"isActive"`
 	DigestNodes []string `json:"nodes"`
 }
 
 type FullScenario struct {
-	ID       uint          `json:"id"`
-	Name     string        `json:"name"`
-	IsActive *bool         `json:"isActive"`
-	Interval int           `json:"interval"`
-	Services []ServiceNode `json:"services"`
+	ID                uint          `json:"id"`
+	Name              string        `json:"name"`
+	IsActive          *bool         `json:"isActive"`
+	LastScheduledTime string        `json:"lastScheduledTime"`
+	Interval          int32         `json:"interval"`
+	Services          []ServiceNode `json:"services"`
+}
+
+type NewScenarioInterval struct {
+	Interval int32 `json:"interval"`
 }
