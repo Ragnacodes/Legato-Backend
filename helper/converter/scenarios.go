@@ -1,24 +1,29 @@
 package converter
 
 import (
+	"errors"
 	"legato_server/api"
 	legatoDb "legato_server/db"
-	"math/rand"
+	"time"
 )
 
-func NewScenarioToScenarioDb(ns api.NewScenario) legatoDb.Scenario {
+func NewScenarioToScenarioDb(ns api.NewScenario) (legatoDb.Scenario, error) {
 	s := legatoDb.Scenario{}
 	s.Name = ns.Name
 	s.IsActive = ns.IsActive
+	if s.IsActive == nil {
+		return legatoDb.Scenario{}, errors.New("isActive can not be null")
+	}
 	s.Services = []legatoDb.Service{}
 
-	return s
+	return s, nil
 }
 
 func ScenarioDbToBriefScenario(s legatoDb.Scenario) api.BriefScenario {
 	bs := api.BriefScenario{}
 	bs.ID = s.ID
 	bs.Name = s.Name
+	bs.Interval = s.Interval
 	bs.IsActive = s.IsActive
 	bs.DigestNodes = []string{}
 
@@ -30,7 +35,8 @@ func ScenarioDbToFullScenario(s legatoDb.Scenario) api.FullScenario {
 	fs.ID = s.ID
 	fs.Name = s.Name
 	fs.IsActive = s.IsActive
-	fs.Interval = rand.Intn(2)
+	fs.LastScheduledTime = s.LastScheduledTime.Format(time.RFC3339)
+	fs.Interval = s.Interval
 	// Services
 	var services []api.ServiceNode
 	services = []api.ServiceNode{}

@@ -29,6 +29,7 @@ var spotifyUseCase domain.SpotifyUseCase
 func init() {
 	// Load environment variables
 	env.LoadEnv()
+
 	// Generate random jwt key
 	authenticate.GenerateRandomKey()
 
@@ -64,7 +65,7 @@ func main() {
 		ServiceUseCase:  serviceUseCase,
 		WebhookUseCase:  webhookUseCase,
 		HttpUserCase:    httpUseCase,
-		TelegramUseCase:    telegramUseCase,
+		TelegramUseCase: telegramUseCase,
 		SpotifyUseCase:  spotifyUseCase,
 	}
 
