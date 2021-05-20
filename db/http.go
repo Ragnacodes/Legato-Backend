@@ -22,6 +22,7 @@ type Http struct {
 type httpRequestData struct {
 	Url    string
 	Method string
+	Body   map[string]interface{}
 }
 
 func (h *Http) String() string {
@@ -97,7 +98,11 @@ func (h Http) Execute(...interface{}) {
 		log.Fatalln(err)
 	}
 
-	_, err = makeHttpRequest(data.Url, data.Method, nil)
+	requestBody, err := json.Marshal(data.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = makeHttpRequest(data.Url, data.Method, requestBody)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -133,13 +138,14 @@ func (h Http) Next(...interface{}) {
 func makeHttpRequest(url string, method string, body []byte) (res *http.Response, err error) {
 	log.Println("Make http request")
 
+	log.Printf("\nurl: %s\nmethod: %s\nbody:\n%s\n", url, method, string(body))
+
 	switch method {
 	case strings.ToLower(http.MethodGet):
 		res, err = http.Get(url)
 		break
 	case strings.ToLower(http.MethodPost):
 		if body != nil {
-			log.Printf("\nurl: %s\nbody:\n%s\n", url, string(body))
 			reqBody := bytes.NewBuffer(body)
 			res, err = http.Post(url, "application/json", reqBody)
 			break

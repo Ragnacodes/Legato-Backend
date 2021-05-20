@@ -21,8 +21,8 @@ type UserCredential struct {
 	Password string `json:"password"`
 }
 type Connection struct {
-	ID        int    `json:"id"`
-	TokenType string `json:"token_type"`
-	Name      string `json:"name"`
-	Token     string `json:"token"`
+	ID   int         `json:"id"`
+	Data interface{} `json:"data"`
+	Name string      `json:"name"`
+	Type string      `json:"type"`
 }

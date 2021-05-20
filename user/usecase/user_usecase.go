@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"encoding/json"
 	"legato_server/api"
 	"legato_server/authenticate"
 	legatoDb "legato_server/db"
@@ -120,9 +121,16 @@ func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Con
 	user, _ := u.db.GetUserByUsername(name)
 	con := legatoDb.Connection{}
 	con.Name = ut.Name
-	con.Token = ut.Token
-	con.TokenType = ut.TokenType
+	data := &map[string]interface{}{
+		"name": ut.Name,
+		"data": ut.Data,
+		"id":   ut.ID,
+	}
+
+	jsonString, err := json.Marshal(data)
+	con.Data = string(jsonString)
 	con.UserID = uint(ut.ID)
+	con.Type = ut.Type
 	c, err := u.db.AddConnection(&user, con)
 	if err != nil {
 		return api.Connection{}, err
@@ -177,9 +185,10 @@ func (u *userUseCase) DeleteUserConnectionById(username string, id uint) error {
 
 	return nil
 }
-func (u *userUseCase) UpdateTokenFieldByID(username string, ut api.Connection) error {
+func (u *userUseCase) UpdateDataConnectionByID(username string, ut api.Connection) error {
 	user, _ := u.db.GetUserByUsername(username)
-	err := u.db.UpdateTokenFieldByID(&user, ut.Token, uint(ut.ID))
+	jsonString, err := json.Marshal(ut.Data)
+	err = u.db.UpdateDataFieldByID(&user, string(jsonString), uint(ut.ID))
 
 	if err != nil {
 		return err

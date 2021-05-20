@@ -4,15 +4,24 @@ To create a new connection.
 - Request
     ```json
     {
-        "name" :"spotify3",
-        "token_type" : "spotify",
-        "token" : "1afcd222222sdcfaxfdfa52aafkkkbvdj"
+        "data": {
+            "host": "37.152.181.64",
+            "password": "sko192j3h",
+            "username": "reza"
+         },
+        "name" :"ssh5"
     }
     ```
 - Response
     ```json
     {
-        "message": "connection added"
+        "Data": {
+            "host": "37.152.181.64",
+            "password": "sko192j3h",
+            "username": "reza"
+        },
+        "Id": 26,
+        "Name": "ssh5"
     }
     ```
 ### /api/users/:username/get/connection/:id `GET`
@@ -21,7 +30,12 @@ To get the user connection with id.
 - Response
     ```json
     {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImxlZ2F0by"
+        "Data": {
+            "host": "37.152.181.64",
+            "password": "sko192j3h",
+            "username": "reza"
+        },
+        "Name": "ssh5"
     }
     ```
 
@@ -47,34 +61,24 @@ To get the all  connections of a user as list .
      ```json
     [
         {
-            "ID": 10,
-            "CreatedAt": "2021-04-11T20:23:44.487065Z",
-            "UpdatedAt": "2021-04-11T20:23:44.490836Z",
-            "DeletedAt": null,
-            "Token": "1afcd222222sdcfaxsdfsaz",
-            "Token_type": "spotify",
-            "UserID": 3,
-            "Name": "spotify4"
+            "Name": "ssh1",
+            "Data": "",
+            "Id": 23
         },
         {
-            "ID": 11,
-            "CreatedAt": "2021-04-11T20:25:22.047339Z",
-            "UpdatedAt": "2021-04-11T20:25:22.056967Z",
-            "DeletedAt": null,
-            "Token": "1afcd222222sdcfaxsdfsaz",
-            "Token_type": "spotify",
-            "UserID": 3,
-            "Name": ""
+            "Name": "ssh1",
+            "Data": "{\"data\":{\"host\":\"37.152.181.64\",\"password\":\"sko192j3h\",\"username\":\"reza\"},\"id\":2,\"name\":\"ssh1\"}",
+            "Id": 24
         },
         {
-            "ID": 12,
-            "CreatedAt": "2021-04-12T14:48:46.605771Z",
-            "UpdatedAt": "2021-04-12T14:48:46.626229Z",
-            "DeletedAt": null,
-            "Token": "dpsfihio514356dfsc5sdf5c1252dcsx52",
-            "Token_type": "git",
-            "UserID": 3,
-            "Name": "git1"
+            "Name": "ssh1",
+            "Data": "{\"data\":{\"host\":\"37.152.181.64\",\"password\":\"sko192j3h\",\"username\":\"reza\"},\"id\":2,\"name\":\"ssh1\"}",
+            "Id": 25
+        },
+        {
+            "Name": "ssh5",
+            "Data": "{\"data\":{\"host\":\"37.152.181.64\",\"password\":\"sko192j3h\",\"username\":\"reza\"},\"id\":0,\"name\":\"ssh5\"}",
+            "Id": 26
         }
     ]
     ```
@@ -94,7 +98,7 @@ To update the name of a connection with id.
     }
     ```
 
-### /api/"users/:username/check/connection/:id `GET`
+### /api/users/:username/check/connection/:id `GET`
 To get the id of a connection and check if there is a connection with this id for a user return true or false
 - Response
     ```json
@@ -104,11 +108,11 @@ To get the id of a connection and check if there is a connection with this id fo
     ```
 
 ### /api/users/:username/update/connection/token/:id `PUT`
-To update field token in connection with id.
+To update field data in connection with id. send data as a string with this fromat 
 - Request
     ```json
     {
-        "token" : "asdpjbfipdsafhbcop;bfdhsbocp;x"
+        "data" : {"data":{"host":"37.152.181.64","password":"sko192j3h","username":"reza"},"id":2,"name":"ssh1"}
     }
     ```
 - Response

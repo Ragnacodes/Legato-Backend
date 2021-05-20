@@ -1,7 +1,9 @@
 package router
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"legato_server/env"
 	"net/http"
 )
 
@@ -16,6 +18,12 @@ var initialRG = routeGroup{
 			ping,
 		},
 		route{
+			"Ping Pong test for schedule server",
+			GET,
+			"ping-schedule",
+			pingSchedule,
+		},
+		route{
 			"Get Default User",
 			GET,
 			"auth/admin",
@@ -25,6 +33,19 @@ var initialRG = routeGroup{
 }
 
 func ping(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
+}
+
+func pingSchedule(c *gin.Context) {
+	_, err := http.Get(fmt.Sprintf("%s/api/ping", env.ENV.SchedulerUrl))
+	if err != nil {
+		c.JSON(400, gin.H{
+			"message": err,
+		})
+		return
+	}
 	c.JSON(200, gin.H{
 		"message": "pong",
 	})

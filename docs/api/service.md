@@ -45,100 +45,12 @@ To add a service (node) to the scenario.
 > Here are some services that can be created in scenarios.
 
 #### Available Services
-Data field for each one of services is different.
-
-##### Webhook 
-- Type = `webhooks`
-- Data request to create:
-    ```json
-    {
-        "data": {}
-    }
-    ```
-
-- Data response
-    ```json
-    {
-        "data": {
-            "url": "http://localhost:8080/api/services/webhook/1d96b814-2b6a-4e61-8360-d0580bbc332a",
-            "active": false
-        }
-    }
-    ```
-
-##### Http
-- Type = `https`
-- Data request to create:
-    ```json
-    {
-        "data": {
-          "url": "http://localhost:8080/api/ping",
-          "method": "get"
-        }
-    }
-    ```
-
-- Data response
-    ```json
-    {
-        "data": {
-          "id": 23,
-          "url": "http://localhost:8080/api/ping",
-          "method": "get"
-        }
-    }
-    ```
-  
-  
-##### Telegram
-- Type = `telegrams`
-
-    - SubType = `sendMessage` (Send a message to the user)
-        - Data request to create:
-            ```json
-            {
-                "data": {
-                  "key": "17312061423:AAHkpaaUswee",
-                  "chat_id": "128373",
-                  "text": "this is the message!"
-                }
-            }
-            ```
-        
-        - Data response
-            ```json
-            {
-                "data": {
-                  "key": "17312061423:AAHkpaaUswee",
-                  "chat_id": "128373",
-                  "text": "this is the message!"
-                }
-            }
-            ```
-      
-    - SubType = `getChatMember` (Get user info)
-        - Data request to create:
-            ```json
-            {
-                "data": {
-                  "chat_id": "128373",
-                  "user_id": "128373"
-                }
-            }
-            ```
-        
-        - Data response
-            ```json
-            {
-                "data": {
-                  "chat_id": "128373",
-                  "user_id": "128373"
-                }
-            }
-            ```
-
-
----------------------------------------
+Data field for each one of services is different. See the service documentation for more details.
+- [Webhook](webhook.md) 
+- [Http](http.md)
+- [Telegram](telegram.md)
+- [Spotify](spotify.md)
+- [SSH](ssh.md)
 
 ### /api/users/:username/scenarios/:scenario_id/nodes `GET`
 To get all services (nodes) in that user scenarios.
