@@ -71,7 +71,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_PWD }}
         context: .
         repository: ragnacodes/legato_server
-        tags: 0.3.0-beta02
+        tags: 0.4.0-beta01
 
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
