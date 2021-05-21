@@ -3,14 +3,27 @@ services:
   legato_server:
     build:
       context: .
-      dockerfile: deployments/prod/Dockerfile
+      dockerfile: deployments/dev/Dockerfile
+    volumes:
+      - ./:/usr/src/app
     command: [ "go", "run", "main.go" ]
+    env_file:
+      - deployments/dev/web.env
+    environment:
+        - MODE = prod
     ports:
-      - "443:443"
+      - "8080:8080"
+    container_name: legato_server
     depends_on:
       - database
+    deploy:
+      restart_policy:
+        condition: any
+        
   database:
     image: "postgres"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
     environment:
       POSTGRES_PASSWORD: legato
       POSTGRES_DB: legatodb
@@ -19,8 +32,26 @@ services:
       POSTGRES_PORT: 5432
     ports:
       - "5431:5432"
+    container_name: legato_database
 
-networks:
-  default:
-    external:
-      name: legato_default
+  pgadmin:
+    image: dpage/pgadmin4
+    links:
+      - database
+    depends_on:
+      - database
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: pwdpwd
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - "5050:80"
+      
+  tor:
+    image: dperson/torproxy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  pgadmin:
