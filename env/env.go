@@ -8,9 +8,15 @@ import (
 )
 
 const (
+	PRODUCTION = "prod"
+	DEVELOPMENT = "dev"
+)
+
+const (
 	DefaultTlsPort = "443"
 	DefaultWebHost          = "http://localhost"
 	DefaultWebUrl			= "http://localhost:8080"
+	DefaultMode				= DEVELOPMENT
 	// Postgres database
 	DefaultDatabaseHost     = "database"
 	DefaultDatabasePort     = "5432"
@@ -34,6 +40,7 @@ type env struct {
 	DatabaseName     string
 	WebHost          string
 	WebUrl			 string
+	Mode			 string
 }
 
 var ENV env
@@ -83,6 +90,11 @@ func LoadEnv() {
 		envWebUrl = DefaultWebUrl
 	}
 
+	envMode := os.Getenv("MODE")
+	if envMode == "" {
+		envMode = DefaultMode
+	}
+
 	ENV = env{
 		ServingPort: envPort,
 		// Postgres database
@@ -93,6 +105,7 @@ func LoadEnv() {
 		DatabaseName:     envDatabaseName,
 		WebHost:          envWebHost,
 		WebUrl:			  envWebUrl,
+		Mode:			  envMode,
 	}
 
 	log.Printf("Environment Variables is Loaded: %+v\n", ENV)
