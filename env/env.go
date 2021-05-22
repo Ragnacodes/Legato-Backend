@@ -106,6 +106,7 @@ func LoadEnv() {
 	envMode := os.Getenv("MODE")
 	if envMode == "" {
 		envMode = DefaultMode
+	}
 		
 	envSchedulerUrl := os.Getenv("SCHEDULER_URL")
 	if envSchedulerUrl == "" {
