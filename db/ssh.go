@@ -171,6 +171,7 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Print("Failed to run: " + err.Error())
 	}
+	log.Print("\n", b.String())
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
@@ -232,6 +233,7 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Println("Failed to run: " + err.Error())
 	}
+	log.Print("\n", b.String())
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
@@ -252,14 +254,14 @@ func (ss Ssh) Execute(...interface{}) {
 	mySsh := Ssh{}
 	err = json.Unmarshal([]byte(ss.Service.Data), &dataWithPass)
 
-	if strings.Contains(mySsh.Service.Data, "password") == true {
+	if strings.Contains(ss.Service.Data, "password") == true {
 		flag = true
 	}
 
 	var dataWithkey loginWithSshKeyData
 	err1 := json.Unmarshal([]byte(ss.Service.Data), &dataWithkey)
-	if err1 == nil {
-
+	if err1 != nil {
+		log.Print(err1)
 	}
 	switch flag {
 	case true:
@@ -277,7 +279,6 @@ func (ss Ssh) Execute(...interface{}) {
 	}
 	ss.Next()
 }
-
 func (ss Ssh) Post() {
 	log.Printf("Executing type (%s) node in background : %s\n", sshType, ss.Service.Name)
 }
