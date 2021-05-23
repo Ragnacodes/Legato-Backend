@@ -135,7 +135,7 @@ func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Con
 	if err != nil {
 		return api.Connection{}, err
 	}
-	ut.ID = int(c.ID)
+	ut.ID = uint(c.ID)
 	return ut, nil
 }
 
