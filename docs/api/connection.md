@@ -59,26 +59,36 @@ To get the all  connections of a user as list .
     
  - Response
      ```json
-    [
+    "connections": [
         {
-            "Name": "ssh1",
-            "Data": "",
-            "Id": 23
+            "id": 32,
+            "data": {
+                "host": "37.152.181.64",
+                "password": "aaaaaaaa",
+                "username": "reza"
+            },
+            "name": "ssh8",
+            "type": "sshes"
         },
         {
-            "Name": "ssh1",
-            "Data": "{\"data\":{\"host\":\"37.152.181.64\",\"password\":\"sko192j3h\",\"username\":\"reza\"},\"id\":2,\"name\":\"ssh1\"}",
-            "Id": 24
+            "id": 34,
+            "data": {
+                "host": "37.152.181.64",
+                "password": "ddddddddddddddddddd",
+                "username": "reza"
+            },
+            "name": "ssh9",
+            "type": "sshes"
         },
         {
-            "Name": "ssh1",
-            "Data": "{\"data\":{\"host\":\"37.152.181.64\",\"password\":\"sko192j3h\",\"username\":\"reza\"},\"id\":2,\"name\":\"ssh1\"}",
-            "Id": 25
-        },
-        {
-            "Name": "ssh5",
-            "Data": "{\"data\":{\"host\":\"37.152.181.64\",\"password\":\"sko192j3h\",\"username\":\"reza\"},\"id\":0,\"name\":\"ssh5\"}",
-            "Id": 26
+            "id": 35,
+            "data": {
+                "host": "37.152.181.64",
+                "sshKey": "sko192j3h",
+                "username": "reza"
+            },
+            "name": "ssh10",
+            "type": "sshes"
         }
     ]
     ```
