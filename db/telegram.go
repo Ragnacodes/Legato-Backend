@@ -106,7 +106,7 @@ func (t Telegram) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
+		_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), nil)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -118,7 +118,7 @@ func (t Telegram) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
+		_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), nil)
 		if err != nil {
 			log.Fatal(err)
 		}

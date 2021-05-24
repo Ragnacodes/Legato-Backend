@@ -1,6 +1,7 @@
 package legatoDb
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
@@ -14,8 +15,17 @@ type Discord struct {
 	Service Service `gorm:"polymorphic:Owner;"`
 }
 
-func (t *Discord) String() string {
-	return fmt.Sprintf("(@Discord: %+v)", *t)
+// Sub services
+const discordSendMessage string = "sendMessage"
+const discordSendMessageUrl string = "https://discord.com/api/channels/%s/messages"
+
+type discordSendMessageData struct {
+	Content string `json:"content"`
+	Channel string `json:"channel"`
+}
+
+func (d *Discord) String() string {
+	return fmt.Sprintf("(@Discord: %+v)", *d)
 }
 
 // Database methods
@@ -69,37 +79,50 @@ func (ldb *LegatoDB) GetDiscordByService(serv Service) (*Discord, error) {
 }
 
 // Service Interface for discord
-func (t Discord) Execute(...interface{}) {
+func (d Discord) Execute(...interface{}) {
 	log.Println("*******Starting Discord Service*******")
 
-	err := legatoDb.db.Preload("Service").Find(&t).Error
+	err := legatoDb.db.Preload("Service").Find(&d).Error
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Executing type (%s) : %s\n", discordType, t.Service.Name)
+	log.Printf("Executing type (%s) : %s\n", discordType, d.Service.Name)
 
-	switch t.Service.SubType {
+	switch d.Service.SubType {
+	case discordSendMessage:
+		var data discordSendMessageData
+		err = json.Unmarshal([]byte(d.Service.Data), &data)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		discordTestToken := "Bot ODQ2MDUxMjU0ODE1MjkzNDUw.YKp4og.U-hKH96FJ93l1ubPjGKk_BVjezM"
+		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(d.Service.Data), &discordTestToken)
+		if err != nil {
+			log.Fatal(err)
+		}
+		break
 	default:
 		break
 	}
 
-	t.Next()
+	d.Next()
 }
 
-func (t Discord) Post() {
-	log.Printf("Executing type (%s) node in background : %s\n", discordType, t.Service.Name)
+func (d Discord) Post() {
+	log.Printf("Executing type (%s) node in background : %s\n", discordType, d.Service.Name)
 }
 
-func (t Discord) Next(...interface{}) {
-	err := legatoDb.db.Preload("Service.Children").Find(&t).Error
+func (d Discord) Next(...interface{}) {
+	err := legatoDb.db.Preload("Service.Children").Find(&d).Error
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Executing \"%s\" Children \n", t.Service.Name)
+	log.Printf("Executing \"%s\" Children \n", d.Service.Name)
 
-	for _, node := range t.Service.Children {
+	for _, node := range d.Service.Children {
 		serv, err := node.Load()
 		if err != nil {
 			log.Println("error in loading services in Next()")
@@ -108,5 +131,5 @@ func (t Discord) Next(...interface{}) {
 		serv.Execute()
 	}
 
-	log.Printf("*******End of \"%s\"*******", t.Service.Name)
+	log.Printf("*******End of \"%s\"*******", d.Service.Name)
 }

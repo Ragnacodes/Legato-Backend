@@ -109,7 +109,9 @@ func (s *Service) Load() (services.Service, error) {
 	case sshType:
 		serv, err = legatoDb.GetSshByService(*s)
 		break
-
+	case discordType:
+		serv, err = legatoDb.GetDiscordByService(*s)
+		break
 	}
 
 	if err != nil {
@@ -166,7 +168,12 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 			return err
 		}
 		break
-
+	case discordType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+		break
 	}
 
 	return nil
