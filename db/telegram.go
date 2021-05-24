@@ -131,7 +131,7 @@ func (t Telegram) Execute(...interface{}) {
 }
 
 func (t Telegram) Post() {
-	log.Printf("Executing type (%s) node in background : %s\n", httpType, t.Service.Name)
+	log.Printf("Executing type (%s) node in background : %s\n", telegramType, t.Service.Name)
 }
 
 func (t Telegram) Next(...interface{}) {
