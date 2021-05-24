@@ -59,6 +59,7 @@ type Resolver struct {
 	TelegramUseCase domain.TelegramUseCase
 	SpotifyUseCase  domain.SpotifyUseCase
 	SshUseCase      domain.SshUseCase
+	DiscordUseCase      domain.DiscordUseCase
 }
 
 // This Resolver includes all of our use cases so we can handle incoming requests
