@@ -8,6 +8,12 @@ import (
 )
 
 const (
+	PRODUCTION = "prod"
+	DEVELOPMENT = "dev"
+)
+
+const (
+	DefaultMode			= DEVELOPMENT
 	DefaultTlsPort      = "443"
 	DefaultWebHost      = "http://localhost"
 	DefaultWebUrl       = "http://localhost:8080"
@@ -39,6 +45,7 @@ type env struct {
 	DatabasePassword string
 	DatabaseName     string
 	WebHost          string
+	Mode			 string
 	WebUrl           string
 	SchedulerUrl     string
 	RedisHost        string
@@ -96,6 +103,11 @@ func LoadEnv() {
 		envWebUrl = DefaultWebUrl
 	}
 
+	envMode := os.Getenv("MODE")
+	if envMode == "" {
+		envMode = DefaultMode
+	}
+		
 	envSchedulerUrl := os.Getenv("SCHEDULER_URL")
 	if envSchedulerUrl == "" {
 		envSchedulerUrl = DefaultSchedulerUrl
@@ -115,6 +127,7 @@ func LoadEnv() {
 		WebHost:      envWebHost,
 		WebUrl:       envWebUrl,
 		SchedulerUrl: envSchedulerUrl,
+		Mode:			  envMode,
 	}
 
 	log.Printf("Environment Variables is Loaded: %+v\n", ENV)
