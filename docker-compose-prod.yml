@@ -6,11 +6,11 @@ services:
       dockerfile: deployments/dev/Dockerfile
     volumes:
       - ./:/usr/src/app
-    command: [ "go", "run", "main.go" ]
+    command: [ "go", "run", "cmd/legato_scheduler/main.go" ]
     env_file:
       - deployments/dev/web.env
     environment:
-        - MODE = prod
+        - MODE= prod
     ports:
       - "8080:8080"
     container_name: legato_server
