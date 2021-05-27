@@ -185,7 +185,7 @@ func updateNode(c *gin.Context) {
 		err = resolvers.SshUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
 	case "tool_boxes":
-		err = resolvers.SshUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		err = resolvers.ToolBoxUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
 	default:
 		break
