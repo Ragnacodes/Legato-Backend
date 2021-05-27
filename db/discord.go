@@ -9,6 +9,7 @@ import (
 )
 
 const discordType = "discords"
+const discordBotToken string = "Bot ODQ2MDUxMjU0ODE1MjkzNDUw.YKp4og.U-hKH96FJ93l1ubPjGKk_BVjezM"
 
 type Discord struct {
 	gorm.Model
@@ -89,6 +90,7 @@ func (d Discord) Execute(...interface{}) {
 
 	log.Printf("Executing type (%s) : %s\n", discordType, d.Service.Name)
 
+	token := discordBotToken
 	switch d.Service.SubType {
 	case discordSendMessage:
 		var data discordSendMessageData
@@ -97,8 +99,7 @@ func (d Discord) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		discordTestToken := "Bot ODQ2MDUxMjU0ODE1MjkzNDUw.YKp4og.U-hKH96FJ93l1ubPjGKk_BVjezM"
-		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(d.Service.Data), &discordTestToken)
+		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(d.Service.Data), &token)
 		if err != nil {
 			log.Fatal(err)
 		}
