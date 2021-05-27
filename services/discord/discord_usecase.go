@@ -73,7 +73,7 @@ func (du DiscordUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint
 }
 
 func (du DiscordUseCase) GetGuildTextChannels(guildId string) (channels api.Channels, err error) {
-	token := env.DiscordBotToken
+	token := env.ENV.DiscordBotToken
 	getChannelsUrl := fmt.Sprintf("%sguilds/%s/channels", discordUrl, guildId)
 	log.Println(getChannelsUrl)
 	client := &http.Client{}

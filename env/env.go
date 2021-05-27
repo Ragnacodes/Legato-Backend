@@ -30,8 +30,6 @@ const (
 	GitAuthenticateUrl     = "https://github.com/login/oauth/authorize?access_type=online&client_id=Iv1.9f22bc1a9e8e6822&response_type=code&scope=user%3Aemail+repo&state=thisshouldberandom&redirect_uri=http://localhost:3000/redirect/github/"
 	//DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:3000/redirect/discord/&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
 	DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?client_id=846051254815293450&permissions=2148001856&redirect_uri=http://localhost:3000/redirect/discord&scope=bot&response_type=code"
-
-	DiscordBotToken = "Bot ODQ2MDUxMjU0ODE1MjkzNDUw.YKp4og.SlHAT8bcWQoeHzuz4zrk-XUmvA8"
 )
 
 type env struct {
@@ -45,6 +43,7 @@ type env struct {
 	WebUrl           string
 	SchedulerUrl     string
 	RedisHost        string
+	DiscordBotToken  string
 }
 
 var ENV env
@@ -104,6 +103,11 @@ func LoadEnv() {
 		envSchedulerUrl = DefaultSchedulerUrl
 	}
 
+	discordBotToken := os.Getenv("DISCORD_BOT_SECRET")
+	if discordBotToken == "" {
+		panic("no discord bot secret")
+	}
+
 	ENV = env{
 		ServingPort: envPort,
 		// Redis
@@ -118,6 +122,8 @@ func LoadEnv() {
 		WebHost:      envWebHost,
 		WebUrl:       envWebUrl,
 		SchedulerUrl: envSchedulerUrl,
+		// Applications
+		DiscordBotToken: discordBotToken,
 	}
 
 	log.Printf("Environment Variables is Loaded: %+v\n", ENV)

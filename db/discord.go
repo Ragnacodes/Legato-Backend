@@ -90,7 +90,7 @@ func (d Discord) Execute(...interface{}) {
 
 	log.Printf("Executing type (%s) : %s\n", discordType, d.Service.Name)
 
-	token := env.DiscordBotToken
+	token := env.ENV.DiscordBotToken
 	switch d.Service.SubType {
 	case discordSendMessage:
 		var data discordSendMessageData
