@@ -101,6 +101,7 @@ func addConnection(c *gin.Context) {
 	if loginUser == nil {
 		return
 	}
+
 	connection, err := resolvers.UserUseCase.AddConnectionToDB(username, connection)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

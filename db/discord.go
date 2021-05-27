@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"legato_server/env"
 	"log"
 )
 
 const discordType = "discords"
-const discordBotToken string = "Bot ODQ2MDUxMjU0ODE1MjkzNDUw.YKp4og.U-hKH96FJ93l1ubPjGKk_BVjezM"
 
 type Discord struct {
 	gorm.Model
@@ -90,7 +90,7 @@ func (d Discord) Execute(...interface{}) {
 
 	log.Printf("Executing type (%s) : %s\n", discordType, d.Service.Name)
 
-	token := discordBotToken
+	token := env.DiscordBotToken
 	switch d.Service.SubType {
 	case discordSendMessage:
 		var data discordSendMessageData
