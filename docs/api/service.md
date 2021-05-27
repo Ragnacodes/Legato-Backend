@@ -51,6 +51,7 @@ Data field for each one of services is different. See the service documentation 
 - [Telegram](telegram.md)
 - [Spotify](spotify.md)
 - [SSH](ssh.md)
+- [Tool Box](tool_box.md)
 
 ### /api/users/:username/scenarios/:scenario_id/nodes `GET`
 To get all services (nodes) in that user scenarios.

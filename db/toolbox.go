@@ -12,8 +12,8 @@ import (
 const toolBoxType = "tool_boxes"
 
 // Sub services
-const toolBoxSleep string = "toolBoxSleep"
-const toolBoxRepeater string = "toolBoxRepeater"
+const toolBoxSleep string = "sleep"
+const toolBoxRepeater string = "repeater"
 
 type ToolBox struct {
 	gorm.Model
