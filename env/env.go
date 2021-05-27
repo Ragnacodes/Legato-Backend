@@ -31,7 +31,7 @@ const (
 	//DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:3000/redirect/discord/&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
 	DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?client_id=846051254815293450&permissions=2148001856&redirect_uri=http://localhost:3000/redirect/discord&scope=bot&response_type=code"
 
-	DiscordBotToken = "Bot ODQ2MDUxMjU0ODE1MjkzNDUw.YKp4og.2BhHJ8KJHXmoBJoaDLW5UbVaxXc"
+	DiscordBotToken = "Bot ODQ2MDUxMjU0ODE1MjkzNDUw.YKp4og.SlHAT8bcWQoeHzuz4zrk-XUmvA8"
 )
 
 type env struct {

@@ -59,7 +59,7 @@ type Resolver struct {
 	TelegramUseCase domain.TelegramUseCase
 	SpotifyUseCase  domain.SpotifyUseCase
 	SshUseCase      domain.SshUseCase
-	DiscordUseCase      domain.DiscordUseCase
+	DiscordUseCase  domain.DiscordUseCase
 }
 
 // This Resolver includes all of our use cases so we can handle incoming requests
@@ -76,6 +76,7 @@ var legatoRoutesGroups = routeGroups{
 	spotifyRG,
 	ConnectionRG,
 	sshRG,
+	discordRG,
 }
 
 // NewRouter get the resolvers and create *gin.Engine that can handle all

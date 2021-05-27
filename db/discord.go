@@ -129,6 +129,7 @@ func (d Discord) Next(...interface{}) {
 			log.Println("error in loading services in Next()")
 			return
 		}
+
 		serv.Execute()
 	}
 
