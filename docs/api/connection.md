@@ -4,24 +4,22 @@ To create a new connection.
 - Request
     ```json
     {
-        "data": {
-            "host": "37.152.181.64",
-            "password": "sko192j3h",
-            "username": "reza"
-         },
-        "name" :"ssh5"
+        "name" :"spotify3",
+        "type": "spotify",
+        "data" : {
+            "token" : "ffsdsfasdfiohipafhjdoicjkposa"
+        }
     }
     ```
 - Response
     ```json
     {
-        "Data": {
-            "host": "37.152.181.64",
-            "password": "sko192j3h",
-            "username": "reza"
-        },
-        "Id": 26,
-        "Name": "ssh5"
+    "data": {
+        "token": "3c14cb6290e0e568f6f6"
+    },
+    "id": 46,
+    "name": "myssh",
+    "type": "sshes"
     }
     ```
 ### /api/users/:username/get/connection/:id `GET`
@@ -30,17 +28,19 @@ To get the user connection with id.
 - Response
     ```json
     {
-        "Data": {
-            "host": "37.152.181.64",
-            "password": "sko192j3h",
-            "username": "reza"
-        },
-        "Name": "ssh5"
-    }
+    "data": {
+        "host": "37.152.181.64",
+        "password": "eeeeeeeeeeeeeee",
+        "username": "reza"
+    },
+    "id": "34",
+    "name": "ssh9",
+    "type": "sshes"
+    }   
     ```
 
 
-### /api/user/connection/access/token/:service `GET`
+### /api/user/connection/access/:service `GET`
 To get the access url for apps that  you would like to connect.
 - Response
     ```json
@@ -64,7 +64,7 @@ To get the all  connections of a user as list .
             "id": 32,
             "data": {
                 "host": "37.152.181.64",
-                "password": "aaaaaaaa",
+                "password": "--------",
                 "username": "reza"
             },
             "name": "ssh8",
@@ -74,7 +74,7 @@ To get the all  connections of a user as list .
             "id": 34,
             "data": {
                 "host": "37.152.181.64",
-                "password": "ddddddddddddddddddd",
+                "password": "----------",
                 "username": "reza"
             },
             "name": "ssh9",
@@ -84,7 +84,7 @@ To get the all  connections of a user as list .
             "id": 35,
             "data": {
                 "host": "37.152.181.64",
-                "sshKey": "sko192j3h",
+                "sshKey": "-----------------",
                 "username": "reza"
             },
             "name": "ssh10",
@@ -108,7 +108,7 @@ To update the name of a connection with id.
     }
     ```
 
-### /api/users/:username/check/connection/:id `GET`
+### /api/"users/:username/check/connection/:id `GET`
 To get the id of a connection and check if there is a connection with this id for a user return true or false
 - Response
     ```json
@@ -117,12 +117,14 @@ To get the id of a connection and check if there is a connection with this id fo
     }
     ```
 
-### /api/users/:username/update/connection/token/:id `PUT`
-To update field data in connection with id. send data as a string with this fromat 
+### /api/users/:username/update/connection/data/:id `PUT`
+To update field token in connection with id.
 - Request
     ```json
-    {
-        "data" : {"data":{"host":"37.152.181.64","password":"sko192j3h","username":"reza"},"id":2,"name":"ssh1"}
+     "data": {
+        "host": "37.152.181.64",
+        "password": "-----------",
+        "username": "reza"
     }
     ```
 - Response
