@@ -15,7 +15,7 @@ import (
 	serviceUC "legato_server/services/usecase"
 	webhookUC "legato_server/services/webhook"
 	userUC "legato_server/user/usecase"
-	logUc  "legato_server/logging/usecase"
+	logUC  "legato_server/logging/usecase"
 	"time"
 
 	"github.com/spf13/viper"
@@ -58,7 +58,7 @@ func init() {
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
 	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
-	loggerUseCase = logUc.NewLoggerUseCase(appDB, timeoutContext)
+	loggerUseCase = logUC.NewLoggerUseCase(appDB, timeoutContext)
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
 
