@@ -15,6 +15,12 @@ var discordRG = routeGroup{
 			"/services/discord/guilds/:guildId/channels/text",
 			getGuildTextChannels,
 		},
+		route{
+			"Get messages of a single text channels",
+			GET,
+			"services/discord/channels/:channelId/messages",
+			getGuildTextChannelMessages,
+		},
 	},
 }
 
@@ -38,5 +44,28 @@ func getGuildTextChannels(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"channels": channels,
+	})
+}
+
+func getGuildTextChannelMessages(c *gin.Context) {
+	channelId := c.Param("channelId")
+
+	// Auth
+	// should authenticate with a token for discord connection later
+	//loginUser := checkAuth(c, []string{username})
+	//if loginUser == nil {
+	//	return
+	//}
+
+	channels, err := resolvers.DiscordUseCase.GetGuildTextChannelMessages(channelId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("can not fetch messages: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"messages": channels,
 	})
 }

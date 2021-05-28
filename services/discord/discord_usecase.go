@@ -109,3 +109,35 @@ func (du DiscordUseCase) GetGuildTextChannels(guildId string) (channels api.Chan
 
 	return
 }
+
+func (du DiscordUseCase) GetGuildTextChannelMessages(channelId string) (messages api.Messages, err error) {
+	token := env.ENV.DiscordBotToken
+	getChannelsUrl := fmt.Sprintf("%schannels/%s/messages", discordUrl, channelId)
+	log.Println(getChannelsUrl)
+	client := &http.Client{}
+	req, err := http.NewRequest(http.MethodGet, getChannelsUrl, nil)
+	if err != nil {
+		return
+	}
+	req.Header.Set("Authorization", token)
+	res, err := client.Do(req)
+	if err != nil {
+		return
+	}
+
+	// read the payload, in this case, Jhon's info
+	body, err := ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		panic(err)
+	}
+
+	// this is where the magic happens, I pass a pointer of type Person and Go will do the rest
+	err = json.Unmarshal(body, &messages)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
