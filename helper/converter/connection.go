@@ -3,7 +3,6 @@ package converter
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"legato_server/api"
 	"strings"
 
@@ -50,9 +49,13 @@ func BindConnectionData(data string, Type string) (map[string]interface{}, error
 		}
 		condata := Tokenaouth{}
 		err := json.Unmarshal([]byte(data), &condata)
-		fmt.Print(condata.Token["access_token"])
-		data := map[string]interface{}{"access_token": condata.Token["access_token"], "token_type": condata.Token["token_type"], "expiry": condata.Token["expiry"]}
-		return data, err
+		js, _ := json.Marshal(condata.Token)
+		token := oauth2.Token{}
+		json.Unmarshal([]byte(js), &token)
+		data := &map[string]interface{}{
+			"token": token,
+		}
+		return *data, err
 
 	}
 	return nil, nil
@@ -73,20 +76,21 @@ func getToken(data string) (interface{}, error) {
 	return token, err
 }
 
-func ExtractData(data interface{}, Type string, ut *api.Connection) (string, error) {
+func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map[string]interface{}, error) {
 	switch Type {
 	case "github":
-		s, _ := json.Marshal(ut.Data)
-		token, err := getToken(string(s))
+		js, _ := json.Marshal(ut.Data)
+		token, err := getToken(string(js))
 		data := &map[string]interface{}{
 			"token": token,
 		}
+
 		jsonString, err := json.Marshal(data)
-		return string(jsonString), err
+		return string(jsonString), *data, err
 
 	case "sshes":
 		jsonString, err := json.Marshal(ut.Data)
-		return string(jsonString), err
+		return string(jsonString), ut.Data, err
 	}
-	return "", nil
+	return "", nil, nil
 }
