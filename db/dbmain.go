@@ -57,6 +57,9 @@ func createSchema(db *gorm.DB) error {
 	_ = db.AutoMigrate(Spotify{})
 	_ = db.AutoMigrate(Token{})
 	_ = db.AutoMigrate(Ssh{})
+	_ = db.AutoMigrate(History{})
+	_ = db.AutoMigrate(ServiceLog{})
+	_ = db.AutoMigrate(LogMessage{})
 
 	return nil
 }
