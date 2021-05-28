@@ -121,13 +121,7 @@ func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Con
 	user, _ := u.db.GetUserByUsername(name)
 	con := legatoDb.Connection{}
 	con.Name = ut.Name
-	data := &map[string]interface{}{
-		"name": ut.Name,
-		"data": ut.Data,
-		"id":   ut.ID,
-	}
-
-	jsonString, err := json.Marshal(data)
+	jsonString, err := json.Marshal(ut.Data)
 	con.Data = string(jsonString)
 	con.UserID = uint(ut.ID)
 	con.Type = ut.Type
