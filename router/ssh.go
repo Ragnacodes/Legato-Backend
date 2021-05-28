@@ -50,31 +50,6 @@ type SSHLoginWithKey struct {
 	Sshkey   string `json:"sshKey"`
 }
 
-// func createSshService(c *gin.Context) {
-// 	username := c.Param("username")
-// 	apissh := api.SshInfo{}
-// 	_ = c.BindJSON(&apissh)
-
-// 	// Authenticate
-// 	// Auth
-// 	loginUser := checkAuth(c, []string{username})
-// 	if loginUser == nil {
-// 		return
-// 	}
-
-// 	ssh, err := resolvers.SshUseCase.AddSsh(username, &apissh)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"message": fmt.Sprintf("can not add ssh: %s", err),
-// 		})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"Host":     ssh.Host,
-// 		"Username": ssh.Username,
-// 	})
-// }
 func getUserSshs(c *gin.Context) {
 	username := c.Param("username")
 
@@ -108,7 +83,7 @@ func uploadFile(c *gin.Context) {
 	f, _ := file.Open()
 	f.Read(byteContainer)
 
-	c.JSON(http.StatusInternalServerError, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"SshKey": string(byteContainer[0:file.Size]),
 	})
 }
