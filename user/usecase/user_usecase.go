@@ -124,7 +124,8 @@ func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Con
 	con := legatoDb.Connection{}
 	con.Name = ut.Name
 	var err error
-	con.Data, err = converter.ExtractData(ut.Data, ut.Type, &ut)
+	var jsonData map[string]interface{}
+	con.Data, jsonData, err = converter.ExtractData(ut.Data, ut.Type, &ut)
 	if err != nil || strings.EqualFold(con.Data, "null") {
 		return api.Connection{}, err
 	}
@@ -134,6 +135,7 @@ func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Con
 	if err != nil {
 		return api.Connection{}, err
 	}
+	ut.Data = jsonData
 	ut.ID = uint(c.ID)
 	return ut, nil
 }
