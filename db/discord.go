@@ -20,9 +20,17 @@ type Discord struct {
 const discordSendMessage string = "sendMessage"
 const discordSendMessageUrl string = "https://discord.com/api/channels/%s/messages"
 
+const discordPinMessage string = "pinMessage"
+const discordPinMessageUrl string = "https://discord.com/api/channels/%s/pins/%s"
+
 type discordSendMessageData struct {
 	Content string `json:"content"`
-	Channel string `json:"channel"`
+	Channel string `json:"channelId"`
+}
+
+type discordPinMessageData struct {
+	Message string `json:"messageId"`
+	Channel string `json:"channelId"`
 }
 
 func (d *Discord) String() string {
@@ -100,6 +108,18 @@ func (d Discord) Execute(...interface{}) {
 		}
 
 		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(d.Service.Data), &token)
+		if err != nil {
+			log.Fatal(err)
+		}
+		break
+	case discordPinMessage:
+		var data discordPinMessageData
+		err = json.Unmarshal([]byte(d.Service.Data), &data)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = makeHttpRequest(fmt.Sprintf(discordPinMessageUrl, data.Channel, data.Message), "put", nil, &token)
 		if err != nil {
 			log.Fatal(err)
 		}
