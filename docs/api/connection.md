@@ -30,7 +30,7 @@ To get the user connection with id.
     {
     "data": {
         "host": "37.152.181.64",
-        "password": "eeeeeeeeeeeeeee",
+        "password": "---------------------",
         "username": "reza"
     },
     "id": "34",
@@ -40,7 +40,7 @@ To get the user connection with id.
     ```
 
 
-### /api/user/connection/access/:service `GET`
+### /api/user/connection/access/token/:service `GET`
 To get the access url for apps that  you would like to connect.
 - Response
     ```json
