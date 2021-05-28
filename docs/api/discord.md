@@ -3,7 +3,7 @@
 
 > **Note**: You should create an env file in /.
 ```dotenv
-DISCORD_BOT_SECRET=<ele>
+DISCORD_BOT_SECRET=<DISCORD_SECRET>
 ```
 
 ### Connection
@@ -61,7 +61,31 @@ Adding discord node to the scenario.
             }
         }
         ```
-      
+
+- `reactMessage` (react to a message in a channel)
+    > **Note:** The emoji should be just like this. Cure about the format. 
+    - Data request to create:
+    
+        ```json
+        {
+            "data": {
+              "channelId": "128373",
+              "messageId": "31231234",
+              "react": "😁"
+            }
+        }
+        ```
+    
+    - Data response
+        ```json
+        {
+            "data": {
+              "channelId": "128373",
+              "messageId": "31231234"
+            }
+        }
+        ```
+
 ### /api/services/discord/guilds/:guildId/channels/text `GET`
 Returns the text channels of a guild.
 - Response
