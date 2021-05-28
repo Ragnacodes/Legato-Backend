@@ -5,6 +5,7 @@ import (
 	legatoDb "legato_server/db"
 	"legato_server/domain"
 	"legato_server/env"
+	"legato_server/logging"
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
 	httpUC "legato_server/services/http"
@@ -14,6 +15,7 @@ import (
 	serviceUC "legato_server/services/usecase"
 	webhookUC "legato_server/services/webhook"
 	userUC "legato_server/user/usecase"
+	logUc  "legato_server/logging/usecase"
 	"time"
 
 	"github.com/spf13/viper"
@@ -27,6 +29,7 @@ var httpUseCase domain.HttpUseCase
 var telegramUseCase domain.TelegramUseCase
 var spotifyUseCase domain.SpotifyUseCase
 var sshUseCase domain.SshUseCase
+var loggerUseCase domain.LoggerUseCase
 
 func init() {
 	// Load environment variables
@@ -34,6 +37,9 @@ func init() {
 
 	// Generate random jwt key
 	authenticate.GenerateRandomKey()
+	
+	// Make server sent event 
+	logging.SSE.Init()
 
 	// Connect to database
 	appDB, err := legatoDb.Connect()
@@ -52,7 +58,7 @@ func init() {
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
 	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
-
+	loggerUseCase = logUc.NewLoggerUseCase(appDB, timeoutContext)
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
 
@@ -72,6 +78,7 @@ func main() {
 		TelegramUseCase: telegramUseCase,
 		SpotifyUseCase:  spotifyUseCase,
 		SshUseCase:      sshUseCase,
+		LoggerUseCase:   loggerUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()

@@ -29,6 +29,7 @@ type Scenario struct {
 	Services          []Service
 	ScheduleToken     []byte
 	LastScheduledTime time.Time
+	Histories 		  []History
 }
 
 func (s *Scenario) String() string {
@@ -165,6 +166,11 @@ func (s *Scenario) Start() error {
 	log.Println("Preparing scenario to start")
 	err := s.Prepare()
 	if err != nil {
+		return err
+	}
+
+ 	err = legatoDb.CreateHistory(s.ID)
+	 if err != nil {
 		return err
 	}
 
