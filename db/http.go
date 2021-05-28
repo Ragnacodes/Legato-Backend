@@ -138,7 +138,7 @@ func (h Http) Next(...interface{}) {
 func makeHttpRequest(url string, method string, body []byte, authorization *string) (res *http.Response, err error) {
 	log.Println("Make http request")
 
-	log.Printf(	"\nurl: %s\nmethod: %s\nbody:\n%s\n", url, method, string(body))
+	log.Printf("\nurl: %s\nmethod: %s\nbody:\n%s\n", url, method, string(body))
 
 	switch method {
 	case strings.ToLower(http.MethodGet):
@@ -160,6 +160,36 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 			break
 		}
 		res, err = http.Post(url, "application/json", nil)
+		break
+	case strings.ToLower(http.MethodPut):
+		if body != nil {
+			client := &http.Client{}
+			req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(body))
+			if err != nil {
+				return nil, err
+			}
+			req.Header.Set("Authorization", *authorization)
+			req.Header.Set("Content-Type", "application/json")
+			res, err = client.Do(req)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			log.Println("body in put request is empty")
+			client := &http.Client{}
+			req, err := http.NewRequest(http.MethodPut, url, nil)
+			if err != nil {
+				return nil, err
+			}
+			req.Header.Set("Authorization", *authorization)
+			req.Header.Set("Content-Type", "application/json")
+			res, err = client.Do(req)
+			if err != nil {
+				return nil, err
+			}
+		}
+		break
+	default:
 		break
 	}
 
