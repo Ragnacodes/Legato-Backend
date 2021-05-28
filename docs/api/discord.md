@@ -18,7 +18,7 @@ DISCORD_BOT_SECRET=<ele>
 
 ### SubTypes & Data
 Adding discord node to the scenario.
-- `sendMessage` (Send a message to the user)
+- `sendMessage` (Send a message in a channel)
     - Data request to create:
     
         ```json
@@ -34,12 +34,34 @@ Adding discord node to the scenario.
         ```json
         {
             "data": {
-              "guildId": "12381902380192",
               "channelId": "128373",
               "content": "this is the message!"
             }
         }
         ```
+      
+- `pinMessage` (Pin a message in a channel)
+    - Data request to create:
+    
+        ```json
+        {
+            "data": {
+              "channelId": "128373",
+              "messageId": "31231234"
+            }
+        }
+        ```
+    
+    - Data response
+        ```json
+        {
+            "data": {
+              "channelId": "128373",
+              "messageId": "31231234"
+            }
+        }
+        ```
+      
 ### /api/services/discord/guilds/:guildId/channels/text `GET`
 Returns the text channels of a guild.
 - Response
