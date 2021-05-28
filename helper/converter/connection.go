@@ -2,7 +2,6 @@ package converter
 
 import (
 	"encoding/json"
-	"legato_server/api"
 	"strings"
 )
 
@@ -20,8 +19,7 @@ type loginWithSshKeyData struct {
 }
 
 func BindConnectionData(data string, Type string) (map[string]interface{}, error) {
-	condata := api.Connection{}
-	err := json.Unmarshal([]byte(data), &condata)
+
 	switch Type {
 	case "sshes":
 		flag := false
@@ -30,10 +28,14 @@ func BindConnectionData(data string, Type string) (map[string]interface{}, error
 		}
 
 		if flag == true {
-			data := map[string]interface{}{"host": condata.Data["host"], "password": condata.Data["password"], "username": condata.Data["username"]}
+			condata := loginWithPasswordData{}
+			err := json.Unmarshal([]byte(data), &condata)
+			data := map[string]interface{}{"host": condata.Host, "password": condata.Password, "username": condata.Username}
 			return data, err
 		} else {
-			data := map[string]interface{}{"host": condata.Data["host"], "sshKey": condata.Data["sshKey"], "username": condata.Data["username"]}
+			condata := loginWithSshKeyData{}
+			err := json.Unmarshal([]byte(data), &condata)
+			data := map[string]interface{}{"host": condata.Host, "sshKey": condata.SshKey, "username": condata.Username}
 			return data, err
 		}
 
