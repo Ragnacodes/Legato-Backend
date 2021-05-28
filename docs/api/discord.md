@@ -100,3 +100,47 @@ Returns the text channels of a guild.
         ]
     }
     ```
+  
+ ### /api/services/discord/channels/:channelId/messages `GET`
+ Returns the messages of a single text channels.
+ - Response
+     ```json
+     {
+         "messages": [
+            {
+                "id": "847626806651519048",
+                "type": 6,
+                "content": "that is it",
+                "channel_id": "846160866000371753",
+                "attachments": [],
+                "embeds": [],
+                "mentions": [],
+                "mention_roles": [],
+                "pinned": false,
+                "mention_everyone": false,
+                "tts": false,
+                "timestamp": "2021-05-28T00:06:18.850000+00:00",
+                "edited_timestamp": null,
+                "flags": 0,
+                "components": []
+            },
+            {
+                "id": "847624201682812958",
+                "type": 0,
+                "content": "hello",
+                "channel_id": "846160866000371753",
+                "attachments": [],
+                "embeds": [],
+                "mentions": [],
+                "mention_roles": [],
+                "pinned": true,
+                "mention_everyone": false,
+                "tts": false,
+                "timestamp": "2021-05-27T23:55:57.777000+00:00",
+                "edited_timestamp": null,
+                "flags": 0,
+                "components": []
+            }
+         ]
+     }
+     ```
