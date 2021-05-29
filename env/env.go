@@ -8,12 +8,12 @@ import (
 )
 
 const (
-	PRODUCTION = "prod"
+	PRODUCTION  = "prod"
 	DEVELOPMENT = "dev"
 )
 
 const (
-	DefaultMode			= DEVELOPMENT
+	DefaultMode         = DEVELOPMENT
 	DefaultTlsPort      = "443"
 	DefaultWebHost      = "http://localhost"
 	DefaultWebUrl       = "http://localhost:8080"
@@ -33,7 +33,7 @@ const (
 	// App Connections URL
 	SpotifyAuthenticateUrl = "https://accounts.spotify.com/authorize?client_id=74049abbf6784599a1564060e7c9dc12&redirect_uri=http://localhost:3000/redirect/spotify/&response_type=code&scope=user-read-private&state=abc123"
 	GoogleAuthenticateUrl  = "https://accounts.google.com/o/oauth2/v2/auth?client_id=906955768602-u0nu3ruckq6pcjvune1tulkq3n0kfvrl.apps.googleusercontent.com&response_type=code&scope=https://www.googleapis.com/auth/gmail.readonly&redirect_uri=http://localhost:3000/redirect/gmail/&access_type=offline"
-	GitAuthenticateUrl     = "https://github.com/login/oauth/authorize?access_type=online&client_id=Iv1.9f22bc1a9e8e6822&response_type=code&scope=user%3Aemail+repo&state=thisshouldberandom&redirect_uri=http://localhost:3000/redirect/github/"
+	GitAuthenticateUrl     = "https://github.com/login/oauth/authorize?access_type=online&client_id=a87b311ff0542babc5bd&response_type=code&scope=user%3Aemail+repo&state=thisshouldberandom&redirect_uri=https://abstergo.ir/redirect/github"
 	DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:3000/redirect/discord/&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
 )
 
@@ -45,7 +45,7 @@ type env struct {
 	DatabasePassword string
 	DatabaseName     string
 	WebHost          string
-	Mode			 string
+	Mode             string
 	WebUrl           string
 	SchedulerUrl     string
 	RedisHost        string
@@ -107,7 +107,7 @@ func LoadEnv() {
 	if envMode == "" {
 		envMode = DefaultMode
 	}
-		
+
 	envSchedulerUrl := os.Getenv("SCHEDULER_URL")
 	if envSchedulerUrl == "" {
 		envSchedulerUrl = DefaultSchedulerUrl
@@ -127,7 +127,7 @@ func LoadEnv() {
 		WebHost:      envWebHost,
 		WebUrl:       envWebUrl,
 		SchedulerUrl: envSchedulerUrl,
-		Mode:			  envMode,
+		Mode:         envMode,
 	}
 
 	log.Printf("Environment Variables is Loaded: %+v\n", ENV)
