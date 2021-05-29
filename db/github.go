@@ -63,8 +63,7 @@ func (ldb *LegatoDB) CreateGitForScenario(s *Scenario, g Github) (*Github, error
 
 	return &g, nil
 }
-
-func (ldb *LegatoDB) UpdateGit(s *Scenario, servId uint, ng Github) error {
+func (ldb *LegatoDB) UpdateGit(s *Scenario, servId uint, gn Github) error {
 	var serv Service
 	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
 	if err != nil {
@@ -77,22 +76,23 @@ func (ldb *LegatoDB) UpdateGit(s *Scenario, servId uint, ng Github) error {
 		return err
 	}
 	if g.Service.ID != servId {
-		return errors.New("the git service is not in this scenario")
+		return errors.New("the ssh service is not in this scenario")
 	}
-	var data updateGitData
-	err = json.Unmarshal([]byte(g.Service.Data), &data)
+	var a updateGitData
+	err = json.Unmarshal([]byte(gn.Service.Data), &a)
 	if err != nil {
 		log.Println("con not update ssh")
 	}
-
-	if data.ConnectionId != 0 {
-		g.ConnectionID = data.ConnectionId
+	fmt.Println(gn.Service.Data)
+	fmt.Println(a.ConnectionId)
+	if a.ConnectionId != 0 {
+		gn.ConnectionID = a.ConnectionId
 	}
 
-	ldb.db.Model(&serv).Updates(ng.Service)
-	ldb.db.Model(&g).Updates(ng)
+	ldb.db.Model(&serv).Updates(gn.Service)
+	ldb.db.Model(&g).Updates(gn)
 
-	if ng.Service.ParentID == nil {
+	if gn.Service.ParentID == nil {
 		legatoDb.db.Model(&serv).Select("parent_id").Update("parent_id", nil)
 	}
 
