@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	"encoding/json"
 	"legato_server/api"
 	"net/http"
 	"strings"
@@ -18,13 +19,13 @@ var GitRG = routeGroup{
 		route{
 			"Show user repositories name",
 			POST,
-			"/users/:username/services/github/repositories/name",
+			"/users/:username/services/github/repositories",
 			getUserRepositoryList,
 		},
 		route{
 			"show list of branches of a reository",
 			POST,
-			"/users/:username/services/github/repository/branches/name",
+			"/users/:username/services/github/branches",
 			getUserRepositoryBranches,
 		},
 	},
@@ -47,14 +48,15 @@ func getUserRepositoryList(c *gin.Context) {
 		Scopes:       []string{"user:email", "repo", "public_repo", "repo_deployment", "write:org", "delete_repo", "read:org"},
 		Endpoint:     githuboauth.Endpoint,
 	}
-
-	oauthClient := oauthConf.Client(context.Background(), githubdata.Token)
+	conn, _ := resolvers.UserUseCase.GetConnectionByID(username, uint(githubdata.ConnectionID))
+	token := *&oauth2.Token{}
+	json.Unmarshal([]byte(conn.Data), &token)
+	oauthClient := oauthConf.Client(context.Background(), &token)
 	client := github.NewClient(oauthClient)
 	repos, _, err := client.Repositories.List(context.Background(), "", nil)
 	if err != nil {
-		if err != nil {
-			c.JSON(503, err)
-		}
+		c.JSON(503, err)
+
 	}
 	var repoName []string
 	for _, repo := range repos {
@@ -82,17 +84,24 @@ func getUserRepositoryBranches(c *gin.Context) {
 		Scopes:       []string{"user:email", "repo", "public_repo", "repo_deployment", "write:org", "delete_repo", "read:org"},
 		Endpoint:     githuboauth.Endpoint,
 	}
-	oauthClient := oauthConf.Client(context.Background(), githubdata.Token)
+	conn, _ := resolvers.UserUseCase.GetConnectionByID(username, uint(githubdata.ConnectionID))
+	token := *&oauth2.Token{}
+	json.Unmarshal([]byte(conn.Data), &token)
+	oauthClient := oauthConf.Client(context.Background(), &token)
 	client := github.NewClient(oauthClient)
 	repoAndOwner := strings.Split(githubdata.RepositoriesName, "/")
 	reponame := strings.Replace(repoAndOwner[1], "/", "", 1)
 	owner := strings.Replace(repoAndOwner[0], "/", "", 1)
-	branches, _, _ := client.Repositories.ListBranches(context.Background(), owner, reponame, nil)
+	branches, _, err := client.Repositories.ListBranches(context.Background(), owner, reponame, nil)
 	var branchName []string
 	for _, branch := range branches {
 		branchName = append(branchName, *branch.Name)
 	}
-
+	if err != nil {
+		c.JSON(503, gin.H{
+			"branchesName": []string{},
+		})
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"branchesName": branchName,
 	})
