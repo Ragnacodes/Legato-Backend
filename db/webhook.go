@@ -1,6 +1,7 @@
 package legatoDb
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"legato_server/env"
@@ -201,31 +202,40 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 
 // Service Interface for Webhook
 func (w Webhook) Execute(...interface{}) {
-	log.Println("*******Starting Webhook Service*******")
-
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
 		panic(err)
 	}
+	SendLogMessage("*******Starting Webhook Service*******", *w.Service.ScenarioID, nil)
 
-	log.Printf("Executing type (%s) : %s\n", webhookType, w.Service.Name)
-
+	logData := fmt.Sprintf("Executing type (%s) : %s\n", webhookType, w.Service.Name)
+	SendLogMessage(logData, *w.Service.ScenarioID, nil)
+	
 	w.IsEnable = true
 	legatoDb.db.Save(&w)
 
 }
 
 func (w Webhook) Post() {
-	log.Printf("Executing type (%s) node in background : %s\n", webhookType, w.Service.Name)
+	logData := fmt.Sprintf("Executing type (%s) node in background : %s\n", webhookType, w.Service.Name)
+	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
 }
 
-func (w Webhook) Next(...interface{}) {
+func (w Webhook) Next(data ...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&w).Error
 	if err != nil {
 		panic(err)
 	}
+	logData := fmt.Sprintf("webhook with id %v got payload:", w.Token)
+	
+	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
+	webhookData := data[0].(map[string]interface{})
+	payloadJson, _ := json.Marshal(webhookData)
+	SendLogMessage(string(payloadJson), *w.Service.ScenarioID, &w.Service.ID)
 
-	log.Printf("Executing \"%s\" Children \n", w.Service.Name)
+
+	logData = fmt.Sprintf("Executing \"%s\" Children \n", w.Service.Name)
+	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
 
 	for _, node := range w.Service.Children {
 		serv, err := node.Load()
@@ -236,5 +246,7 @@ func (w Webhook) Next(...interface{}) {
 		serv.Execute()
 	}
 
-	log.Printf("*******End of \"%s\"*******", w.Service.Name)
+	logData = fmt.Sprintf("*******End of \"%s\"*******", w.Service.Name)
+	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
+
 }

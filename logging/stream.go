@@ -16,7 +16,7 @@ var (
 
 func (s serverEvent) Init() {
     // Create SSE server
-    s.EventServer = sse.NewServer(nil)
+    SSE.EventServer = sse.NewServer(nil)
 }
 
 func (s serverEvent) SendEvent(data string, scid uint){

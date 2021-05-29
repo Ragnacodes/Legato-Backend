@@ -7,7 +7,7 @@ type HistoryInfo struct {
 
 
 type ServiceLogInfo struct {
-	Status	   int  `json:"id"`
+	Id	   	int  `json:"id"`
 	Messages   []MessageInfo 
 	Service	   ServiceNode
 }

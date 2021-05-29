@@ -14,7 +14,7 @@ func HistoryDbToHistoryInfos(hdb legatoDb.History) (hInfo api.HistoryInfo){
 
 func ServiceLogDbToServiceLogInfos(dbServiceLog legatoDb.ServiceLog) (logInfo api.ServiceLogInfo){
 	logInfo.Messages = MessageDbToMessageInfo(dbServiceLog.Messages) 
-	logInfo.Status = dbServiceLog.Status
+	logInfo.Id = int(dbServiceLog.ID)
 	logInfo.Service = ServiceDbToServiceNode(dbServiceLog.Service)
 	return logInfo
 }

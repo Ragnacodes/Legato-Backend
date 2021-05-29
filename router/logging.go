@@ -5,7 +5,6 @@ import (
 	"legato_server/logging"
 	"net/http"
 	"strconv"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,13 +21,13 @@ var logRG = routeGroup{
 		route{
 			"get history list",
 			GET,
-			"/:username/logs/:scenario_id/",
+			"/users/:username/logs/:scenario_id/",
 			getScenarioHistoriesById,
 		},
 		route{
 			"get a history message list",
 			GET,
-			"/:username/logs/:scenario_id/histories/:history_id",
+			"/users/:username/logs/:scenario_id/histories/:history_id",
 			getHistoryLogsById,
 		},
 	},
@@ -73,7 +72,7 @@ func getScenarioHistoriesById(c *gin.Context) {
 func getHistoryLogsById(c *gin.Context){
 
 	username := c.Param("username")
-	historyID, err := strconv.Atoi(c.Param("scenario_id"))
+	historyID, err := strconv.Atoi(c.Param("history_id"))
 	if err != nil{
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("%s", err),

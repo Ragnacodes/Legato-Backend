@@ -1,7 +1,6 @@
 package legatoDb
 
 import (
-	"errors"
 	"fmt"
 	"legato_server/logging"
 	"gorm.io/gorm"
@@ -35,10 +34,10 @@ func (l *LogMessage) String() string {
 }
 
 
-func (ldb *LegatoDB) GetScenarioHistories(scid uint)(historyList []History, er error){
-	err := ldb.db.Model(&Scenario{}).Where("id = ?", scid).Association("Histories").Find(&historyList).Error()
-	if err != "" {
-		return nil, errors.New(err)
+func (ldb *LegatoDB) GetScenarioHistories(scid uint)(historyList []History, err error){
+	err = ldb.db.Model(&History{}).Where("scenario_id = ?", scid).Find(&historyList).Error
+	if err != nil {
+		return nil, err
 	}
 	return historyList, nil
 
@@ -46,7 +45,7 @@ func (ldb *LegatoDB) GetScenarioHistories(scid uint)(historyList []History, er e
 
 
 func (ldb *LegatoDB) GetHistoryLogs(historyID uint)(logs []ServiceLog, err error){
-	err = ldb.db.Where(&ServiceLog{HistoryID: uint(historyID)}).Preload("Messages").Find(&logs).Error
+	err = ldb.db.Where(&ServiceLog{HistoryID: uint(historyID)}).Preload("Service").Preload("Messages").Find(&logs).Error
 	if err != nil {
 		return nil, err
 	}
@@ -61,9 +60,11 @@ func (ldb *LegatoDB) CreateHistory(scenarioId uint) error{
 	return nil
 }
 
-func (ldb *LegatoDB) CreateLogMessage(data string, servicelogId uint, historyID uint) error{
+func (ldb *LegatoDB) CreateLogMessage(data string, serviceId uint, scenarioId uint) error{
+	var h History
+	ldb.db.Last(&h, "scenario_id = ?", scenarioId)
 	var slog ServiceLog
-	err := ldb.db.FirstOrCreate(&slog, ServiceLog{HistoryID: historyID, ServiceID:  servicelogId}).Error
+	err := ldb.db.FirstOrCreate(&slog, ServiceLog{HistoryID: h.ID, ServiceID: serviceId}).Error
 	if err != nil{
 		return err
 	}
@@ -76,8 +77,8 @@ func (ldb *LegatoDB) CreateLogMessage(data string, servicelogId uint, historyID 
 
 // Send sse meassge and save it if service ID parameter is not nill
 func SendLogMessage(message string, scId uint, serviceId *uint){
-	if serviceId!=nil{
-		legatoDb.CreateLogMessage(message, scId, *serviceId)
+	if serviceId != nil{
+		legatoDb.CreateLogMessage(message, *serviceId, scId)
 	}
 	logging.SSE.SendEvent(message, scId)
 }
