@@ -124,17 +124,13 @@ Adding githubs node to the scenario.
         }
         ```
 
-### /api/users/:username/services/github/repository/branches/name `POST`
+### /api/users/:username/services/github/branches `POST`
 Return list of branches in a repository.
 
 - Request
     ```json
     {
-    "token": {
-                "access_token": "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",
-                "expiry": "0001-01-01T00:00:00Z",
-                "token_type": "bearer"
-            },
+    "connectionId" :1,
     "repositoryName" :"rezamnkh79/eeeee"
 
 }   
@@ -149,18 +145,13 @@ Return list of branches in a repository.
     }
     ```
 
-### /api/users/:username/services/github/repositories/name `POST`
+### /api/users/:username/services/github/repositories `POST`
 Return list of branches in a repository.
 
 - Request
     ```json
     {
-    "token": {
-                "access_token": "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",
-                "expiry": "0001-01-01T00:00:00Z",
-                "token_type": "bearer"
-            },
-    }   
+    "connectionId" :1,  
     ```
 - Response
     ```json
