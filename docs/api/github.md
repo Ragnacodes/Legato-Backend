@@ -76,11 +76,6 @@ Adding githubs node to the scenario.
                 "y": 100
             },
             "data": {
-            "token": {
-                "access_token": "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",
-                    "expiry": "0001-01-01T00:00:00Z",
-                    "token_type": "bearer"
-                },
             "repositoryName":"eeeee",
             "body":"hello",
             "title":"ffffff",
@@ -140,7 +135,7 @@ Return list of branches in a repository.
                 "expiry": "0001-01-01T00:00:00Z",
                 "token_type": "bearer"
             },
-    "repository_name" :"rezamnkh79/eeeee"
+    "repositoryName" :"rezamnkh79/eeeee"
 
 }   
     ```
@@ -170,7 +165,7 @@ Return list of branches in a repository.
 - Response
     ```json
     {
-        "repositories_name": [
+        "repositoriesName": [
             "armanheydari/UefaChampionsLeague_DB",
             "Cypherspark/TunePal",
             "Ragnacodes/Legato-Backend",
