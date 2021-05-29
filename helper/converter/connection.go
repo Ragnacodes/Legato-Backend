@@ -85,7 +85,7 @@ func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map
 			"token": token,
 		}
 
-		jsonString, err := json.Marshal(data)
+		jsonString, err := json.Marshal(token)
 		return string(jsonString), *data, err
 
 	case "sshes":
