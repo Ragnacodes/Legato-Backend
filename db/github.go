@@ -39,6 +39,7 @@ type CreateIssueData struct {
 	Labels    []string `json:"labels"`
 	Assignees []string `json:"assignee"`
 	State     string   `json:"state"`
+	Milestone int      `json:"milestone"`
 }
 
 type CreatePullRequestData struct {
@@ -143,6 +144,7 @@ func (g Github) Execute(...interface{}) {
 			Assignees: &data.Assignees,
 			Labels:    &data.Labels,
 			State:     &data.State,
+			Milestone: &data.Milestone,
 		}
 		err = createIusse(NewIssue, data.RepoName, client, data.Owner)
 		if err != nil {
