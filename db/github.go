@@ -24,8 +24,7 @@ type Github struct {
 	Service      Service `gorm:"polymorphic:Owner;"`
 }
 type updateGitData struct {
-	ConnectionId uint   `json:"connectionid"`
-	GitUsername  string `json:"username"`
+	ConnectionId uint `json:"connectionId"`
 }
 
 func (g *Github) String() string {
@@ -33,24 +32,22 @@ func (g *Github) String() string {
 }
 
 type CreateIssueData struct {
-	Owner     string       `json:"owner"`
-	Token     oauth2.Token `json:"token"`
-	RepoName  string       `json:"repositoryName"`
-	Body      string       `json:"body"`
-	Title     string       `json:"title"`
-	Labels    []string     `json:"labels"`
-	Assignees []string     `json:"assignee"`
-	State     string       `json:"state"`
+	Owner     string   `json:"owner"`
+	RepoName  string   `json:"repositoryName"`
+	Body      string   `json:"body"`
+	Title     string   `json:"title"`
+	Labels    []string `json:"labels"`
+	Assignees []string `json:"assignee"`
+	State     string   `json:"state"`
 }
 
 type CreatePullRequestData struct {
-	Owner    string       `json:"owner"`
-	Token    oauth2.Token `json:"token"`
-	RepoName string       `json:"repositoryName"`
-	Base     string       `json:"base"`
-	Head     string       `json:"head"`
-	Title    string       `json:"title"`
-	Body     string       `json:"body"`
+	Owner    string `json:"owner"`
+	RepoName string `json:"repositoryName"`
+	Base     string `json:"base"`
+	Head     string `json:"head"`
+	Title    string `json:"title"`
+	Body     string `json:"body"`
 }
 
 // Database methods
@@ -63,6 +60,7 @@ func (ldb *LegatoDB) CreateGitForScenario(s *Scenario, g Github) (*Github, error
 
 	return &g, nil
 }
+
 func (ldb *LegatoDB) UpdateGit(s *Scenario, servId uint, gn Github) error {
 	var serv Service
 	err := ldb.db.Where(&Service{ScenarioID: &s.ID}).Where("id = ?", servId).Find(&serv).Error
@@ -83,10 +81,11 @@ func (ldb *LegatoDB) UpdateGit(s *Scenario, servId uint, gn Github) error {
 	if err != nil {
 		log.Println("con not update ssh")
 	}
-	fmt.Println(gn.Service.Data)
-	fmt.Println(a.ConnectionId)
 	if a.ConnectionId != 0 {
 		gn.ConnectionID = a.ConnectionId
+		user, _ := ldb.GetUserById(g.Service.UserID)
+		con, _ := ldb.GetUserConnectionById(&user, gn.ConnectionID)
+		gn.Token = con.Data
 	}
 
 	ldb.db.Model(&serv).Updates(gn.Service)
@@ -124,20 +123,20 @@ func (ldb *LegatoDB) GetGitByService(serv Service) (*Github, error) {
 // Service Interface for Git
 func (g Github) Execute(...interface{}) {
 	log.Println("*******Starting Git Service*******")
-
 	err := legatoDb.db.Preload("Service").Find(&g).Error
 	if err != nil {
 		panic(err)
 	}
-
 	switch g.Service.SubType {
-	case "create issue":
+	case "createIssue":
 		var data CreateIssueData
 		err = json.Unmarshal([]byte(g.Service.Data), &data)
 		if err != nil {
 			log.Print(err)
 		}
-		client := createClientForGit(&data.Token)
+		token := *&oauth2.Token{}
+		err = json.Unmarshal([]byte(g.Token), &token)
+		client := createClientForGit(&token)
 		NewIssue := &github.IssueRequest{
 			Title:     github.String(data.Title),
 			Body:      github.String(data.Body),
@@ -152,13 +151,15 @@ func (g Github) Execute(...interface{}) {
 			log.Print("issue created successfully")
 		}
 
-	case "create pull request":
+	case "createPullRequest":
 		var data CreatePullRequestData
 		err = json.Unmarshal([]byte(g.Service.Data), &data)
 		if err != nil {
 			log.Print(err)
 		}
-		client := createClientForGit(&data.Token)
+		token := *&oauth2.Token{}
+		err = json.Unmarshal([]byte(g.Token), &token)
+		client := createClientForGit(&token)
 		newPR := &github.NewPullRequest{
 			Title:               github.String(data.Title),
 			Head:                github.String(data.Head),
