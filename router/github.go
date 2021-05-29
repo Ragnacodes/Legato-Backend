@@ -62,7 +62,7 @@ func getUserRepositoryList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"repositories_name": repoName,
+		"repositoriesName": repoName,
 	})
 }
 
@@ -94,6 +94,6 @@ func getUserRepositoryBranches(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"branches_name": branchName,
+		"branchesName": branchName,
 	})
 }
