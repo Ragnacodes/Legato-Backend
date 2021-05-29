@@ -7,6 +7,8 @@
 - [Webhook](api/webhook.md)
 - [Spotify](api/spotify.md)
 - [Connection](api/connection.md)
+- [Logs](api/logs.md)
+- [Https](api/http.ms)
 
 ### Defaults
 There are some default models in the database for testing purposes.
