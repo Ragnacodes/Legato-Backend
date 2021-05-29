@@ -3,7 +3,7 @@
 
 ### SubTypes & Data
 Adding githubs node to the scenario.
-- `create pull request`
+- `createPullRequest`
     - Data request to create:
     
         ```json
@@ -63,7 +63,7 @@ Adding githubs node to the scenario.
         }
         ```
   
-- `create issue`
+- `createIssue`
     - Data request to create:
         ```json
         {
