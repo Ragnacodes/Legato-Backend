@@ -59,3 +59,14 @@ func (s loggerUseCase) GetHistoryLogsById(historyId uint) (serviceLogs []api.Ser
 
 	return serviceLogs, nil
 }
+
+func (s loggerUseCase) GetHistoryById(hid uint) (history api.HistoryInfo, err error){
+	
+	historydb, err := s.db.GetHistoryById(hid)
+	if err != nil {
+		return api.HistoryInfo{}, err
+	}
+	history = converter.HistoryDbToHistoryInfos(historydb)
+	
+	return history, nil
+}

@@ -2,9 +2,11 @@ package router
 
 import (
 	"fmt"
+	"legato_server/api"
 	"legato_server/logging"
 	"net/http"
 	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -62,6 +64,26 @@ func getScenarioHistoriesById(c *gin.Context) {
 		})
 		return
 	}
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scid))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not get scenario detail: %s", err),
+		})
+		return
+	}
+	scenarioJson := api.ScenarioDetail{
+		ID:       scenario.ID,
+		Name:     scenario.Name,
+		IsActive: scenario.IsActive,
+	}
+	if historyList == nil{
+		response := []int{}
+		c.JSON(http.StatusOK, gin.H{
+			"scenario" : scenarioJson,
+			"histories": response,
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"histories": historyList,
@@ -89,6 +111,23 @@ func getHistoryLogsById(c *gin.Context){
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not get history logs: %s", err),
+		})
+		return
+	}
+
+	history, err := resolvers.LoggerUseCase.GetHistoryById(uint(historyID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not get history detail: %s", err),
+		})
+		return
+	}
+
+	if logs == nil{
+		response := []int{}
+		c.JSON(http.StatusOK, gin.H{
+			"history":history,
+			"histories": response,
 		})
 		return
 	}

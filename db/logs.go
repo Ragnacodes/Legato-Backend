@@ -60,6 +60,14 @@ func (ldb *LegatoDB) CreateHistory(scenarioId uint) error{
 	return nil
 }
 
+func (ldb *LegatoDB) GetHistoryById(hid uint) (history History, err error){
+	err = ldb.db.Find(&history, hid).Error
+	if err!=nil{
+		return History{}, err
+	}
+	return history, nil
+}
+
 func (ldb *LegatoDB) CreateLogMessage(data string, serviceId uint, scenarioId uint) error{
 	var h History
 	ldb.db.Last(&h, "scenario_id = ?", scenarioId)

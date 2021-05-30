@@ -3,7 +3,7 @@
 ### sse stream channel > /api/events/:scid 
 
 
-### /api/:username/logs/:scenario_id/ `GET`
+### /api/users/:username/logs/:scenario_id/ `GET`
 get list of histories of a scenario 
 - Header
     - `Authorization` = `access_token`
@@ -31,7 +31,7 @@ get list of histories of a scenario
 
 
 
-### /api/:username/logs/:scenario_id/histories/:history_id `GET`
+### /api/users/:username/logs/:scenario_id/histories/:history_id `GET`
 get list of log messages of a history log 
 - Header
     - `Authorization` = `access_token`
