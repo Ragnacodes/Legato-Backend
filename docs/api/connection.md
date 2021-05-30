@@ -14,12 +14,12 @@ To create a new connection.
 - Response
     ```json
     {
-    "data": {
-        "token": "3c14cb6290e0e568f6f6"
-    },
-    "id": 46,
-    "name": "myssh",
-    "type": "sshes"
+        "data": {
+            "token": "3c14cb6290e0e568f6f6"
+        },
+        "id": 46,
+        "name": "myssh",
+        "type": "sshes"
     }
     ```
 ### /api/users/:username/get/connection/:id `GET`
@@ -28,14 +28,14 @@ To get the user connection with id.
 - Response
     ```json
     {
-    "data": {
-        "host": "37.152.181.64",
-        "password": "---------------------",
-        "username": "reza"
-    },
-    "id": "34",
-    "name": "ssh9",
-    "type": "sshes"
+      "data": {
+          "host": "37.152.181.64",
+          "password": "---------------------",
+          "username": "reza"
+      },
+      "id": "34",
+      "name": "ssh9",
+      "type": "sshes"
     }   
     ```
 
