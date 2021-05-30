@@ -11,17 +11,12 @@ Adding githubs node to the scenario.
             "parentId": null,
             "name": "mygithub",
             "type": "githubs",
-            "subType": "create pull request",
+            "subType": "createPullRequest",
             "position": {
             "x": 100,
                 "y": 100
             },
             "data": {
-                "token": {
-                    "access_token": "-----------------------------------",
-                    "expiry": "0001-01-01T00:00:00Z",
-                    "token_type": "bearer"
-                },
             "repositoryName":"eeeee",
             "title":"merge to develop",
             "base":"main",
@@ -41,7 +36,7 @@ Adding githubs node to the scenario.
                 "parentId": null,
                 "name": "mygithub",
                 "type": "githubs",
-                "subType": "create pull request",
+                "subType": "createPullRequest",
                 "position": {
                     "x": 100,
                     "y": 100
@@ -70,19 +65,19 @@ Adding githubs node to the scenario.
             "parentId": null,
             "name": "mygit",
             "type": "githubs",
-            "subType": "create issue",
+            "subType": "createIssue",
             "position": {
             "x": 100,
                 "y": 100
             },
             "data": {
-            "repositoryName":"eeeee",
-            "body":"hello",
-            "title":"ffffff",
-            "owner":"rezamnkh79",
-            "labels" :["bug","invalid"],
-            "assignee" :["rezamnkh79"],
-            "state":"open"
+                "repositoryName":"eeeee",
+                "body":"hello",
+                "title":"ffffff",
+                "owner":"rezamnkh79",
+                "labels" :["bug","invalid"],
+                "assignee" :["rezamnkh79"],
+                "state":"open"
             }
         }
         ```
@@ -96,7 +91,7 @@ Adding githubs node to the scenario.
                 "parentId": null,
                 "name": "gititititit",
                 "type": "githubs",
-                "subType": "create issue",
+                "subType": "createIssue",
                 "position": {
                     "x": 100,
                     "y": 100
