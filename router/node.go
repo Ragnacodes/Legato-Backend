@@ -230,7 +230,16 @@ func deleteNode(c *gin.Context) {
 		return
 	}
 
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scenarioId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "node is deleted successfully",
+		"nodes":   scenario.Services,
 	})
 }
