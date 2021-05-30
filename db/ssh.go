@@ -171,7 +171,6 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Print("Failed to run: " + err.Error())
 	}
-	log.Print("\n", b.String())
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
@@ -233,7 +232,6 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Println("Failed to run: " + err.Error())
 	}
-	log.Print("\n", b.String())
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
