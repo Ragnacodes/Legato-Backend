@@ -102,7 +102,7 @@ func (h Http) Execute(...interface{}) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	_, err = makeHttpRequest(data.Url, data.Method, requestBody)
+	_, err = makeHttpRequest(data.Url, data.Method, requestBody, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -135,7 +135,7 @@ func (h Http) Next(...interface{}) {
 }
 
 // Service interface helper functions
-func makeHttpRequest(url string, method string, body []byte) (res *http.Response, err error) {
+func makeHttpRequest(url string, method string, body []byte, authorization *string) (res *http.Response, err error) {
 	log.Println("Make http request")
 
 	log.Printf("\nurl: %s\nmethod: %s\nbody:\n%s\n", url, method, string(body))
@@ -146,11 +146,50 @@ func makeHttpRequest(url string, method string, body []byte) (res *http.Response
 		break
 	case strings.ToLower(http.MethodPost):
 		if body != nil {
-			reqBody := bytes.NewBuffer(body)
-			res, err = http.Post(url, "application/json", reqBody)
+			client := &http.Client{}
+			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(body))
+			if err != nil {
+				return nil, err
+			}
+			req.Header.Set("Authorization", *authorization)
+			req.Header.Set("Content-Type", "application/json")
+			res, err = client.Do(req)
+			if err != nil {
+				return nil, err
+			}
 			break
 		}
 		res, err = http.Post(url, "application/json", nil)
+		break
+	case strings.ToLower(http.MethodPut):
+		if body != nil {
+			client := &http.Client{}
+			req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(body))
+			if err != nil {
+				return nil, err
+			}
+			req.Header.Set("Authorization", *authorization)
+			req.Header.Set("Content-Type", "application/json")
+			res, err = client.Do(req)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			log.Println("body in put request is empty")
+			client := &http.Client{}
+			req, err := http.NewRequest(http.MethodPut, url, nil)
+			if err != nil {
+				return nil, err
+			}
+			req.Header.Set("Authorization", *authorization)
+			req.Header.Set("Content-Type", "application/json")
+			res, err = client.Do(req)
+			if err != nil {
+				return nil, err
+			}
+		}
+		break
+	default:
 		break
 	}
 

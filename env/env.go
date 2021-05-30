@@ -34,7 +34,8 @@ const (
 	SpotifyAuthenticateUrl = "https://accounts.spotify.com/authorize?client_id=74049abbf6784599a1564060e7c9dc12&redirect_uri=http://localhost:3000/redirect/spotify/&response_type=code&scope=user-read-private&state=abc123"
 	GoogleAuthenticateUrl  = "https://accounts.google.com/o/oauth2/v2/auth?client_id=906955768602-u0nu3ruckq6pcjvune1tulkq3n0kfvrl.apps.googleusercontent.com&response_type=code&scope=https://www.googleapis.com/auth/gmail.readonly&redirect_uri=http://localhost:3000/redirect/gmail/&access_type=offline"
 	GitAuthenticateUrl     = "https://github.com/login/oauth/authorize?access_type=online&client_id=Iv1.9f22bc1a9e8e6822&response_type=code&scope=user%3Aemail+repo&state=thisshouldberandom&redirect_uri=http://localhost:3000/redirect/github/"
-	DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:3000/redirect/discord/&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
+	//DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:3000/redirect/discord/&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
+	DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?client_id=846051254815293450&permissions=8&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fredirect%2Fdiscord&scope=bot&response_type=code"
 )
 
 type env struct {
@@ -49,6 +50,7 @@ type env struct {
 	WebUrl           string
 	SchedulerUrl     string
 	RedisHost        string
+	DiscordBotToken  string
 }
 
 var ENV env
@@ -113,6 +115,11 @@ func LoadEnv() {
 		envSchedulerUrl = DefaultSchedulerUrl
 	}
 
+	discordBotToken := os.Getenv("DISCORD_BOT_SECRET")
+	if discordBotToken == "" {
+		panic("no discord bot secret")
+	}
+
 	ENV = env{
 		ServingPort: envPort,
 		// Redis
@@ -127,7 +134,12 @@ func LoadEnv() {
 		WebHost:      envWebHost,
 		WebUrl:       envWebUrl,
 		SchedulerUrl: envSchedulerUrl,
+
+		// Applications
+		DiscordBotToken: discordBotToken,
+
 		Mode:			  envMode,
+
 	}
 
 	log.Printf("Environment Variables is Loaded: %+v\n", ENV)

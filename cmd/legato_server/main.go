@@ -1,6 +1,7 @@
 package main
 
 import (
+	discordUC "legato_server/services/discord"
 	"legato_server/authenticate"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
@@ -27,6 +28,7 @@ var httpUseCase domain.HttpUseCase
 var telegramUseCase domain.TelegramUseCase
 var spotifyUseCase domain.SpotifyUseCase
 var sshUseCase domain.SshUseCase
+var discordUseCase domain.DiscordUseCase
 
 func init() {
 	// Load environment variables
@@ -52,6 +54,7 @@ func init() {
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
 	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
+	discordUseCase = discordUC.NewDiscordUseCase(appDB, timeoutContext)
 
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
@@ -72,6 +75,7 @@ func main() {
 		TelegramUseCase: telegramUseCase,
 		SpotifyUseCase:  spotifyUseCase,
 		SshUseCase:      sshUseCase,
+		DiscordUseCase:      discordUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()
