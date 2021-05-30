@@ -114,7 +114,7 @@ func (t Telegram) Execute(...interface{}) {
 		}
 
 		if env.ENV.Mode == env.DEVELOPMENT{
-			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
+			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), nil)
 		} else {
 		_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
 		}
@@ -131,7 +131,7 @@ func (t Telegram) Execute(...interface{}) {
 		}
 
 		if env.ENV.Mode == env.DEVELOPMENT{
-			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
+			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), nil)
 		} else {
 			_, err = makeTorifiedHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
 		}
