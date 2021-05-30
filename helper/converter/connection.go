@@ -60,7 +60,7 @@ func BindConnectionData(data string, Type string) (map[string]interface{}, error
 	}
 	return nil, nil
 }
-func getToken(data string) (interface{}, error) {
+func getGitToken(data string) (interface{}, error) {
 	type extractdata struct {
 		Token string `json:"token"`
 	}
@@ -80,7 +80,7 @@ func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map
 	switch Type {
 	case "github":
 		js, _ := json.Marshal(ut.Data)
-		token, err := getToken(string(js))
+		token, err := getGitToken(string(js))
 		data := &map[string]interface{}{
 			"token": token,
 		}
