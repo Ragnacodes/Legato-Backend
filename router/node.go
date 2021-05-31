@@ -100,6 +100,10 @@ func addNode(c *gin.Context) {
 		break
 	case "sshes":
 		addedServ, err = resolvers.SshUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	case "discords":
+		addedServ, err = resolvers.DiscordUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
 	default:
 		break
 	}
@@ -180,6 +184,9 @@ func updateNode(c *gin.Context) {
 	case "sshes":
 		err = resolvers.SshUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
+	case "discords":
+		err = resolvers.DiscordUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
 	default:
 		break
 	}
@@ -223,7 +230,16 @@ func deleteNode(c *gin.Context) {
 		return
 	}
 
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scenarioId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "node is deleted successfully",
+		"nodes":   scenario.Services,
 	})
 }
