@@ -66,8 +66,8 @@ func getScenarioHistoriesById(c *gin.Context) {
 	}
 	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scid))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("can not get scenario detail: %s", err),
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": err.Error(),
 		})
 		return
 	}
@@ -128,8 +128,8 @@ func getHistoryLogsById(c *gin.Context){
 
 	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scid))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("can not get scenario detail: %s", err),
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": err.Error(),
 		})
 		return
 	}

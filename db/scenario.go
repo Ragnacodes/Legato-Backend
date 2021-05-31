@@ -75,7 +75,7 @@ func (ldb *LegatoDB) GetScenarioById(scenarioId uint) (Scenario, error) {
 		Preload("Services").
 		Find(&sc).Error
 	if err != nil {
-		return Scenario{}, err
+		return Scenario{}, errors.New("the scenario is not in user scenarios")
 	}
 
 	return sc, nil
