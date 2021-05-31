@@ -8,12 +8,12 @@ import (
 )
 
 const (
-	PRODUCTION = "prod"
+	PRODUCTION  = "prod"
 	DEVELOPMENT = "dev"
 )
 
 const (
-	DefaultMode			= DEVELOPMENT
+	DefaultMode         = DEVELOPMENT
 	DefaultTlsPort      = "443"
 	DefaultWebHost      = "http://localhost"
 	DefaultWebUrl       = "http://localhost:8080"
@@ -36,7 +36,6 @@ const (
 	DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:3000/redirect/discord/&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
 	GitAuthenticateUrl     = "https://github.com/login/oauth/authorize?access_type=online&client_id=a87b311ff0542babc5bd&response_type=code&scope=user%3Aemail+repo&state=thisshouldberandom&redirect_uri=http://localhost:3000/redirect/github"
 	//DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?access_type=online&client_id=830463353079988314&redirect_uri=http://localhost:3000/redirect/discord/&response_type=code&scope=identify+email&state=h8EecvhXJqHsG5EQ3K0gei4EUrWpaFj_HqH3WNZdrzrX1BX1COQRsTUv3-yGi3WmHQbw0EHJ58Rx1UOkvwip-Q%3D%3D"
-	DiscordAuthenticateUrl = "https://discord.com/api/oauth2/authorize?client_id=846051254815293450&permissions=8&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fredirect%2Fdiscord&scope=bot&response_type=code"
 )
 
 type env struct {
@@ -47,7 +46,7 @@ type env struct {
 	DatabasePassword string
 	DatabaseName     string
 	WebHost          string
-	Mode			 string
+	Mode             string
 	WebUrl           string
 	SchedulerUrl     string
 	RedisHost        string
@@ -110,7 +109,7 @@ func LoadEnv() {
 	if envMode == "" {
 		envMode = DefaultMode
 	}
-		
+
 	envSchedulerUrl := os.Getenv("SCHEDULER_URL")
 	if envSchedulerUrl == "" {
 		envSchedulerUrl = DefaultSchedulerUrl
@@ -139,8 +138,7 @@ func LoadEnv() {
 		// Applications
 		DiscordBotToken: discordBotToken,
 
-		Mode:			  envMode,
-
+		Mode: envMode,
 	}
 
 	log.Printf("Environment Variables is Loaded: %+v\n", ENV)
