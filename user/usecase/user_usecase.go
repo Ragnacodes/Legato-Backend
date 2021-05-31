@@ -8,6 +8,7 @@ import (
 	"legato_server/domain"
 	"legato_server/helper/converter"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -121,14 +122,19 @@ func (u *userUseCase) AddConnectionToDB(name string, ut api.Connection) (api.Con
 	user, _ := u.db.GetUserByUsername(name)
 	con := legatoDb.Connection{}
 	con.Name = ut.Name
-	jsonString, err := json.Marshal(ut.Data)
-	con.Data = string(jsonString)
+	var err error
+	var jsonData map[string]interface{}
+	con.Data, jsonData, err = converter.ExtractData(ut.Data, ut.Type, &ut)
+	if err != nil || strings.EqualFold(con.Data, "null") {
+		return api.Connection{}, err
+	}
 	con.UserID = uint(ut.ID)
 	con.Type = ut.Type
 	c, err := u.db.AddConnection(&user, con)
 	if err != nil {
 		return api.Connection{}, err
 	}
+	ut.Data = jsonData
 	ut.ID = uint(c.ID)
 	return ut, nil
 }
