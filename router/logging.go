@@ -86,7 +86,9 @@ func getScenarioHistoriesById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
+		"scenario" : scenarioJson,
 		"histories": historyList,
+		
 	})
 }
 
@@ -127,12 +129,13 @@ func getHistoryLogsById(c *gin.Context){
 		response := []int{}
 		c.JSON(http.StatusOK, gin.H{
 			"history":history,
-			"histories": response,
+			"logs": response,
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
+		"history":history,
 		"logs": logs,
 	})
 
