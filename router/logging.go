@@ -97,6 +97,7 @@ func getHistoryLogsById(c *gin.Context){
 
 	username := c.Param("username")
 	historyID, err := strconv.Atoi(c.Param("history_id"))
+	scid, err := strconv.Atoi(c.Param("scenario_id"))
 	if err != nil{
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("%s", err),
@@ -125,9 +126,23 @@ func getHistoryLogsById(c *gin.Context){
 		return
 	}
 
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scid))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not get scenario detail: %s", err),
+		})
+		return
+	}
+	scenarioJson := api.ScenarioDetail{
+		ID:       scenario.ID,
+		Name:     scenario.Name,
+		IsActive: scenario.IsActive,
+	}
+
 	if logs == nil{
 		response := []int{}
 		c.JSON(http.StatusOK, gin.H{
+			"scenario" : scenarioJson,
 			"history":history,
 			"logs": response,
 		})
@@ -135,6 +150,7 @@ func getHistoryLogsById(c *gin.Context){
 	}
 
 	c.JSON(http.StatusOK, gin.H{
+		"scenario" : scenarioJson,
 		"history":history,
 		"logs": logs,
 	})
