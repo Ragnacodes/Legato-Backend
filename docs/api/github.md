@@ -67,7 +67,7 @@ Adding githubs node to the scenario.
             "type": "githubs",
             "subType": "createIssue",
             "position": {
-            "x": 100,
+                "x": 100,
                 "y": 100
             },
             "data": {
