@@ -56,6 +56,15 @@ func BindConnectionData(data string, Type string) (map[string]interface{}, error
 			"token": token,
 		}
 		return *data, err
+	case "discords":
+		type DiscordData struct {
+			GuildId string `json:"guildId"`
+		}
+		condata := DiscordData{}
+		err := json.Unmarshal([]byte(data), &condata)
+		json.Unmarshal([]byte(data), &condata)
+		data := map[string]interface{}{"guildId": condata.GuildId}
+		return data, err
 
 	}
 	return nil, nil
@@ -89,6 +98,9 @@ func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map
 		return string(jsonString), *data, err
 
 	case "sshes":
+		jsonString, err := json.Marshal(ut.Data)
+		return string(jsonString), ut.Data, err
+	case "discords":
 		jsonString, err := json.Marshal(ut.Data)
 		return string(jsonString), ut.Data, err
 	}

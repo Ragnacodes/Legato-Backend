@@ -8,6 +8,7 @@
 - [Spotify](api/spotify.md)
 - [Connection](api/connection.md)
 - ["Github"](api/github.md)
+- [Discord](api/discord.md)
 
 ### Defaults
 There are some default models in the database for testing purposes.

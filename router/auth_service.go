@@ -93,8 +93,8 @@ func addConnection(c *gin.Context) {
 	// this function add connection
 
 	username := c.Param("username")
-	userToken := api.Connection{}
-	_ = c.BindJSON(&userToken)
+	connection := api.Connection{}
+	_ = c.BindJSON(&connection)
 
 	// Authenticate
 	// Auth
@@ -103,7 +103,7 @@ func addConnection(c *gin.Context) {
 		return
 	}
 
-	connection, err := resolvers.UserUseCase.AddConnectionToDB(username, userToken)
+	connection, err := resolvers.UserUseCase.AddConnectionToDB(username, connection)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("can not add token: %s", err),

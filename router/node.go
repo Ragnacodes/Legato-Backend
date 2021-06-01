@@ -102,6 +102,10 @@ func addNode(c *gin.Context) {
 		addedServ, err = resolvers.SshUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
 	case "githubs":
 		addedServ, err = resolvers.GithubUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	case "discords":
+		addedServ, err = resolvers.DiscordUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
 	default:
 		break
 	}
@@ -184,6 +188,8 @@ func updateNode(c *gin.Context) {
 		break
 	case "githubs":
 		err = resolvers.GithubUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+	case "discords":
+		err = resolvers.DiscordUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
 	default:
 		break
