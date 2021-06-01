@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"legato_server/api"
 	"legato_server/env"
+	"legato_server/helper/converter"
 	"net/http"
 	"strconv"
 	"strings"
@@ -111,19 +112,17 @@ func addConnection(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"Name": connection.Name,
-		"Data": connection.Data,
-		"Id":   connection.ID,
-		"Type": connection.Type,
+		"name": connection.Name,
+		"data": connection.Data,
+		"id":   connection.ID,
+		"type": connection.Type,
 	})
 }
 
 func returnConnection(c *gin.Context) {
 	//this function return a connection
-	connection := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
-	_ = c.BindJSON(&connection)
 
 	// Authenticate
 	// Auth
@@ -134,8 +133,10 @@ func returnConnection(c *gin.Context) {
 	i, _ := strconv.Atoi(id)
 	conn, err := resolvers.UserUseCase.GetConnectionByID(username, uint(i))
 	if err == nil && !strings.EqualFold(conn.Data, "") {
+		data, _ := converter.BindConnectionData(conn.Data, conn.Type)
 		c.JSON(200, gin.H{
-			"data": conn.Data,
+			"id":   id,
+			"data": data,
 			"name": conn.Name,
 			"type": conn.Type,
 		})
@@ -157,17 +158,19 @@ func GetConnections(c *gin.Context) {
 	}
 	type Connection struct {
 		Name string
-		Data string
+		Data interface{}
 		Id   uint
 		Type string
 	}
-	var Connections []Connection
+	var Connections []api.Connection
+
 	connections, err := resolvers.UserUseCase.GetConnections(username)
 	for _, connection := range connections {
-		con := Connection{}
-		con.Id = connection.ID
+		con := api.Connection{}
+		con.ID = connection.ID
 		con.Name = connection.Name
-		con.Data = connection.Data
+		data, _ := converter.BindConnectionData(connection.Data, connection.Type)
+		con.Data = data
 		con.Type = connection.Type
 		Connections = append(Connections, con)
 	}
@@ -196,7 +199,7 @@ func UpdateConnectionNameByID(c *gin.Context) {
 		return
 	}
 	i, _ := strconv.Atoi(id)
-	connection.ID = i
+	connection.ID = uint(i)
 	err := resolvers.UserUseCase.UpdateUserConnectionNameById(username, connection)
 	if err == nil {
 		c.JSON(200, gin.H{
@@ -268,7 +271,7 @@ func UpdateDataFieldByID(c *gin.Context) {
 		return
 	}
 	i, _ := strconv.Atoi(id)
-	connection.ID = i
+	connection.ID = uint(i)
 	err := resolvers.UserUseCase.UpdateDataConnectionByID(username, connection)
 	if err == nil {
 		c.JSON(200, gin.H{
