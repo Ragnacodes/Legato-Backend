@@ -3,6 +3,7 @@ package converter
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"legato_server/api"
 	"strings"
 
@@ -43,15 +44,13 @@ func BindConnectionData(data string, Type string) (map[string]interface{}, error
 			data := map[string]interface{}{"host": condata.Host, "sshKey": condata.SshKey, "username": condata.Username}
 			return data, err
 		}
-	case "github":
+	case "githubs":
 		type Tokenaouth struct {
 			Token map[string]interface{} `json:"token"`
 		}
-		condata := Tokenaouth{}
-		err := json.Unmarshal([]byte(data), &condata)
-		js, _ := json.Marshal(condata.Token)
 		token := oauth2.Token{}
-		json.Unmarshal([]byte(js), &token)
+		err := json.Unmarshal([]byte(data), &token)
+		fmt.Println(err)
 		data := &map[string]interface{}{
 			"token": token,
 		}
@@ -87,7 +86,7 @@ func getGitToken(data string) (interface{}, error) {
 
 func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map[string]interface{}, error) {
 	switch Type {
-	case "github":
+	case "githubs":
 		js, _ := json.Marshal(ut.Data)
 		token, err := getGitToken(string(js))
 		data := &map[string]interface{}{
