@@ -54,6 +54,12 @@ var webhookRG = routeGroup{
 			"/users/:username/services/webhooks/:webhook_id",
 			deleteUserWebhook,
 		},
+		route{
+			"Get Webhook history",
+			DELETE,
+			"/users/:username/services/webhooks/:webhook_id/histories",
+			getWebhookHistories,
+		},
 	},
 }
 
@@ -233,4 +239,29 @@ func webhookExists(WebhookID string) (api.WebhookInfo, error) {
 		return api.WebhookInfo{}, err
 	}
 	return *wh, nil
+}
+
+func getWebhookHistories(c *gin.Context){
+	username := c.Param("username")
+	webhookId, _ := strconv.Atoi(c.Param("webhook_id"))
+
+	// Authenticate
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
+	}
+
+	logsList, err := resolvers.WebhookUseCase.GetUserWebhookHistoryById(loginUser, uint(webhookId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can find webhook data: %s", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		
+		"logs": logsList,
+		
+	})
 }

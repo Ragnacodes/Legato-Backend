@@ -127,9 +127,13 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 	case webhookType:
 		w, _ := legatoDb.GetWebhookByService(*s)
 		data := &map[string]interface{}{
-			"url":      w.Token,
-			"isEnable": w.IsEnable,
-			"id":       w.ID,
+			"webhook": &map[string]interface{}{
+				"url":      w.GetURL(),
+				"isEnable": w.IsEnable,
+				"id":       w.ID,
+				"getMethod": w.GetMethod,
+				"getHeaders": w.GetHeaders,
+			},
 		}
 
 		jsonString, err := json.Marshal(data)

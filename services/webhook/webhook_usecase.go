@@ -169,3 +169,22 @@ func (w *WebhookUseCase)TriggerWebhook(wid string, data map[string]interface{}) 
 	wh.Next(data)
 	return nil
 }
+
+func (w *WebhookUseCase) GetUserWebhookHistoryById(u *api.UserInfo, wid uint)(serviceLogs []api.ServiceLogInfo, err error){
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return []api.ServiceLogInfo{}, err
+	}
+	
+	logs, err := w.db.GetWebhookHistoryLogsById(&user, wid)
+	if err != nil {
+		return []api.ServiceLogInfo{}, err
+	}
+	
+	for _, l := range logs {
+		log := converter.ServiceLogDbToServiceLogInfos(l)
+		serviceLogs = append(serviceLogs, log)
+	}
+
+	return serviceLogs, nil
+}

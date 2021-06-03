@@ -18,6 +18,8 @@ type Webhook struct {
 	Token    uuid.UUID
 	IsEnable bool    `gorm:"default:False"`
 	Service  Service `gorm:"polymorphic:Owner;"`
+	GetMethod bool	 `gorm:"default:False"`
+	GetHeaders bool  `gorm:"default:False"`
 }
 
 func (w *Webhook) String() string {
@@ -26,6 +28,7 @@ func (w *Webhook) String() string {
 
 func (w *Webhook) BeforeCreate(tx *gorm.DB) (err error) {
 	w.Token = uuid.NewV4()
+	w.Service.Name = "webhook"
 	return nil
 }
 
@@ -249,4 +252,14 @@ func (w Webhook) Next(data ...interface{}) {
 	logData = fmt.Sprintf("*******End of \"%s\"*******", w.Service.Name)
 	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
 
+}
+
+
+func (ldb *LegatoDB) GetWebhookHistoryLogsById(u *User, wid uint) (logs []ServiceLog, err error) {
+	wdb, _ := ldb.GetUserWebhookById(u, wid)
+	err = ldb.db.Where(&ServiceLog{ServiceID: uint(wdb.Service.ID)}).Preload("Service").Preload("Messages").Find(&logs).Error
+	if err != nil {
+		return nil, err
+	}
+	return logs, nil
 }
