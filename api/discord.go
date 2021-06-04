@@ -92,6 +92,9 @@ const (
 	MessageTypeApplicationCommand
 )
 
+// Timestamp stores a timestamp, as sent by the Discord API.
+type Timestamp string
+
 // A Message stores all data related to a specific Discord message.
 type Message struct {
 	// The ID of the message.
@@ -105,6 +108,12 @@ type Message struct {
 
 	// The content of the message.
 	Content string `json:"content"`
+
+	// The time at which the messsage was sent.
+	// CAUTION: this field may be removed in a
+	// future API version; it is safer to calculate
+	// the creation time via the ID.
+	Timestamp Timestamp `json:"timestamp"`
 
 	// The roles mentioned in the message.
 	MentionRoles []string `json:"mention_roles"`
