@@ -58,6 +58,10 @@ func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map
 		jsonString, err := json.Marshal(ut.Data)
 		return string(jsonString), ut.Data, err
 
+	case "telegrams":
+		jsonString, err := json.Marshal(ut.Data)
+		return string(jsonString), ut.Data, err
+
 	case "sshes":
 		jsonString, err := json.Marshal(ut.Data)
 		return string(jsonString), ut.Data, err
