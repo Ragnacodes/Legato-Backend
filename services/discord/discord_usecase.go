@@ -94,7 +94,6 @@ func (du DiscordUseCase) GetGuildTextChannels(guildId string) (channels api.Chan
 		panic(err)
 	}
 
-	// this is where the magic happens, I pass a pointer of type Person and Go will do the rest
 	allChannels := &api.Channels{}
 	err = json.Unmarshal(body, &allChannels)
 	if err != nil {
@@ -132,12 +131,17 @@ func (du DiscordUseCase) GetGuildTextChannelMessages(channelId string) (messages
 		panic(err)
 	}
 
-	// this is where the magic happens, I pass a pointer of type Person and Go will do the rest
-	err = json.Unmarshal(body, &messages)
+	allMessages := &api.Messages{}
+	err = json.Unmarshal(body, &allMessages)
 	if err != nil {
 		return
 	}
 
+	for _, message := range *allMessages {
+		if message.Type == api.MessageTypeDefault {
+			messages = append(messages, message)
+		}
+	}
+
 	return
 }
-

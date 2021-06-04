@@ -18,7 +18,7 @@ var discordRG = routeGroup{
 		route{
 			"Get messages of a single text channels",
 			GET,
-			"services/discord/channels/:channelId/messages",
+			"/services/discord/channels/:channelId/messages",
 			getGuildTextChannelMessages,
 		},
 	},
