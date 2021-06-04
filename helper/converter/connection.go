@@ -64,6 +64,15 @@ func BindConnectionData(data string, Type string) (map[string]interface{}, error
 		json.Unmarshal([]byte(data), &condata)
 		data := map[string]interface{}{"guildId": condata.GuildId}
 		return data, err
+	case "telegrams":
+		type TelegramData struct {
+			GuildId string `json:"key"`
+		}
+		condata := TelegramData{}
+		err := json.Unmarshal([]byte(data), &condata)
+		json.Unmarshal([]byte(data), &condata)
+		data := map[string]interface{}{"key": condata.GuildId}
+		return data, err
 
 	}
 	return nil, nil
