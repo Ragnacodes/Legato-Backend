@@ -1,4 +1,4 @@
-# SSH
+# Gmail
 - Type = `gmails`
 
 ### Data
