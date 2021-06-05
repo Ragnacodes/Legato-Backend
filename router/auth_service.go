@@ -59,7 +59,7 @@ var ConnectionRG = routeGroup{
 			DeleteConnectionByID,
 		},
 		route{
-			"Ufpdate Connection",
+			"Update Connection",
 			PUT,
 			"users/:username/update/connection/name/:id",
 			UpdateConnectionNameByID,

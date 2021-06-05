@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
-	githuboauth "golang.org/x/oauth2/github"
+	githubOAuth "golang.org/x/oauth2/github"
 	"gorm.io/gorm"
 )
 
@@ -31,7 +31,7 @@ func (g *Github) String() string {
 	return fmt.Sprintf("(@Github: %+v)", *g)
 }
 
-type CreateIssueData struct {
+type createIssueData struct {
 	Owner     string   `json:"owner"`
 	RepoName  string   `json:"repositoryName"`
 	Body      string   `json:"body"`
@@ -41,7 +41,7 @@ type CreateIssueData struct {
 	State     string   `json:"state"`
 }
 
-type CreatePullRequestData struct {
+type createPullRequestData struct {
 	Owner    string `json:"owner"`
 	RepoName string `json:"repositoryName"`
 	Base     string `json:"base"`
@@ -129,7 +129,7 @@ func (g Github) Execute(...interface{}) {
 	}
 	switch g.Service.SubType {
 	case "createIssue":
-		var data CreateIssueData
+		var data createIssueData
 		err = json.Unmarshal([]byte(g.Service.Data), &data)
 		if err != nil {
 			log.Print(err)
@@ -144,13 +144,13 @@ func (g Github) Execute(...interface{}) {
 			Labels:    &data.Labels,
 			State:     &data.State,
 		}
-		err = createIusse(NewIssue, data.RepoName, client, data.Owner)
+		err = createIssue(NewIssue, data.RepoName, client, data.Owner)
 		if err != nil {
 			log.Println(err)
 		}
 
 	case "createPullRequest":
-		var data CreatePullRequestData
+		var data createPullRequestData
 		err = json.Unmarshal([]byte(g.Service.Data), &data)
 		if err != nil {
 			log.Print(err)
@@ -205,14 +205,14 @@ func createClientForGit(token *oauth2.Token) *github.Client {
 		ClientID:     "a87b311ff0542babc5bd",
 		ClientSecret: "0d24ae8ec82ca068984ee25e0b6285be9e9c211c",
 		Scopes:       []string{"user:email", "repo", "public_repo", "repo_deployment", "write:org", "delete_repo", "read:org"},
-		Endpoint:     githuboauth.Endpoint,
+		Endpoint:     githubOAuth.Endpoint,
 	}
 
 	oauthClient := oauthConf.Client(context.Background(), token)
 	client := github.NewClient(oauthClient)
 	return client
 }
-func createIusse(NewIssue *github.IssueRequest, repName string, client *github.Client, owner string) error {
+func createIssue(NewIssue *github.IssueRequest, repName string, client *github.Client, owner string) error {
 	_, _, err := client.Issues.Create(context.Background(), owner, repName, NewIssue)
 	return err
 }

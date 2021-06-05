@@ -13,19 +13,20 @@ type GitUseCase struct {
 	contextTimeout time.Duration
 }
 
-func NewHttpUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.GitUseCase {
+func NewGithubUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.GitUseCase {
 	return &GitUseCase{
 		db:             db,
 		contextTimeout: timeout,
 	}
 }
-func (ss *GitUseCase) GetGitWithId(gid uint, username string) (api.GitInfo, error) {
-	user, err := ss.db.GetUserByUsername(username)
+
+func (gu *GitUseCase) GetGitWithId(gid uint, username string) (api.GitInfo, error) {
+	user, err := gu.db.GetUserByUsername(username)
 	if err != nil {
 		return api.GitInfo{}, err
 	}
 
-	git, err := ss.db.GetGitByID(gid, &user)
+	git, err := gu.db.GetGitByID(gid, &user)
 	if err != nil {
 		return api.GitInfo{}, err
 	}
@@ -34,40 +35,39 @@ func (ss *GitUseCase) GetGitWithId(gid uint, username string) (api.GitInfo, erro
 
 }
 
-func (git *GitUseCase) AddToScenario(u *api.UserInfo, scenarioId uint, ns api.NewServiceNode) (api.ServiceNode, error) {
-
-	user, err := git.db.GetUserByUsername(u.Username)
+func (gu *GitUseCase) AddToScenario(u *api.UserInfo, scenarioId uint, ns api.NewServiceNode) (api.ServiceNode, error) {
+	user, err := gu.db.GetUserByUsername(u.Username)
 	if err != nil {
 		return api.ServiceNode{}, err
 	}
 
-	scenario, err := git.db.GetUserScenarioById(&user, scenarioId)
+	scenario, err := gu.db.GetUserScenarioById(&user, scenarioId)
 	if err != nil {
 		return api.ServiceNode{}, err
 	}
 
 	var gg legatoDb.Github
 	gg.Service = converter.NewServiceNodeToServiceDb(ns)
-	g, err := git.db.CreateGitForScenario(&scenario, gg)
+	g, err := gu.db.CreateGitForScenario(&scenario, gg)
 	if err != nil {
 		return api.ServiceNode{}, err
 	}
 	return converter.ServiceDbToServiceNode(g.Service), nil
 }
 
-func (git *GitUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint, ns api.NewServiceNode) error {
-	user, err := git.db.GetUserByUsername(u.Username)
+func (gu *GitUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint, ns api.NewServiceNode) error {
+	user, err := gu.db.GetUserByUsername(u.Username)
 	if err != nil {
 		return err
 	}
-	scenario, err := git.db.GetUserScenarioById(&user, scenarioId)
+	scenario, err := gu.db.GetUserScenarioById(&user, scenarioId)
 	if err != nil {
 		return err
 	}
 
 	var g legatoDb.Github
 	g.Service = converter.NewServiceNodeToServiceDb(ns)
-	err = git.db.UpdateGit(&scenario, serviceId, g)
+	err = gu.db.UpdateGit(&scenario, serviceId, g)
 	if err != nil {
 		return err
 	}

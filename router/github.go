@@ -23,7 +23,7 @@ var GitRG = routeGroup{
 			getUserRepositoryList,
 		},
 		route{
-			"show list of branches of a reository",
+			"show list of branches of a repository",
 			POST,
 			"/users/:username/services/github/branches",
 			getUserRepositoryBranches,
@@ -33,8 +33,8 @@ var GitRG = routeGroup{
 
 func getUserRepositoryList(c *gin.Context) {
 	username := c.Param("username")
-	githubdata := api.GitInfo{}
-	_ = c.BindJSON(&githubdata)
+	githubData := api.GitInfo{}
+	_ = c.BindJSON(&githubData)
 
 	// Auth
 	loginUser := checkAuth(c, []string{username})
@@ -48,16 +48,17 @@ func getUserRepositoryList(c *gin.Context) {
 		Scopes:       []string{"user:email", "repo", "public_repo", "repo_deployment", "write:org", "delete_repo", "read:org"},
 		Endpoint:     githuboauth.Endpoint,
 	}
-	conn, _ := resolvers.UserUseCase.GetConnectionByID(username, uint(githubdata.ConnectionID))
+	conn, _ := resolvers.UserUseCase.GetConnectionByID(username, githubData.ConnectionID)
 	token := *&oauth2.Token{}
-	json.Unmarshal([]byte(conn.Data), &token)
+	_ = json.Unmarshal([]byte(conn.Data), &token)
+
 	oauthClient := oauthConf.Client(context.Background(), &token)
 	client := github.NewClient(oauthClient)
 	repos, _, err := client.Repositories.List(context.Background(), "", nil)
 	if err != nil {
 		c.JSON(503, err)
-
 	}
+
 	var repoName []string
 	for _, repo := range repos {
 		repoName = append(repoName, *repo.FullName)
@@ -70,8 +71,8 @@ func getUserRepositoryList(c *gin.Context) {
 
 func getUserRepositoryBranches(c *gin.Context) {
 	username := c.Param("username")
-	githubdata := api.GitInfo{}
-	_ = c.BindJSON(&githubdata)
+	githubData := api.GitInfo{}
+	_ = c.BindJSON(&githubData)
 
 	// Auth
 	loginUser := checkAuth(c, []string{username})
@@ -84,15 +85,16 @@ func getUserRepositoryBranches(c *gin.Context) {
 		Scopes:       []string{"user:email", "repo", "public_repo", "repo_deployment", "write:org", "delete_repo", "read:org"},
 		Endpoint:     githuboauth.Endpoint,
 	}
-	conn, _ := resolvers.UserUseCase.GetConnectionByID(username, uint(githubdata.ConnectionID))
+	conn, _ := resolvers.UserUseCase.GetConnectionByID(username, githubData.ConnectionID)
 	token := *&oauth2.Token{}
-	json.Unmarshal([]byte(conn.Data), &token)
+	_ = json.Unmarshal([]byte(conn.Data), &token)
+
 	oauthClient := oauthConf.Client(context.Background(), &token)
 	client := github.NewClient(oauthClient)
-	repoAndOwner := strings.Split(githubdata.RepositoriesName, "/")
-	reponame := strings.Replace(repoAndOwner[1], "/", "", 1)
+	repoAndOwner := strings.Split(githubData.RepositoriesName, "/")
+	repoName := strings.Replace(repoAndOwner[1], "/", "", 1)
 	owner := strings.Replace(repoAndOwner[0], "/", "", 1)
-	branches, _, err := client.Repositories.ListBranches(context.Background(), owner, reponame, nil)
+	branches, _, err := client.Repositories.ListBranches(context.Background(), owner, repoName, nil)
 	var branchName []string
 	for _, branch := range branches {
 		branchName = append(branchName, *branch.Name)
@@ -102,6 +104,7 @@ func getUserRepositoryBranches(c *gin.Context) {
 			"branchesName": []string{},
 		})
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"branchesName": branchName,
 	})

@@ -57,7 +57,7 @@ func init() {
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
 	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
-	githubUseCase = githubUC.NewHttpUseCase(appDB, timeoutContext)
+	githubUseCase = githubUC.NewGithubUseCase(appDB, timeoutContext)
 	discordUseCase = discordUC.NewDiscordUseCase(appDB, timeoutContext)
 
 	// Defaults
