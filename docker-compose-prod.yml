@@ -3,14 +3,41 @@ services:
   legato_server:
     build:
       context: .
-      dockerfile: deployments/prod/Dockerfile
-    command: [ "go", "run", "main.go" ]
+      dockerfile: deployments/dev/Dockerfile
+    volumes:
+      - ./:/usr/src/app
+    command: [ "go", "run", "cmd/legato_server/main.go" ]
+    env_file:
+      - deployments/dev/web.env
+    environment:
+        - MODE= prod
     ports:
-      - "443:443"
+      - "8080:8080"
+    container_name: legato_server
     depends_on:
       - database
+      - legato_scheduler
+    deploy:
+      restart_policy:
+        condition: any
+        
+  legato_scheduler:
+    build:
+      context: .
+      dockerfile: deployments/dev/Dockerfile
+    volumes:
+      - ./:/usr/src/app
+    command: [ "go", "run", "cmd/legato_scheduler/main.go" ]
+    ports:
+      - "8090:8090"
+    container_name: legato_scheduler
+    depends_on:
+      - redis
+    
   database:
     image: "postgres"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
     environment:
       POSTGRES_PASSWORD: legato
       POSTGRES_DB: legatodb
@@ -19,8 +46,37 @@ services:
       POSTGRES_PORT: 5432
     ports:
       - "5431:5432"
+    container_name: legato_database
 
-networks:
-  default:
-    external:
-      name: legato_default
+  pgadmin:
+    image: dpage/pgadmin4
+    links:
+      - database
+    depends_on:
+      - database
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: pwdpwd
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - "5050:80"
+  
+  redis:
+    image: "redis:6.2.3"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    deploy:
+      restart_policy:
+        condition: any
+      
+  tor:
+    image: dperson/torproxy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  pgadmin:
+  redis-data:

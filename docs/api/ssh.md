@@ -9,7 +9,7 @@ Adding ssh to scenario. There is just one sub type yet.
         "parentId": null,
         "name": "hamintori",
         "type": "sshes",
-        "subType": "username and password",
+        "subType": "",
         "position": {
             "x": 100,
             "y": 100
@@ -32,7 +32,7 @@ Adding ssh to scenario. There is just one sub type yet.
             "parentId": null,
             "name": "hamintori",
             "type": "sshes",
-            "subType": "username and password",
+            "subType": "",
             "position": {
                 "x": 100,
                 "y": 100

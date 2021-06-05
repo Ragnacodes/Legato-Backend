@@ -7,6 +7,8 @@ import (
 	"legato_server/env"
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
+	discordUC "legato_server/services/discord"
+	githubUC "legato_server/services/github"
 	httpUC "legato_server/services/http"
 	spotifyUC "legato_server/services/spotify"
 	sshUC "legato_server/services/ssh"
@@ -15,6 +17,7 @@ import (
 	serviceUC "legato_server/services/usecase"
 	webhookUC "legato_server/services/webhook"
 	userUC "legato_server/user/usecase"
+
 	"time"
 
 	"github.com/spf13/viper"
@@ -28,6 +31,8 @@ var httpUseCase domain.HttpUseCase
 var telegramUseCase domain.TelegramUseCase
 var spotifyUseCase domain.SpotifyUseCase
 var sshUseCase domain.SshUseCase
+var githubUseCase domain.GitUseCase
+var discordUseCase domain.DiscordUseCase
 var toolBoxUseCase domain.ToolBoxUseCase
 
 func init() {
@@ -54,6 +59,8 @@ func init() {
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
 	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
+	githubUseCase = githubUC.NewGithubUseCase(appDB, timeoutContext)
+	discordUseCase = discordUC.NewDiscordUseCase(appDB, timeoutContext)
 	toolBoxUseCase = toolboxUC.NewToolBoxUseCase(appDB, timeoutContext)
 
 	// Defaults
@@ -75,6 +82,8 @@ func main() {
 		TelegramUseCase: telegramUseCase,
 		SpotifyUseCase:  spotifyUseCase,
 		SshUseCase:      sshUseCase,
+		GithubUseCase:   githubUseCase,
+		DiscordUseCase:  discordUseCase,
 		ToolBoxUseCase:  toolBoxUseCase,
 	}
 

@@ -100,12 +100,20 @@ func addNode(c *gin.Context) {
 		break
 	case "sshes":
 		addedServ, err = resolvers.SshUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+	case "githubs":
+		addedServ, err = resolvers.GithubUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	case "discords":
+		addedServ, err = resolvers.DiscordUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
 		break
 	case "tool_boxes":
 		addedServ, err = resolvers.ToolBoxUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
 		break
 	default:
-		break
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("there is not any service with name %s", newNode.Type),
+		})
+		return
 	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -188,7 +196,10 @@ func updateNode(c *gin.Context) {
 		err = resolvers.ToolBoxUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
 	default:
-		break
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("there is not any service with name %s", newNode.Type),
+		})
+		return
 	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -230,7 +241,16 @@ func deleteNode(c *gin.Context) {
 		return
 	}
 
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scenarioId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "node is deleted successfully",
+		"nodes":   scenario.Services,
 	})
 }
