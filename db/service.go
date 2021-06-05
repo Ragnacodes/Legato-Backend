@@ -118,9 +118,11 @@ func (s *Service) Load() (services.Service, error) {
 	case gitType:
 		serv, err = legatoDb.GetGitByService(*s)
 		break
-
 	case discordType:
 		serv, err = legatoDb.GetDiscordByService(*s)
+		break
+	case toolBoxType:
+		serv, err = legatoDb.GetToolBoxByService(*s)
 		break
 	}
 
@@ -184,6 +186,12 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 		}
 		break
 	case discordType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+		break
+	case toolBoxType:
 		err := json.Unmarshal([]byte(s.Data), serviceData)
 		if err != nil {
 			return err

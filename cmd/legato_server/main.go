@@ -13,6 +13,7 @@ import (
 	spotifyUC "legato_server/services/spotify"
 	sshUC "legato_server/services/ssh"
 	telegramUC "legato_server/services/telegram"
+	toolboxUC "legato_server/services/toolbox"
 	serviceUC "legato_server/services/usecase"
 	webhookUC "legato_server/services/webhook"
 	userUC "legato_server/user/usecase"
@@ -32,6 +33,7 @@ var spotifyUseCase domain.SpotifyUseCase
 var sshUseCase domain.SshUseCase
 var githubUseCase domain.GitUseCase
 var discordUseCase domain.DiscordUseCase
+var toolBoxUseCase domain.ToolBoxUseCase
 
 func init() {
 	// Load environment variables
@@ -59,6 +61,7 @@ func init() {
 	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
 	githubUseCase = githubUC.NewGithubUseCase(appDB, timeoutContext)
 	discordUseCase = discordUC.NewDiscordUseCase(appDB, timeoutContext)
+	toolBoxUseCase = toolboxUC.NewToolBoxUseCase(appDB, timeoutContext)
 
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
@@ -81,6 +84,7 @@ func main() {
 		SshUseCase:      sshUseCase,
 		GithubUseCase:   githubUseCase,
 		DiscordUseCase:  discordUseCase,
+		ToolBoxUseCase:  toolBoxUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()
