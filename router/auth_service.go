@@ -41,25 +41,25 @@ var ConnectionRG = routeGroup{
 			GetConnections,
 		},
 		route{
-			"Update data",
+			"Update Connection",
 			PUT,
-			"users/:username/update/connection/data/:id",
-			UpdateDataFieldByID,
+			"users/:username/update/connection/token/:id",
+			UpdateTokenFieldByID,
 		},
 		route{
-			"Check connection",
+			"Check Connection",
 			GET,
 			"users/:username/check/connection/:id",
 			checkConnection,
 		},
 		route{
-			"Delete connection",
+			"Delete Connection",
 			DELETE,
 			"users/:username/connection/delete/:id",
 			DeleteConnectionByID,
 		},
 		route{
-			"Update name",
+			"Update Connection",
 			PUT,
 			"users/:username/update/connection/name/:id",
 			UpdateConnectionNameByID,
@@ -106,7 +106,7 @@ func addConnection(c *gin.Context) {
 	connection, err := resolvers.UserUseCase.AddConnectionToDB(username, connection)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("can not add connection: %s", err),
+			"message": fmt.Sprintf("can not add token: %s", err),
 		})
 		return
 	}
@@ -257,8 +257,8 @@ func DeleteConnectionByID(c *gin.Context) {
 	}
 }
 
-func UpdateDataFieldByID(c *gin.Context) {
-	// this function update data field in connection with id
+func UpdateTokenFieldByID(c *gin.Context) {
+	// this function update token field in connection with id
 	connection := api.Connection{}
 	username := c.Param("username")
 	id := c.Param("id")
