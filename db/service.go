@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"legato_server/services"
+
+	"gorm.io/gorm"
 )
 
 type Service struct {
@@ -114,6 +115,9 @@ func (s *Service) Load() (services.Service, error) {
 	case sshType:
 		serv, err = legatoDb.GetSshByService(*s)
 		break
+	case gmailType:
+		serv, err = legatoDb.GetGmailByService(*s)
+		break
 
 	}
 
@@ -166,6 +170,12 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 		}
 		break
 	case sshType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+		break
+	case gmailType:
 		err := json.Unmarshal([]byte(s.Data), serviceData)
 		if err != nil {
 			return err
