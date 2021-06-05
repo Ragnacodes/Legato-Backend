@@ -17,14 +17,14 @@ Adding githubs node to the scenario.
                 "y": 100
             },
             "data": {
-            "repositoryName":"eeeee",
-            "title":"merge to develop",
-            "base":"main",
-            "head":"develop",
-            "owner":"rezamnkh79",
-            "body":"develop"
+                "repositoryName":"eeeee",
+                "title":"merge to develop",
+                "base":"main",
+                "head":"develop",
+                "owner":"rezamnkh79",
+                "body":"develop"
             }
-	    }
+        }
         ```
     
     - Data response
@@ -49,7 +49,7 @@ Adding githubs node to the scenario.
                     "repositoryName": "eeeee",
                     "title": "merge to develop",
                     "token": {
-                        "access_token": "--------------------------------",
+                        "access_token": "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
                         "expiry": "0001-01-01T00:00:00Z",
                         "token_type": "bearer"
                     }
@@ -125,10 +125,9 @@ Return list of branches in a repository.
 - Request
     ```json
     {
-    "connectionId" :1,
-    "repositoryName" :"rezamnkh79/eeeee"
-
-}   
+        "connectionId" :1,
+        "repositoryName" :"rezamnkh79/eeeee"
+    }   
     ```
 - Response
     ```json
@@ -146,7 +145,8 @@ Return list of branches in a repository.
 - Request
     ```json
     {
-    "connectionId" :1,  
+        "connectionId" : 1
+    }
     ```
 - Response
     ```json
