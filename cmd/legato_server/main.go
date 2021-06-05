@@ -7,6 +7,7 @@ import (
 	"legato_server/env"
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
+	gmailUC "legato_server/services/gmail"
 	httpUC "legato_server/services/http"
 	spotifyUC "legato_server/services/spotify"
 	sshUC "legato_server/services/ssh"
@@ -27,6 +28,7 @@ var httpUseCase domain.HttpUseCase
 var telegramUseCase domain.TelegramUseCase
 var spotifyUseCase domain.SpotifyUseCase
 var sshUseCase domain.SshUseCase
+var gmailUseCase domain.GmailUseCase
 
 func init() {
 	// Load environment variables
@@ -52,6 +54,7 @@ func init() {
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
 	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
+	gmailUseCase = gmailUC.NewHttpUseCase(appDB, timeoutContext)
 
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
@@ -72,6 +75,7 @@ func main() {
 		TelegramUseCase: telegramUseCase,
 		SpotifyUseCase:  spotifyUseCase,
 		SshUseCase:      sshUseCase,
+		GmailUseCase:    gmailUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()
