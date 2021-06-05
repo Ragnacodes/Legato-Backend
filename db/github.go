@@ -147,8 +147,6 @@ func (g Github) Execute(...interface{}) {
 		err = createIusse(NewIssue, data.RepoName, client, data.Owner)
 		if err != nil {
 			log.Println(err)
-		} else {
-			log.Print("issue created successfully")
 		}
 
 	case "createPullRequest":
@@ -170,8 +168,6 @@ func (g Github) Execute(...interface{}) {
 		err = CreatePullRequest(newPR, data.RepoName, client, data.Owner)
 		if err != nil {
 			log.Println(err)
-		} else {
-			log.Print("pull request created successfully")
 		}
 
 	}
