@@ -13,5 +13,7 @@ type ServiceLogInfo struct {
 }
 
 type MessageInfo struct{
+	CreatedAt string `json:"created_at"`
 	Data	string `json:"context"`
+	Type	string `json:"type"`
 }

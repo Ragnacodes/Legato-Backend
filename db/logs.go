@@ -1,11 +1,12 @@
 package legatoDb
 
 import (
+	"encoding/json"
 	"fmt"
 	"legato_server/logging"
+
 	"gorm.io/gorm"
 )
-
 
 type History struct{
 	gorm.Model
@@ -25,6 +26,7 @@ type ServiceLog struct {
 
 type LogMessage struct{
 	gorm.Model
+	MessageType 	string
 	Context			string 
 	ServiceLogID	uint
 }
@@ -69,6 +71,14 @@ func (ldb *LegatoDB) GetHistoryById(hid uint) (history History, err error){
 }
 
 func (ldb *LegatoDB) CreateLogMessage(data string, serviceId uint, scenarioId uint) error{
+	var messageType string 
+
+	if isJSON(data){
+		messageType = "json"
+	} else{
+		messageType = "string"
+	}
+
 	var h History
 	ldb.db.Last(&h, "scenario_id = ?", scenarioId)
 	var slog ServiceLog
@@ -76,7 +86,7 @@ func (ldb *LegatoDB) CreateLogMessage(data string, serviceId uint, scenarioId ui
 	if err != nil{
 		return err
 	}
-	err = ldb.db.Create(&LogMessage{ServiceLogID: slog.ID,Context: data}).Error
+	err = ldb.db.Create(&LogMessage{ServiceLogID: slog.ID, Context: data, MessageType: messageType}).Error
 	if err != nil{
 		return err
 	}
@@ -89,4 +99,11 @@ func SendLogMessage(message string, scId uint, serviceId *uint){
 		legatoDb.CreateLogMessage(message, *serviceId, scId)
 	}
 	logging.SSE.SendEvent(message, scId)
+}
+
+
+func isJSON(s string) bool {
+    var js map[string]interface{}
+    return json.Unmarshal([]byte(s), &js) == nil
+
 }

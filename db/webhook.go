@@ -230,8 +230,8 @@ func (w Webhook) Next(data ...interface{}) {
 		panic(err)
 	}
 	logData := fmt.Sprintf("webhook with id %v got payload:", w.Token)
-	
 	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
+
 	webhookData := data[0].(map[string]interface{})
 	payloadJson, _ := json.Marshal(webhookData)
 	SendLogMessage(string(payloadJson), *w.Service.ScenarioID, &w.Service.ID)
@@ -256,8 +256,12 @@ func (w Webhook) Next(data ...interface{}) {
 
 
 func (ldb *LegatoDB) GetWebhookHistoryLogsById(u *User, wid uint) (logs []ServiceLog, err error) {
-	wdb, _ := ldb.GetUserWebhookById(u, wid)
-	err = ldb.db.Where(&ServiceLog{ServiceID: uint(wdb.Service.ID)}).Preload("Service").Preload("Messages").Find(&logs).Error
+	var wdb Webhook
+	err = ldb.db.Where("id = ?", wid).Preload("Service").Find(&wdb).Error
+	if err != nil || wdb.ID == 0{
+		return nil, errors.New("no webhook exists with given id")
+	}
+	err = ldb.db.Where(&ServiceLog{ServiceID: uint(wdb.Service.ID)}).Preload("Service").Preload("Messages", "message_type = ?", "json").Find(&logs).Error
 	if err != nil {
 		return nil, err
 	}

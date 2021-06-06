@@ -141,8 +141,10 @@ func makeHttpRequest(url string, method string, body []byte,  scenarioId *uint, 
 	logData := fmt.Sprintf("Make http request")
 	SendLogMessage(logData, *scenarioId, hId)
 
-	logData = fmt.Sprintf("\nurl: %s\nmethod: %s\nbody:\n%s\n", url, method, string(body))
+	logData = fmt.Sprintf("\nurl: %s\nmethod: %s", url, method)
 	SendLogMessage(logData, *scenarioId, hId)
+
+	SendLogMessage(string(body), *scenarioId, hId)
 
 	switch method {
 	case strings.ToLower(http.MethodGet):
@@ -169,8 +171,10 @@ func makeHttpRequest(url string, method string, body []byte,  scenarioId *uint, 
 	}
 	bodyString := string(bodyBytes)
 
-	logData = fmt.Sprintf("Response from http request is : \n%s\n", bodyString)
+	logData = fmt.Sprintf("Got Respose from http request")
 	SendLogMessage(logData, *scenarioId, hId)
+
+	SendLogMessage(bodyString, *scenarioId, hId)
 
 	return res, nil
 }

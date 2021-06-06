@@ -56,7 +56,7 @@ var webhookRG = routeGroup{
 		},
 		route{
 			"Get Webhook history",
-			DELETE,
+			GET,
 			"/users/:username/services/webhooks/:webhook_id/histories",
 			getWebhookHistories,
 		},
@@ -254,10 +254,19 @@ func getWebhookHistories(c *gin.Context){
 	logsList, err := resolvers.WebhookUseCase.GetUserWebhookHistoryById(loginUser, uint(webhookId))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("can find webhook data: %s", err),
+			"message": fmt.Sprintf("can not find webhook data: %s", err),
 		})
 		return
 	}
+	
+	if logsList == nil{
+		response := []int{}
+		c.JSON(http.StatusOK, gin.H{
+			"logs": response,
+		})
+		return
+	}
+
 
 	c.JSON(http.StatusOK, gin.H{
 		

@@ -172,8 +172,10 @@ func makeTorifiedHttpRequest(inputUrl string, method string, body []byte, scenar
 	logData := fmt.Sprintf("Make http request")
 	SendLogMessage(logData, *scenarioId, hId)
 
-	logData = fmt.Sprintf("\nurl: %s\nmethod: %s\nbody:\n%s\n", inputUrl, method, string(body))
+	logData = fmt.Sprintf("\nurl: %s\nmethod: %s", inputUrl, method)
 	SendLogMessage(logData, *scenarioId, hId)
+
+	SendLogMessage(string(body), *scenarioId, hId)
 
 	tbProxyURL, err := url.Parse("socks5://tor:9050")
 	if err != nil {
@@ -220,8 +222,10 @@ func makeTorifiedHttpRequest(inputUrl string, method string, body []byte, scenar
 	}
 	bodyString := string(bodyBytes)
 
-	logData = fmt.Sprintf("Response from http request is : \n%s\n", bodyString)
+	logData = fmt.Sprintf("Got Respose from http request")
 	SendLogMessage(logData, *scenarioId, hId)
+
+	SendLogMessage(bodyString, *scenarioId, hId)
 
 	return res, nil
 

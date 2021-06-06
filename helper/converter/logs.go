@@ -23,6 +23,8 @@ func MessageDbToMessageInfo(dbMesaages []*legatoDb.LogMessage) (messageInfos []a
 	for _, m := range dbMesaages{
 		var message api.MessageInfo
 		message.Data = m.Context
+		message.Type = m.MessageType
+		message.CreatedAt = m.CreatedAt.String()
 		messageInfos = append(messageInfos, message)
 	}
 	return messageInfos
