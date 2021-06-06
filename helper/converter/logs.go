@@ -16,6 +16,7 @@ func ServiceLogDbToServiceLogInfos(dbServiceLog legatoDb.ServiceLog) (logInfo ap
 	logInfo.Messages = MessageDbToMessageInfo(dbServiceLog.Messages) 
 	logInfo.Id = int(dbServiceLog.ID)
 	logInfo.Service = ServiceDbToServiceNode(dbServiceLog.Service)
+	logInfo.CreatedAt = dbServiceLog.CreatedAt.String()
 	return logInfo
 }
 

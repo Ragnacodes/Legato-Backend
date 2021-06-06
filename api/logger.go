@@ -10,6 +10,7 @@ type ServiceLogInfo struct {
 	Id	   	int  `json:"id"`
 	Messages   []MessageInfo 
 	Service	   ServiceNode
+	CreatedAt string `json:"created_at"`
 }
 
 type MessageInfo struct{
