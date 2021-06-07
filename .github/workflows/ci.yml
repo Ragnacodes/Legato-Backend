@@ -5,7 +5,6 @@ on:
     branches:
     - master
     - develop
-    - fix/v0.5/github-actions
     - github-registry
   pull_request:
     branches:
@@ -28,13 +27,13 @@ jobs:
     - uses: actions/checkout@v2
 
     #create required env file
-    - name: Make envfile
+    - name: Make envfile for spotify
       run: |
         echo "SPOTIFY_ID = $SPOTIFY_ID \nSPOTIFY_SECRET = $SPOTIFY_SECRET" \
         > ${{github.workspace}}/deployments/dev/web.env
 
       #create required env file
-    - name: Make envfile
+    - name: Make envfile for discord secret
       run: |
         echo "DISCORD_BOT_SECRET = $DISCORD_SECRET_BOT" \
         > ${{github.workspace}}/env/.env
