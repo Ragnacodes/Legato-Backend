@@ -30,7 +30,7 @@ func (ss *GmailUseCase) GetGmailWithId(gid uint, username string) (api.GmailInfo
 		return api.GmailInfo{}, err
 	}
 
-	return converter.GitDbToGitInfo(&git), nil
+	return converter.GmailDbToGitInfo(&git), nil
 
 }
 

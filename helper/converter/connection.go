@@ -3,6 +3,7 @@ package converter
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"legato_server/api"
 	"strings"
 
@@ -44,7 +45,18 @@ func BindConnectionData(data string, Type string) (map[string]interface{}, error
 			data := map[string]interface{}{"host": condata.Host, "sshKey": condata.SshKey, "username": condata.Username}
 			return data, err
 		}
-	case "github":
+	case "githubs":
+		type Tokenaouth struct {
+			Token map[string]interface{} `json:"token"`
+		}
+		token := oauth2.Token{}
+		err := json.Unmarshal([]byte(data), &token)
+		fmt.Println(err)
+		data := &map[string]interface{}{
+			"token": token,
+		}
+		return *data, err
+	case "gmails":
 		type Tokenaouth struct {
 			Token map[string]interface{} `json:"token"`
 		}
@@ -57,19 +69,24 @@ func BindConnectionData(data string, Type string) (map[string]interface{}, error
 			"token": token,
 		}
 		return *data, err
-	case "gmail":
-		type Tokenaouth struct {
-			Token map[string]interface{} `json:"token"`
+	case "discords":
+		type DiscordData struct {
+			GuildId string `json:"guildId"`
 		}
-		condata := Tokenaouth{}
+		condata := DiscordData{}
 		err := json.Unmarshal([]byte(data), &condata)
-		js, _ := json.Marshal(condata.Token)
-		token := oauth2.Token{}
-		json.Unmarshal([]byte(js), &token)
-		data := &map[string]interface{}{
-			"token": token,
+		json.Unmarshal([]byte(data), &condata)
+		data := map[string]interface{}{"guildId": condata.GuildId}
+		return data, err
+	case "telegrams":
+		type TelegramData struct {
+			GuildId string `json:"key"`
 		}
-		return *data, err
+		condata := TelegramData{}
+		err := json.Unmarshal([]byte(data), &condata)
+		json.Unmarshal([]byte(data), &condata)
+		data := map[string]interface{}{"key": condata.GuildId}
+		return data, err
 
 	}
 	return nil, nil
@@ -100,14 +117,13 @@ func getGmailToken(data string) (interface{}, error) {
 		Endpoint:     google.Endpoint,
 		RedirectURL:  "http://localhost:3000/redirect/gmail/",
 	}
-
 	err := json.Unmarshal([]byte(data), &d)
 	token, err := oauthConf.Exchange(context.Background(), d.Token)
 	return token, err
 }
 func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map[string]interface{}, error) {
 	switch Type {
-	case "github":
+	case "githubs":
 		js, _ := json.Marshal(ut.Data)
 		token, err := getGitToken(string(js))
 		data := &map[string]interface{}{
@@ -126,9 +142,14 @@ func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map
 		data := &map[string]interface{}{
 			"token": token,
 		}
-
 		jsonString, err := json.Marshal(token)
 		return string(jsonString), *data, err
+	case "telegrams":
+		jsonString, err := json.Marshal(ut.Data)
+		return string(jsonString), ut.Data, err
+	case "discords":
+		jsonString, err := json.Marshal(ut.Data)
+		return string(jsonString), ut.Data, err
 	}
 	return "", nil, nil
 }

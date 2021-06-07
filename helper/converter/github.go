@@ -4,20 +4,29 @@ import (
 	"encoding/json"
 	"legato_server/api"
 	legatoDb "legato_server/db"
+	"time"
 
 	"golang.org/x/oauth2"
 )
 
-func GmailInfoToGmailDb(g *api.GmailInfo) legatoDb.Gmail {
-	var git legatoDb.Gmail
+func GitInfoToGitDb(g *api.GitInfo) legatoDb.Github {
+	var git legatoDb.Github
+	git.GitUsername = g.GitUsername
 	s, _ := json.Marshal(g.Token)
 	git.Token = string(s)
 	return git
 }
 
-func GmailDbToGitInfo(git *legatoDb.Gmail) api.GmailInfo {
-	var g api.GmailInfo
+type TokenData struct {
+	AccessToken string    `json:"access_token"`
+	TokenType   string    `json:"token_type"`
+	Expiry      time.Time `json:"expiry"`
+}
+
+func GitDbToGitInfo(git *legatoDb.Github) api.GitInfo {
+	var g api.GitInfo
 	g.Id = git.ID
+	g.GitUsername = git.GitUsername
 	data := TokenData{}
 	json.Unmarshal([]byte(git.Token), &data)
 	condata := oauth2.Token{

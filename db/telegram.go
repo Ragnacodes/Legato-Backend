@@ -112,11 +112,13 @@ func (t Telegram) Execute(...interface{}) {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		if env.ENV.Mode == env.DEVELOPMENT{
-			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
+			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), nil)
 		} else {
 		_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
 		}
+
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -127,11 +129,13 @@ func (t Telegram) Execute(...interface{}) {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		if env.ENV.Mode == env.DEVELOPMENT{
-			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
+			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), nil)
 		} else {
 			_, err = makeTorifiedHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
 		}
+
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -144,7 +148,7 @@ func (t Telegram) Execute(...interface{}) {
 }
 
 func (t Telegram) Post() {
-	log.Printf("Executing type (%s) node in background : %s\n", httpType, t.Service.Name)
+	log.Printf("Executing type (%s) node in background : %s\n", telegramType, t.Service.Name)
 }
 
 func (t Telegram) Next(...interface{}) {

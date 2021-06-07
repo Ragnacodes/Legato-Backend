@@ -103,8 +103,21 @@ func addNode(c *gin.Context) {
 		break
 	case "gmails":
 		addedServ, err = resolvers.GmailUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
-	default:
 		break
+	case "githubs":
+		addedServ, err = resolvers.GithubUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	case "discords":
+		addedServ, err = resolvers.DiscordUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	case "tool_boxes":
+		addedServ, err = resolvers.ToolBoxUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("there is not any service with name %s", newNode.Type),
+		})
+		return
 	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -186,8 +199,20 @@ func updateNode(c *gin.Context) {
 	case "gmails":
 		err = resolvers.GmailUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
-	default:
+	case "githubs":
+		err = resolvers.GithubUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
+	case "discords":
+		err = resolvers.DiscordUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	case "tool_boxes":
+		err = resolvers.ToolBoxUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("there is not any service with name %s", newNode.Type),
+		})
+		return
 	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

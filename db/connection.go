@@ -29,15 +29,6 @@ func (ldb *LegatoDB) GetUserConnections(u *User) ([]Connection, error) {
 	return connections, nil
 }
 
-// func (ldb *LegatoDB) GetUserConnectionByName(u *User, name string) (Connection, error) {
-// 	var connection Connection
-// 	err := ldb.db.
-// 		Where(&Scenario{UserID: u.ID}).
-// 		Where("Name = ?", name).
-// 		Find(&connection).Error
-// 	return connection, err
-// }
-
 func (ldb *LegatoDB) GetUserConnectionById(u *User, id uint) (Connection, error) {
 	var con Connection
 	err := ldb.db.

@@ -58,6 +58,9 @@ func createSchema(db *gorm.DB) error {
 	_ = db.AutoMigrate(Token{})
 	_ = db.AutoMigrate(Ssh{})
 	_ = db.AutoMigrate(Gmail{})
+	_ = db.AutoMigrate(Github{})
+	_ = db.AutoMigrate(Discord{})
+	_ = db.AutoMigrate(ToolBox{})
 
 	return nil
 }
