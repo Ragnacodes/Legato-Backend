@@ -60,18 +60,14 @@ func init() {
 	httpUseCase = httpUC.NewHttpUseCase(appDB, timeoutContext)
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
-	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
-	gmailUseCase = gmailUC.NewHttpUseCase(appDB, timeoutContext)
+	sshUseCase = sshUC.NewSshUseCase(appDB, timeoutContext)
+	gmailUseCase = gmailUC.NewGmailUseCase(appDB, timeoutContext)
 	githubUseCase = githubUC.NewGithubUseCase(appDB, timeoutContext)
 	discordUseCase = discordUC.NewDiscordUseCase(appDB, timeoutContext)
 	toolBoxUseCase = toolboxUC.NewToolBoxUseCase(appDB, timeoutContext)
 
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
-
-	// Test single scenario
-	// go scenarioUseCase.TestScenario()
-
 }
 
 func main() {

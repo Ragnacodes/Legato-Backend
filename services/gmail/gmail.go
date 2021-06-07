@@ -13,7 +13,7 @@ type GmailUseCase struct {
 	contextTimeout time.Duration
 }
 
-func NewHttpUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.GmailUseCase {
+func NewGmailUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.GmailUseCase {
 	return &GmailUseCase{
 		db:             db,
 		contextTimeout: timeout,
