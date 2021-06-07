@@ -24,8 +24,8 @@ require (
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.7.1 // indirect
-	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/spf13/viper v1.7.1
+	github.com/stretchr/testify v1.7.0
 	github.com/ugorji/go v1.2.5 // indirect
 	github.com/vmihailenco/taskq/v3 v3.2.4
 	github.com/zmb3/spotify v1.1.2
