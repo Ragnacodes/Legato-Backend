@@ -18,8 +18,8 @@ type Webhook struct {
 	Token    uuid.UUID
 	IsEnable bool    `gorm:"default:False"`
 	Service  Service `gorm:"polymorphic:Owner;"`
-	GetMethod bool	 `gorm:"default:False"`
-	GetHeaders bool  `gorm:"default:False"`
+	GetMethod *bool	 
+	GetHeaders *bool  
 }
 
 func (w *Webhook) String() string {
@@ -87,6 +87,7 @@ func (ldb *LegatoDB) UpdateWebhook(s *Scenario, servId uint, nwh Webhook) error 
 	ldb.db.Model(&serv).Updates(nwh.Service)
 	ldb.db.Model(&wh).Updates(nwh)
 
+
 	return nil
 }
 
@@ -102,9 +103,7 @@ func (ldb *LegatoDB) UpdateSeparateWebhook(u *User, wid uint, nwh Webhook) error
 	if wh.Service.UserID != u.ID {
 		return errors.New("the webhook service is not for this user")
 	}
-
 	serv := wh.Service
-
 	ldb.db.Model(&serv).Updates(nwh.Service)
 	ldb.db.Model(&wh).Updates(nwh)
 

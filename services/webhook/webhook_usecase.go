@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"legato_server/api"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
@@ -102,7 +103,7 @@ func (w *WebhookUseCase) UpdateSeparateWebhook(u *api.UserInfo, wid uint, nw api
 	}
 
 	nwh := converter.NewSeparateWebhookToWebhook(nw)
-
+	fmt.Print(nwh.String())
 	err = w.db.UpdateSeparateWebhook(&user, wid, nwh)
 	if err != nil {
 		return err
