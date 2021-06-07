@@ -60,9 +60,10 @@ type Resolver struct {
 	SpotifyUseCase  domain.SpotifyUseCase
 	SshUseCase      domain.SshUseCase
 	LoggerUseCase	domain.LoggerUseCase
+	GmailUseCase    domain.GmailUseCase
 	ToolBoxUseCase  domain.ToolBoxUseCase
 	GithubUseCase   domain.GitUseCase
-	DiscordUseCase domain.DiscordUseCase
+	DiscordUseCase  domain.DiscordUseCase
 }
 
 // This Resolver includes all of our use cases so we can handle incoming requests

@@ -13,7 +13,7 @@ type SshUseCase struct {
 	contextTimeout time.Duration
 }
 
-func NewHttpUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.SshUseCase {
+func NewSshUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.SshUseCase {
 	return &SshUseCase{
 		db:             db,
 		contextTimeout: timeout,

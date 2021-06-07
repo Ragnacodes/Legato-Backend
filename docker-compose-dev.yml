@@ -14,7 +14,6 @@ services:
     container_name: legato_server
     depends_on:
       - database
-      - legato_scheduler
     deploy:
       restart_policy:
         condition: any

@@ -115,6 +115,10 @@ func (s *Service) Load() (services.Service, error) {
 	case sshType:
 		serv, err = legatoDb.GetSshByService(*s)
 		break
+	case gmailType:
+		serv, err = legatoDb.GetGmailByService(*s)
+		break
+
 	case gitType:
 		serv, err = legatoDb.GetGitByService(*s)
 		break
@@ -201,6 +205,13 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 			return err
 		}
 		break
+	case gmailType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+		break
+
 	}
 
 	return nil

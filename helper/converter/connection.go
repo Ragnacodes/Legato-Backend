@@ -9,6 +9,7 @@ import (
 
 	"golang.org/x/oauth2"
 	githuboauth "golang.org/x/oauth2/github"
+	"golang.org/x/oauth2/google"
 )
 
 type loginWithPasswordData struct {
@@ -55,6 +56,19 @@ func BindConnectionData(data string, Type string) (map[string]interface{}, error
 			"token": token,
 		}
 		return *data, err
+	case "gmails":
+		type Tokenaouth struct {
+			Token map[string]interface{} `json:"token"`
+		}
+		condata := Tokenaouth{}
+		err := json.Unmarshal([]byte(data), &condata)
+		js, _ := json.Marshal(condata.Token)
+		token := oauth2.Token{}
+		json.Unmarshal([]byte(js), &token)
+		data := &map[string]interface{}{
+			"token": token,
+		}
+		return *data, err
 	case "discords":
 		type DiscordData struct {
 			GuildId string `json:"guildId"`
@@ -92,7 +106,21 @@ func getGitToken(data string) (interface{}, error) {
 	token, err := oauthConf.Exchange(context.Background(), d.Token)
 	return token, err
 }
-
+func getGmailToken(data string) (interface{}, error) {
+	type extractdata struct {
+		Token string `json:"token"`
+	}
+	var d extractdata
+	oauthConf := oauth2.Config{
+		ClientID:     "906955768602-u0nu3ruckq6pcjvune1tulkq3n0kfvrl.apps.googleusercontent.com",
+		ClientSecret: "VoXRAy3fWRcqFi10rlo31HB2",
+		Endpoint:     google.Endpoint,
+		RedirectURL:  "http://localhost:3000/redirect/gmail/",
+	}
+	err := json.Unmarshal([]byte(data), &d)
+	token, err := oauthConf.Exchange(context.Background(), d.Token)
+	return token, err
+}
 func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map[string]interface{}, error) {
 	switch Type {
 	case "githubs":
@@ -105,11 +133,18 @@ func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map
 		jsonString, err := json.Marshal(token)
 		return string(jsonString), *data, err
 
-	case "telegrams":
+	case "sshes":
 		jsonString, err := json.Marshal(ut.Data)
 		return string(jsonString), ut.Data, err
-
-	case "sshes":
+	case "gmail":
+		js, _ := json.Marshal(ut.Data)
+		token, err := getGmailToken(string(js))
+		data := &map[string]interface{}{
+			"token": token,
+		}
+		jsonString, err := json.Marshal(token)
+		return string(jsonString), *data, err
+	case "telegrams":
 		jsonString, err := json.Marshal(ut.Data)
 		return string(jsonString), ut.Data, err
 	case "discords":
