@@ -55,6 +55,12 @@ func (ldb *LegatoDB) DeleteServiceById(scenario *Scenario, serviceId uint) error
 	parentId := srv.ParentID
 	ldb.db.Where(&Service{ParentID: &srv.ID}).Updates(Service{ParentID: parentId})
 
+	if parentId == nil {
+		legatoDb.db.Model(&Service{}).
+			Where(&Service{ParentID: parentId, ScenarioID: &scenario.ID}).
+			UpdateColumn("parent_id", nil)
+	}
+
 	return nil
 }
 
@@ -109,7 +115,19 @@ func (s *Service) Load() (services.Service, error) {
 	case sshType:
 		serv, err = legatoDb.GetSshByService(*s)
 		break
+	case gmailType:
+		serv, err = legatoDb.GetGmailByService(*s)
+		break
 
+	case gitType:
+		serv, err = legatoDb.GetGitByService(*s)
+		break
+	case discordType:
+		serv, err = legatoDb.GetDiscordByService(*s)
+		break
+	case toolBoxType:
+		serv, err = legatoDb.GetToolBoxByService(*s)
+		break
 	}
 
 	if err != nil {
@@ -127,9 +145,13 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 	case webhookType:
 		w, _ := legatoDb.GetWebhookByService(*s)
 		data := &map[string]interface{}{
-			"url":      w.Token,
-			"isEnable": w.IsEnable,
-			"id":       w.ID,
+			"webhook": &map[string]interface{}{
+				"url":      w.GetURL(),
+				"isEnable": w.IsEnable,
+				"id":       w.ID,
+				"getMethod": w.GetMethod,
+				"getHeaders": w.GetHeaders,
+			},
 		}
 
 		jsonString, err := json.Marshal(data)
@@ -161,6 +183,29 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 		}
 		break
 	case sshType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+	case gitType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+		break
+	case discordType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+		break
+	case toolBoxType:
+		err := json.Unmarshal([]byte(s.Data), serviceData)
+		if err != nil {
+			return err
+		}
+		break
+	case gmailType:
 		err := json.Unmarshal([]byte(s.Data), serviceData)
 		if err != nil {
 			return err

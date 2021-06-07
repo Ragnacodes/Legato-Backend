@@ -1,6 +1,7 @@
 package legatoDb
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"legato_server/env"
@@ -17,6 +18,8 @@ type Webhook struct {
 	Token    uuid.UUID
 	IsEnable bool    `gorm:"default:False"`
 	Service  Service `gorm:"polymorphic:Owner;"`
+	GetMethod bool	 
+	GetHeaders bool  
 }
 
 func (w *Webhook) String() string {
@@ -25,6 +28,7 @@ func (w *Webhook) String() string {
 
 func (w *Webhook) BeforeCreate(tx *gorm.DB) (err error) {
 	w.Token = uuid.NewV4()
+	w.Service.Name = "webhook"
 	return nil
 }
 
@@ -83,6 +87,7 @@ func (ldb *LegatoDB) UpdateWebhook(s *Scenario, servId uint, nwh Webhook) error 
 	ldb.db.Model(&serv).Updates(nwh.Service)
 	ldb.db.Model(&wh).Updates(nwh)
 
+
 	return nil
 }
 
@@ -98,9 +103,7 @@ func (ldb *LegatoDB) UpdateSeparateWebhook(u *User, wid uint, nwh Webhook) error
 	if wh.Service.UserID != u.ID {
 		return errors.New("the webhook service is not for this user")
 	}
-
 	serv := wh.Service
-
 	ldb.db.Model(&serv).Updates(nwh.Service)
 	ldb.db.Model(&wh).Updates(nwh)
 
@@ -144,7 +147,7 @@ func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (*Webhook, error) {
 func (ldb *LegatoDB) GetUserWebhooks(u *User) ([]Webhook, error) {
 	var services []Service
 	err := ldb.db.Select("id").Where(&Service{UserID: u.ID}).Find(&services).Error
-	if err != nil {
+	if err != nil || len(services) == 0{
 		return nil, err
 	}
 
@@ -201,31 +204,40 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 
 // Service Interface for Webhook
 func (w Webhook) Execute(...interface{}) {
-	log.Println("*******Starting Webhook Service*******")
-
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
 		panic(err)
 	}
+	SendLogMessage("*******Starting Webhook Service*******", *w.Service.ScenarioID, nil)
 
-	log.Printf("Executing type (%s) : %s\n", webhookType, w.Service.Name)
-
+	logData := fmt.Sprintf("Executing type (%s) : %s\n", webhookType, w.Service.Name)
+	SendLogMessage(logData, *w.Service.ScenarioID, nil)
+	
 	w.IsEnable = true
 	legatoDb.db.Save(&w)
 
 }
 
 func (w Webhook) Post() {
-	log.Printf("Executing type (%s) node in background : %s\n", webhookType, w.Service.Name)
+	logData := fmt.Sprintf("Executing type (%s) node in background : %s\n", webhookType, w.Service.Name)
+	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
 }
 
-func (w Webhook) Next(...interface{}) {
+func (w Webhook) Next(data ...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&w).Error
 	if err != nil {
 		panic(err)
 	}
+	logData := fmt.Sprintf("webhook with id %v got payload:", w.Token)
+	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
 
-	log.Printf("Executing \"%s\" Children \n", w.Service.Name)
+	webhookData := data[0].(map[string]interface{})
+	payloadJson, _ := json.Marshal(webhookData)
+	SendLogMessage(string(payloadJson), *w.Service.ScenarioID, &w.Service.ID)
+
+
+	logData = fmt.Sprintf("Executing \"%s\" Children \n", w.Service.Name)
+	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
 
 	for _, node := range w.Service.Children {
 		serv, err := node.Load()
@@ -236,5 +248,21 @@ func (w Webhook) Next(...interface{}) {
 		serv.Execute()
 	}
 
-	log.Printf("*******End of \"%s\"*******", w.Service.Name)
+	logData = fmt.Sprintf("*******End of \"%s\"*******", w.Service.Name)
+	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
+
+}
+
+
+func (ldb *LegatoDB) GetWebhookHistoryLogsById(u *User, wid uint) (logs []ServiceLog, err error) {
+	var wdb Webhook
+	err = ldb.db.Where("id = ?", wid).Preload("Service").Find(&wdb).Error
+	if err != nil || wdb.ID == 0{
+		return nil, errors.New("no webhook exists with given id")
+	}
+	err = ldb.db.Where(&ServiceLog{ServiceID: uint(wdb.Service.ID)}).Preload("Service").Preload("Messages", "message_type = ?", "json").Find(&logs).Error
+	if err != nil {
+		return nil, err
+	}
+	return logs, nil
 }

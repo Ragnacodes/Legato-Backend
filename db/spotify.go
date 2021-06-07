@@ -132,16 +132,20 @@ func (ldb *LegatoDB) GetSpotifyByService(serv Service) (*Spotify, error) {
 
 // Service Interface for Http
 func (sp Spotify) Execute(...interface{}) {
-	log.Println("*******Starting Spotify Service*******")
-
+	
 	err := legatoDb.db.Preload("Service").Preload("Token").Find(&sp).Error
 	if err != nil {
 		panic(err)
 	}
+	SendLogMessage("*******Starting Spotify Service*******", *sp.Service.ScenarioID, nil)
+	
+	logData := fmt.Sprintf("Executing type (%s) : %s\n", spotifyType, sp.Service.Name)
+	SendLogMessage(logData, *sp.Service.ScenarioID, nil)
+
 	var nextData interface{}
-	log.Printf("Executing type (%s) : %s\n", spotifyType, sp.Service.Name)
 	token := DbTokenToOauth2(sp.Token)
 	client := auth().NewClient(&token)
+
 	switch sp.Service.SubType {
 		case addTrackToPlaylist:
 			var data addToPlaylistData
@@ -155,11 +159,17 @@ func (sp Spotify) Execute(...interface{}) {
 		case getTopTracks:
 
 			nextData = getUserTopTracksHandler(&client)
+			e, err := json.Marshal(nextData.(*spotify.FullTrackPage))
+			if err != nil {
+				fmt.Println(err)
+			}
+			SendLogMessage(string(e), *sp.Service.ScenarioID, &sp.Service.ID)
 			break
 			
 		default:
 			break
 	}
+
 
 	sp.Next(nextData)
 }
@@ -185,7 +195,8 @@ func (sp Spotify) Next(...interface{}) {
 		serv.Execute()
 	}
 
-	log.Printf("*******End of \"%s\"*******", sp.Service.Name)
+	logData := fmt.Sprintf("*******End of \"%s\"*******",sp.Service.Name)
+	SendLogMessage(logData, *sp.Service.ScenarioID, nil)
 }
 
 

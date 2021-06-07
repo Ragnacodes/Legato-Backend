@@ -50,7 +50,8 @@ func Login(cred api.UserCredential, user legatoDb.User) (t Token, e error) {
 		return Token{}, errors.New("wrong password")
 	}
 
-	expirationTime := time.Now().Add(30 * time.Minute)
+	//expirationTime := time.Now().Add(30 * time.Minute)
+	expirationTime := time.Now().Add(30 * 24 * time.Hour)
 
 	claims := &Claims{
 		Username: cred.Username,

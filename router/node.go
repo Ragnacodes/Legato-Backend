@@ -100,8 +100,24 @@ func addNode(c *gin.Context) {
 		break
 	case "sshes":
 		addedServ, err = resolvers.SshUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
-	default:
 		break
+	case "gmails":
+		addedServ, err = resolvers.GmailUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	case "githubs":
+		addedServ, err = resolvers.GithubUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	case "discords":
+		addedServ, err = resolvers.DiscordUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	case "tool_boxes":
+		addedServ, err = resolvers.ToolBoxUseCase.AddToScenario(loginUser, uint(scenarioId), newNode)
+		break
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("there is not any service with name %s", newNode.Type),
+		})
+		return
 	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -180,8 +196,23 @@ func updateNode(c *gin.Context) {
 	case "sshes":
 		err = resolvers.SshUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
-	default:
+	case "gmails":
+		err = resolvers.GmailUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
 		break
+	case "githubs":
+		err = resolvers.GithubUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	case "discords":
+		err = resolvers.DiscordUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	case "tool_boxes":
+		err = resolvers.ToolBoxUseCase.Update(loginUser, uint(scenarioId), uint(nodeId), newNode)
+		break
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("there is not any service with name %s", newNode.Type),
+		})
+		return
 	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -223,7 +254,16 @@ func deleteNode(c *gin.Context) {
 		return
 	}
 
+	scenario, err := resolvers.ScenarioUseCase.GetUserScenarioById(loginUser, uint(scenarioId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("can not fetch this scenario: %s", err),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "node is deleted successfully",
+		"nodes":   scenario.Services,
 	})
 }

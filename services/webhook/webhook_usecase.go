@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"legato_server/api"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
@@ -102,7 +103,7 @@ func (w *WebhookUseCase) UpdateSeparateWebhook(u *api.UserInfo, wid uint, nw api
 	}
 
 	nwh := converter.NewSeparateWebhookToWebhook(nw)
-
+	fmt.Print(nwh.String())
 	err = w.db.UpdateSeparateWebhook(&user, wid, nwh)
 	if err != nil {
 		return err
@@ -168,4 +169,23 @@ func (w *WebhookUseCase)TriggerWebhook(wid string, data map[string]interface{}) 
 	}
 	wh.Next(data)
 	return nil
+}
+
+func (w *WebhookUseCase) GetUserWebhookHistoryById(u *api.UserInfo, wid uint)(serviceLogs []api.ServiceLogInfo, err error){
+	user, err := w.db.GetUserByUsername(u.Username)
+	if err != nil {
+		return []api.ServiceLogInfo{}, err
+	}
+	
+	logs, err := w.db.GetWebhookHistoryLogsById(&user, wid)
+	if err != nil {
+		return []api.ServiceLogInfo{}, err
+	}
+	
+	for _, l := range logs {
+		log := converter.ServiceLogDbToServiceLogInfos(l)
+		serviceLogs = append(serviceLogs, log)
+	}
+
+	return serviceLogs, nil
 }

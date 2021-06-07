@@ -81,15 +81,14 @@ func (ldb *LegatoDB) GetHttpByService(serv Service) (*Http, error) {
 
 // Service Interface for Http
 func (h Http) Execute(...interface{}) {
-	log.Println("*******Starting Http Service*******")
-
 	err := legatoDb.db.Preload("Service").Find(&h).Error
 	if err != nil {
 		panic(err)
 	}
+	SendLogMessage("*******Starting Http Service*******", *h.Service.ScenarioID, nil)
 
-	log.Printf("Executing type (%s) : %s\n", httpType, h.Service.Name)
-
+	logData := fmt.Sprintf("Executing type (%s) : %s\n", httpType, h.Service.Name)
+	SendLogMessage(logData, *h.Service.ScenarioID, nil)
 	// Http just has one kind of sub service so we do not need any switch-case statement.
 	// Provide data for make request
 	var data httpRequestData
@@ -102,7 +101,7 @@ func (h Http) Execute(...interface{}) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	_, err = makeHttpRequest(data.Url, data.Method, requestBody)
+	_, err = makeHttpRequest(data.Url, data.Method, requestBody, nil ,h.Service.ScenarioID, &h.Service.ID)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -111,16 +110,18 @@ func (h Http) Execute(...interface{}) {
 }
 
 func (h Http) Post() {
-	log.Printf("Executing type (%s) node in background : %s\n", httpType, h.Service.Name)
+	data := fmt.Sprintf("Executing type (%s) node in background : %s\n", httpType, h.Service.Name)
+	SendLogMessage(data, *h.Service.ScenarioID, nil) 
 }
 
 func (h Http) Next(...interface{}) {
-	err := legatoDb.db.Preload("Service.Children").Find(&h).Error
+	err := legatoDb.db.Preload("Service").Preload("Service.Children").Find(&h).Error
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Executing \"%s\" Children \n", h.Service.Name)
+	logData := fmt.Sprintf("Executing \"%s\" Children \n", h.Service.Name)
+	SendLogMessage(logData, *h.Service.ScenarioID, nil)
 
 	for _, node := range h.Service.Children {
 		serv, err := node.Load()
@@ -131,14 +132,19 @@ func (h Http) Next(...interface{}) {
 		serv.Execute()
 	}
 
-	log.Printf("*******End of \"%s\"*******", h.Service.Name)
+	logData = fmt.Sprintf("*******End of \"%s\"*******", h.Service.Name)
+	SendLogMessage(logData, *h.Service.ScenarioID, nil)
 }
 
 // Service interface helper functions
-func makeHttpRequest(url string, method string, body []byte) (res *http.Response, err error) {
-	log.Println("Make http request")
+func makeHttpRequest(url string, method string, body []byte, authorization *string, scenarioId *uint, hId *uint) (res *http.Response, err error) {
+	logData := fmt.Sprintf("Make http request")
+	SendLogMessage(logData, *scenarioId, hId)
 
-	log.Printf("\nurl: %s\nmethod: %s\nbody:\n%s\n", url, method, string(body))
+	logData = fmt.Sprintf("\nurl: %s\nmethod: %s", url, method)
+	SendLogMessage(logData, *scenarioId, hId)
+
+	SendLogMessage(string(body), *scenarioId, hId)
 
 	switch method {
 	case strings.ToLower(http.MethodGet):
@@ -146,11 +152,50 @@ func makeHttpRequest(url string, method string, body []byte) (res *http.Response
 		break
 	case strings.ToLower(http.MethodPost):
 		if body != nil {
-			reqBody := bytes.NewBuffer(body)
-			res, err = http.Post(url, "application/json", reqBody)
+			client := &http.Client{}
+			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(body))
+			if err != nil {
+				return nil, err
+			}
+			req.Header.Set("Authorization", *authorization)
+			req.Header.Set("Content-Type", "application/json")
+			res, err = client.Do(req)
+			if err != nil {
+				return nil, err
+			}
 			break
 		}
 		res, err = http.Post(url, "application/json", nil)
+		break
+	case strings.ToLower(http.MethodPut):
+		if body != nil {
+			client := &http.Client{}
+			req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(body))
+			if err != nil {
+				return nil, err
+			}
+			req.Header.Set("Authorization", *authorization)
+			req.Header.Set("Content-Type", "application/json")
+			res, err = client.Do(req)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			log.Println("body in put request is empty")
+			client := &http.Client{}
+			req, err := http.NewRequest(http.MethodPut, url, nil)
+			if err != nil {
+				return nil, err
+			}
+			req.Header.Set("Authorization", *authorization)
+			req.Header.Set("Content-Type", "application/json")
+			res, err = client.Do(req)
+			if err != nil {
+				return nil, err
+			}
+		}
+		break
+	default:
 		break
 	}
 
@@ -164,7 +209,11 @@ func makeHttpRequest(url string, method string, body []byte) (res *http.Response
 		return nil, err
 	}
 	bodyString := string(bodyBytes)
-	log.Printf("Response from http request is : \n%s\n", bodyString)
+
+	logData = fmt.Sprintf("Got Respose from http request")
+	SendLogMessage(logData, *scenarioId, hId)
+
+	SendLogMessage(bodyString, *scenarioId, hId)
 
 	return res, nil
 }

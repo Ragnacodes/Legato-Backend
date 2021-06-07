@@ -1,11 +1,18 @@
 package legatoDb
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"legato_server/env"
 	"log"
+	"net/http"
+	"net/url"
+	"strings"
 
+	"golang.org/x/net/proxy"
 	"gorm.io/gorm"
 )
 
@@ -106,7 +113,12 @@ func (t Telegram) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
+		if env.ENV.Mode == env.DEVELOPMENT{
+			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), nil, t.Service.ScenarioID, &t.Service.ID)
+		} else {
+		_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
+		}
+
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -118,7 +130,12 @@ func (t Telegram) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
+		if env.ENV.Mode == env.DEVELOPMENT{
+			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), nil, t.Service.ScenarioID, &t.Service.ID)
+		} else {
+			_, err = makeTorifiedHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
+		}
+
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -131,7 +148,7 @@ func (t Telegram) Execute(...interface{}) {
 }
 
 func (t Telegram) Post() {
-	log.Printf("Executing type (%s) node in background : %s\n", httpType, t.Service.Name)
+	log.Printf("Executing type (%s) node in background : %s\n", telegramType, t.Service.Name)
 }
 
 func (t Telegram) Next(...interface{}) {
@@ -152,4 +169,68 @@ func (t Telegram) Next(...interface{}) {
 	}
 
 	log.Printf("*******End of \"%s\"*******", t.Service.Name)
+}
+
+// Service interface helper functions
+func makeTorifiedHttpRequest(inputUrl string, method string, body []byte, scenarioId *uint, hId *uint) (res *http.Response, err error) {
+	logData := fmt.Sprintf("Make http request")
+	SendLogMessage(logData, *scenarioId, hId)
+
+	logData = fmt.Sprintf("\nurl: %s\nmethod: %s", inputUrl, method)
+	SendLogMessage(logData, *scenarioId, hId)
+
+	SendLogMessage(string(body), *scenarioId, hId)
+
+	tbProxyURL, err := url.Parse("socks5://tor:9050")
+	if err != nil {
+			log.Printf("Failed to parse proxy URL: %v\n", err)
+	}
+
+	// Get a proxy Dialer that will create the connection on our
+	// behalf via the SOCKS5 proxy.  Specify the authentication
+	// and re-create the dialer/transport/client if tor's
+	// IsolateSOCKSAuth is needed.
+	tbDialer, err := proxy.FromURL(tbProxyURL, proxy.Direct)
+	if err != nil {
+			log.Printf("Failed to obtain proxy dialer: %v\n", err)
+	}
+
+	// Make a http.Transport that uses the proxy dialer, and a
+	// http.Client that uses the transport.
+	tbTransport := &http.Transport{Dial: tbDialer.Dial}
+	client := &http.Client{Transport: tbTransport}
+
+	switch method {
+	case strings.ToLower(http.MethodGet):
+			res, err = client.Get(inputUrl)
+			break
+	case strings.ToLower(http.MethodPost):
+			if body != nil {
+					log.Printf("\nurl: %s\nbody:\n%s\n", inputUrl, string(body))
+					reqBody := bytes.NewBuffer(body)
+					res, err = client.Post(inputUrl, "application/json", reqBody)
+					break
+			}
+			res, err = client.Post(inputUrl, "application/json", nil)
+			break
+	}
+
+	if err != nil {
+			return nil, err
+	}
+
+	// Log the result
+	bodyBytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+			return nil, err
+	}
+	bodyString := string(bodyBytes)
+
+	logData = fmt.Sprintf("Got Respose from http request")
+	SendLogMessage(logData, *scenarioId, hId)
+
+	SendLogMessage(bodyString, *scenarioId, hId)
+
+	return res, nil
+
 }

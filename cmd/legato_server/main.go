@@ -5,15 +5,22 @@ import (
 	legatoDb "legato_server/db"
 	"legato_server/domain"
 	"legato_server/env"
+	"legato_server/logging"
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
+	discordUC "legato_server/services/discord"
+	githubUC "legato_server/services/github"
+	gmailUC "legato_server/services/gmail"
 	httpUC "legato_server/services/http"
 	spotifyUC "legato_server/services/spotify"
 	sshUC "legato_server/services/ssh"
 	telegramUC "legato_server/services/telegram"
+	toolboxUC "legato_server/services/toolbox"
 	serviceUC "legato_server/services/usecase"
 	webhookUC "legato_server/services/webhook"
 	userUC "legato_server/user/usecase"
+	logUC  "legato_server/logging/usecase"
+
 	"time"
 
 	"github.com/spf13/viper"
@@ -27,6 +34,11 @@ var httpUseCase domain.HttpUseCase
 var telegramUseCase domain.TelegramUseCase
 var spotifyUseCase domain.SpotifyUseCase
 var sshUseCase domain.SshUseCase
+var loggerUseCase domain.LoggerUseCase
+var gmailUseCase domain.GmailUseCase
+var githubUseCase domain.GitUseCase
+var discordUseCase domain.DiscordUseCase
+var toolBoxUseCase domain.ToolBoxUseCase
 
 func init() {
 	// Load environment variables
@@ -34,6 +46,9 @@ func init() {
 
 	// Generate random jwt key
 	authenticate.GenerateRandomKey()
+	
+	// Make server sent event 
+	logging.SSE.Init()
 
 	// Connect to database
 	appDB, err := legatoDb.Connect()
@@ -51,14 +66,15 @@ func init() {
 	httpUseCase = httpUC.NewHttpUseCase(appDB, timeoutContext)
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
-	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
+	loggerUseCase = logUC.NewLoggerUseCase(appDB, timeoutContext)
+	sshUseCase = sshUC.NewSshUseCase(appDB, timeoutContext)
+	gmailUseCase = gmailUC.NewGmailUseCase(appDB, timeoutContext)
+	githubUseCase = githubUC.NewGithubUseCase(appDB, timeoutContext)
+	discordUseCase = discordUC.NewDiscordUseCase(appDB, timeoutContext)
+	toolBoxUseCase = toolboxUC.NewToolBoxUseCase(appDB, timeoutContext)
 
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
-
-	// Test single scenario
-	// go scenarioUseCase.TestScenario()
-
 }
 
 func main() {
@@ -72,6 +88,11 @@ func main() {
 		TelegramUseCase: telegramUseCase,
 		SpotifyUseCase:  spotifyUseCase,
 		SshUseCase:      sshUseCase,
+		LoggerUseCase:   loggerUseCase,
+		GmailUseCase:    gmailUseCase,
+		GithubUseCase:   githubUseCase,
+		DiscordUseCase:  discordUseCase,
+		ToolBoxUseCase:  toolBoxUseCase,
 	}
 
 	_ = router.NewRouter(&resolvers).Run()

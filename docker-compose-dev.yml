@@ -14,15 +14,10 @@ services:
     container_name: legato_server
     depends_on:
       - database
-      - legato_scheduler
-  #    tests:
-  #      build:
-  #        context: .
-  #        dockerfile: Dockerfile.dev
-  #      volumes:
-  #        - .:/go/src/legato_server
-  #      command: ["go", "test", "./..."]
-
+    deploy:
+      restart_policy:
+        condition: any
+        
   legato_scheduler:
     build:
       context: .
