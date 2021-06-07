@@ -5,7 +5,6 @@ on:
     branches:
     - master
     - develop
-    - github-registry
   pull_request:
     branches:
     - master
@@ -78,7 +77,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_PWD }}
         context: .
         repository: ragnacodes/legato_server
-        tags: 0.4.0-beta01
+        tags: 0.5.0-beta01
 
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
