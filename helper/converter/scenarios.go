@@ -25,6 +25,7 @@ func ScenarioDbToBriefScenario(s legatoDb.Scenario) api.BriefScenario {
 	bs.Name = s.Name
 	bs.Interval = s.Interval
 	bs.IsActive = s.IsActive
+	bs.LastScheduledTime = s.LastScheduledTime.Format(time.RFC3339)
 	bs.DigestNodes = []string{}
 
 	return bs

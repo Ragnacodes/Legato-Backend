@@ -60,6 +60,9 @@ func createSchema(db *gorm.DB) error {
 	_ = db.AutoMigrate(History{})
 	_ = db.AutoMigrate(ServiceLog{})
 	_ = db.AutoMigrate(LogMessage{})
+	_ = db.AutoMigrate(Github{})
+	_ = db.AutoMigrate(Discord{})
+	_ = db.AutoMigrate(ToolBox{})
 
 	return nil
 }
