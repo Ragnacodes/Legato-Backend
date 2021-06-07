@@ -19,55 +19,54 @@ func NewGmailUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.GmailU
 		contextTimeout: timeout,
 	}
 }
-func (ss *GmailUseCase) GetGmailWithId(gid uint, username string) (api.GmailInfo, error) {
-	user, err := ss.db.GetUserByUsername(username)
+func (gu *GmailUseCase) GetGmailWithId(gid uint, username string) (api.GmailInfo, error) {
+	user, err := gu.db.GetUserByUsername(username)
 	if err != nil {
 		return api.GmailInfo{}, err
 	}
 
-	git, err := ss.db.GetGmailByID(gid, &user)
+	git, err := gu.db.GetGmailByID(gid, &user)
 	if err != nil {
 		return api.GmailInfo{}, err
 	}
 
 	return converter.GmailDbToGitInfo(&git), nil
-
 }
 
-func (git *GmailUseCase) AddToScenario(u *api.UserInfo, scenarioId uint, ns api.NewServiceNode) (api.ServiceNode, error) {
+func (gu *GmailUseCase) AddToScenario(u *api.UserInfo, scenarioId uint, ns api.NewServiceNode) (api.ServiceNode, error) {
 
-	user, err := git.db.GetUserByUsername(u.Username)
+	user, err := gu.db.GetUserByUsername(u.Username)
 	if err != nil {
 		return api.ServiceNode{}, err
 	}
 
-	scenario, err := git.db.GetUserScenarioById(&user, scenarioId)
+	scenario, err := gu.db.GetUserScenarioById(&user, scenarioId)
 	if err != nil {
 		return api.ServiceNode{}, err
 	}
 
 	var gg legatoDb.Gmail
 	gg.Service = converter.NewServiceNodeToServiceDb(ns)
-	g, err := git.db.CreateGmailForScenario(&scenario, gg)
+	g, err := gu.db.CreateGmailForScenario(&scenario, gg)
 	if err != nil {
 		return api.ServiceNode{}, err
 	}
 	return converter.ServiceDbToServiceNode(g.Service), nil
 }
 
-func (git *GmailUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint, ns api.NewServiceNode) error {
-	user, err := git.db.GetUserByUsername(u.Username)
+func (gu *GmailUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uint, ns api.NewServiceNode) error {
+	user, err := gu.db.GetUserByUsername(u.Username)
 	if err != nil {
 		return err
 	}
-	scenario, err := git.db.GetUserScenarioById(&user, scenarioId)
+	scenario, err := gu.db.GetUserScenarioById(&user, scenarioId)
 	if err != nil {
 		return err
 	}
 
 	var g legatoDb.Gmail
 	g.Service = converter.NewServiceNodeToServiceDb(ns)
-	err = git.db.UpdateGmail(&scenario, serviceId, g)
+	err = gu.db.UpdateGmail(&scenario, serviceId, g)
 	if err != nil {
 		return err
 	}

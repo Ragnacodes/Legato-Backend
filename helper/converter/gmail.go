@@ -15,18 +15,18 @@ func GmailInfoToGmailDb(g *api.GmailInfo) legatoDb.Gmail {
 	return git
 }
 
-func GmailDbToGitInfo(git *legatoDb.Gmail) api.GmailInfo {
+func GmailDbToGitInfo(gmail *legatoDb.Gmail) api.GmailInfo {
 	var g api.GmailInfo
-	g.Id = git.ID
+	g.Id = gmail.ID
 	data := TokenData{}
-	json.Unmarshal([]byte(git.Token), &data)
-	condata := oauth2.Token{
+	_ = json.Unmarshal([]byte(gmail.Token), &data)
+	convData := oauth2.Token{
 		AccessToken: data.AccessToken,
 		TokenType:   data.TokenType,
 		Expiry:      data.Expiry,
 	}
-	g.Token = &condata
-	g.ConnectionID = git.ConnectionID
+	g.Token = &convData
+	g.ConnectionID = gmail.ConnectionID
 
 	return g
 }

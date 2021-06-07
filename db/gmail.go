@@ -19,13 +19,15 @@ type Gmail struct {
 	Token        string
 	Service      Service `gorm:"polymorphic:Owner;"`
 }
-type GmailLoginData struct {
+
+type gmailLoginData struct {
 	To        []string `json:"to"`
 	Subject   string   `json:"subject"`
 	Password  string   `json:"password"`
 	EmailFrom string   `json:"email"`
 	Body      string   `json:"body"`
 }
+
 type updateGmailData struct {
 	ConnectionId uint `json:"connectionId"`
 }
@@ -34,9 +36,10 @@ func (g *Gmail) String() string {
 	return fmt.Sprintf("(@Gmail: %+v)", *g)
 }
 
-type SendGmailData struct {
-	To     string `json:"to"`
-	Messge string `json:"message"`
+// ?
+type sendGmailData struct {
+	To      string `json:"to"`
+	Message string `json:"message"`
 }
 
 func LoginWithSMTP(emailFrom string, emailPassword string) (smtp.Auth, error) {
@@ -46,9 +49,9 @@ func LoginWithSMTP(emailFrom string, emailPassword string) (smtp.Auth, error) {
 	return emailAuth, nil
 }
 
-func SendEmailSmtp(to []string, message string, emailHost string, emailFrom string, subjectmsg string, emailAuth smtp.Auth) (bool, error) {
+func SendEmailSmtp(to []string, message string, emailHost string, emailFrom string, subjectMsg string, emailAuth smtp.Auth) (bool, error) {
 	mime := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\n"
-	subject := "Subject: " + subjectmsg + "!\n"
+	subject := "Subject: " + subjectMsg + "!\n"
 	msg := []byte(subject + mime + "\n" + message)
 	addr := fmt.Sprintf("%s:%s", emailHost, "587")
 	if err := smtp.SendMail(addr, emailAuth, emailFrom, to, msg); err != nil {
@@ -56,6 +59,7 @@ func SendEmailSmtp(to []string, message string, emailHost string, emailFrom stri
 	}
 	return true, nil
 }
+
 func (ldb *LegatoDB) CreateGmailForScenario(s *Scenario, g Gmail) (*Gmail, error) {
 	g.Service.UserID = s.UserID
 	g.Service.ScenarioID = &s.ID
@@ -79,12 +83,12 @@ func (ldb *LegatoDB) UpdateGmail(s *Scenario, servId uint, gn Gmail) error {
 		return err
 	}
 	if g.Service.ID != servId {
-		return errors.New("the ssh service is not in this scenario")
+		return errors.New("the gmail service is not in this scenario")
 	}
 	var a updateGmailData
 	err = json.Unmarshal([]byte(gn.Service.Data), &a)
 	if err != nil {
-		log.Println("con not update ssh")
+		log.Println("con not update gmail")
 	}
 	if a.ConnectionId != 0 {
 		gn.ConnectionID = a.ConnectionId
@@ -134,13 +138,13 @@ func (g Gmail) Execute(...interface{}) {
 	}
 	switch g.Service.SubType {
 	case "sendEmail":
-		var data GmailLoginData
+		var data gmailLoginData
 		err = json.Unmarshal([]byte(g.Service.Data), &data)
 		if err != nil {
 			log.Print(err)
 		}
 		emailAuth, _ := LoginWithSMTP(data.EmailFrom, data.Password)
-		SendEmailSmtp(data.To, data.Body, "smtp.gmail.com", data.EmailFrom, data.Subject, emailAuth)
+		_, _ = SendEmailSmtp(data.To, data.Body, "smtp.gmail.com", data.EmailFrom, data.Subject, emailAuth)
 	}
 	log.Printf("Executing type (%s) : %s\n", gmailType, g.Service.Name)
 	g.Next()
