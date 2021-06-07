@@ -15,21 +15,28 @@ jobs:
   # The "build" workflow
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     env:
       # IMAGE_VERSION: 0.3.0-beta01
       SPOTIFY_ID: ${{ secrets.SPOTIFY_ID }}
       SPOTIFY_SECRET: ${{ secrets.SPOTIFY_SECRET }}
+      DISCORD_SECRET_BOT: ${{ secrets.DISCORD_SECRET_BOT }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     - uses: actions/checkout@v2
-    
+
     #create required env file
-    - name: Make envfile 
+    - name: Make envfile for spotify
       run: |
         echo "SPOTIFY_ID = $SPOTIFY_ID \nSPOTIFY_SECRET = $SPOTIFY_SECRET" \
         > ${{github.workspace}}/deployments/dev/web.env
+
+      #create required env file
+    - name: Make envfile for discord secret
+      run: |
+        echo "DISCORD_BOT_SECRET = $DISCORD_SECRET_BOT" \
+        > ${{github.workspace}}/env/.env
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - name: LS
@@ -42,7 +49,7 @@ jobs:
     - name: Sleep
       uses: jakejarvis/wait-action@master
       with:
-       time: '10s'
+       time: '20s'
 
     - name: Check running containers
       run: docker ps
@@ -50,7 +57,7 @@ jobs:
     # Run testing on the code
     - name: Run testing
       run: docker exec legato_server go test ./...
-    
+
     # Login docker hub
     - name: Login to Docker Hub
       uses: docker/login-action@v1
@@ -59,7 +66,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_PWD }}
 
     # Copy production dockerfile
-    - name: Copy production dockerfile to ./
+    - name: Copy prodproduction dockerfile to ./
       run: |
         cp ./deployments/dev/Dockerfile .
 
