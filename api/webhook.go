@@ -12,6 +12,6 @@ type WebhookInfo struct {
 type NewSeparateWebhook struct {
 	Name       string `json:"name"`
 	IsEnable   bool   `json:"isEnable"`
-	GetMethod  *bool	  `json:"getMethod"`
-	GetHeaders *bool   `json:"getHeaders"`
+	GetMethod  bool	  `json:"getMethod"`
+	GetHeaders bool   `json:"getHeaders"`
 }

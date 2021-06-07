@@ -11,8 +11,8 @@ func WebhookDbToWebhookInfo(s legatoDb.Webhook) api.WebhookInfo {
 	wh.WebhookUrl = s.GetURL()
 	wh.Name = s.Service.Name
 	wh.IsEnable = s.IsEnable
-	wh.GetHeaders = *s.GetHeaders
-	wh.GetMethod = *s.GetMethod
+	wh.GetHeaders = s.GetHeaders
+	wh.GetMethod = s.GetMethod
 
 	return wh
 }

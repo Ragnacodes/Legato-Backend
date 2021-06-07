@@ -18,8 +18,8 @@ type Webhook struct {
 	Token    uuid.UUID
 	IsEnable bool    `gorm:"default:False"`
 	Service  Service `gorm:"polymorphic:Owner;"`
-	GetMethod *bool	 
-	GetHeaders *bool  
+	GetMethod bool	 
+	GetHeaders bool  
 }
 
 func (w *Webhook) String() string {
