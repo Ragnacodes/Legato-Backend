@@ -5,6 +5,7 @@ import (
 	legatoDb "legato_server/db"
 	"legato_server/domain"
 	"legato_server/env"
+	"legato_server/logging"
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
 	discordUC "legato_server/services/discord"
@@ -18,6 +19,7 @@ import (
 	serviceUC "legato_server/services/usecase"
 	webhookUC "legato_server/services/webhook"
 	userUC "legato_server/user/usecase"
+	logUC  "legato_server/logging/usecase"
 
 	"time"
 
@@ -32,6 +34,7 @@ var httpUseCase domain.HttpUseCase
 var telegramUseCase domain.TelegramUseCase
 var spotifyUseCase domain.SpotifyUseCase
 var sshUseCase domain.SshUseCase
+var loggerUseCase domain.LoggerUseCase
 var gmailUseCase domain.GmailUseCase
 var githubUseCase domain.GitUseCase
 var discordUseCase domain.DiscordUseCase
@@ -43,6 +46,9 @@ func init() {
 
 	// Generate random jwt key
 	authenticate.GenerateRandomKey()
+	
+	// Make server sent event 
+	logging.SSE.Init()
 
 	// Connect to database
 	appDB, err := legatoDb.Connect()
@@ -60,6 +66,7 @@ func init() {
 	httpUseCase = httpUC.NewHttpUseCase(appDB, timeoutContext)
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
+	loggerUseCase = logUC.NewLoggerUseCase(appDB, timeoutContext)
 	sshUseCase = sshUC.NewSshUseCase(appDB, timeoutContext)
 	gmailUseCase = gmailUC.NewGmailUseCase(appDB, timeoutContext)
 	githubUseCase = githubUC.NewGithubUseCase(appDB, timeoutContext)
@@ -81,6 +88,7 @@ func main() {
 		TelegramUseCase: telegramUseCase,
 		SpotifyUseCase:  spotifyUseCase,
 		SshUseCase:      sshUseCase,
+		LoggerUseCase:   loggerUseCase,
 		GmailUseCase:    gmailUseCase,
 		GithubUseCase:   githubUseCase,
 		DiscordUseCase:  discordUseCase,

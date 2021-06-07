@@ -114,9 +114,9 @@ func (t Telegram) Execute(...interface{}) {
 		}
 
 		if env.ENV.Mode == env.DEVELOPMENT{
-			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), nil)
+			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), nil, t.Service.ScenarioID, &t.Service.ID)
 		} else {
-		_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data))
+		_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
 		}
 
 		if err != nil {
@@ -131,9 +131,9 @@ func (t Telegram) Execute(...interface{}) {
 		}
 
 		if env.ENV.Mode == env.DEVELOPMENT{
-			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), nil)
+			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), nil, t.Service.ScenarioID, &t.Service.ID)
 		} else {
-			_, err = makeTorifiedHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data))
+			_, err = makeTorifiedHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
 		}
 
 		if err != nil {
@@ -172,8 +172,14 @@ func (t Telegram) Next(...interface{}) {
 }
 
 // Service interface helper functions
-func makeTorifiedHttpRequest(inputUrl string, method string, body []byte) (res *http.Response, err error) {
-	log.Println("Make http request")
+func makeTorifiedHttpRequest(inputUrl string, method string, body []byte, scenarioId *uint, hId *uint) (res *http.Response, err error) {
+	logData := fmt.Sprintf("Make http request")
+	SendLogMessage(logData, *scenarioId, hId)
+
+	logData = fmt.Sprintf("\nurl: %s\nmethod: %s", inputUrl, method)
+	SendLogMessage(logData, *scenarioId, hId)
+
+	SendLogMessage(string(body), *scenarioId, hId)
 
 	tbProxyURL, err := url.Parse("socks5://tor:9050")
 	if err != nil {
@@ -219,7 +225,11 @@ func makeTorifiedHttpRequest(inputUrl string, method string, body []byte) (res *
 			return nil, err
 	}
 	bodyString := string(bodyBytes)
-	log.Printf("Response from http request is : \n%s\n", bodyString)
+
+	logData = fmt.Sprintf("Got Respose from http request")
+	SendLogMessage(logData, *scenarioId, hId)
+
+	SendLogMessage(bodyString, *scenarioId, hId)
 
 	return res, nil
 

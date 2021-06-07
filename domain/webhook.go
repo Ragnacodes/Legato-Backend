@@ -14,4 +14,5 @@ type WebhookUseCase interface {
 	GetUserWebhookById(u *api.UserInfo, wid uint) (api.WebhookInfo, error)
 	DeleteUserWebhookById(u *api.UserInfo, wid uint) error
 	TriggerWebhook(wid string, data map[string]interface{}) error
+	GetUserWebhookHistoryById(u *api.UserInfo, webhookId uint)([]api.ServiceLogInfo , error)
 }

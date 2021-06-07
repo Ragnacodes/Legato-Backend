@@ -59,6 +59,7 @@ type Resolver struct {
 	TelegramUseCase domain.TelegramUseCase
 	SpotifyUseCase  domain.SpotifyUseCase
 	SshUseCase      domain.SshUseCase
+	LoggerUseCase	domain.LoggerUseCase
 	GmailUseCase    domain.GmailUseCase
 	ToolBoxUseCase  domain.ToolBoxUseCase
 	GithubUseCase   domain.GitUseCase
@@ -79,6 +80,7 @@ var legatoRoutesGroups = routeGroups{
 	spotifyRG,
 	ConnectionRG,
 	sshRG,
+	logRG,
 	GitRG,
 	discordRG,
 }

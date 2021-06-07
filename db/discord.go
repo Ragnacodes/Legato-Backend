@@ -116,7 +116,7 @@ func (d Discord) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(d.Service.Data), &token)
+		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(d.Service.Data), &token, d.Service.ScenarioID, &d.Service.ID)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -128,7 +128,7 @@ func (d Discord) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, err = makeHttpRequest(fmt.Sprintf(discordPinMessageUrl, data.Channel, data.Message), "put", nil, &token)
+		_, err = makeHttpRequest(fmt.Sprintf(discordPinMessageUrl, data.Channel, data.Message), "put", nil, &token, d.Service.ScenarioID, &d.Service.ID)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -140,7 +140,7 @@ func (d Discord) Execute(...interface{}) {
 			log.Fatal(err)
 		}
 
-		_, err = makeHttpRequest(fmt.Sprintf(discordReactMessageUrl, data.Channel, data.Message, data.React), "put", nil, &token)
+		_, err = makeHttpRequest(fmt.Sprintf(discordReactMessageUrl, data.Channel, data.Message, data.React), "put", nil, &token, d.Service.ScenarioID, &d.Service.ID)
 		if err != nil {
 			log.Fatal(err)
 		}

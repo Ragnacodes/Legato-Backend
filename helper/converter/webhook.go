@@ -11,6 +11,8 @@ func WebhookDbToWebhookInfo(s legatoDb.Webhook) api.WebhookInfo {
 	wh.WebhookUrl = s.GetURL()
 	wh.Name = s.Service.Name
 	wh.IsEnable = s.IsEnable
+	wh.GetHeaders = *s.GetHeaders
+	wh.GetMethod = *s.GetMethod
 
 	return wh
 }
@@ -44,6 +46,7 @@ func WebhookDbToServiceNode(wh legatoDb.Webhook) api.ServiceNode {
 func NewSeparateWebhookToWebhook(s api.NewSeparateWebhook) legatoDb.Webhook {
 	var wh legatoDb.Webhook
 	wh.Service.Name = s.Name
-
+	wh.GetHeaders = s.GetHeaders
+	wh.GetMethod = s.GetMethod
 	return wh
 }

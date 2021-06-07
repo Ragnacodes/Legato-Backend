@@ -29,6 +29,7 @@ type Scenario struct {
 	Services          []Service
 	ScheduleToken     []byte
 	LastScheduledTime time.Time
+	Histories 		  []History
 }
 
 func (s *Scenario) String() string {
@@ -74,7 +75,7 @@ func (ldb *LegatoDB) GetScenarioById(scenarioId uint) (Scenario, error) {
 		Preload("Services").
 		Find(&sc).Error
 	if err != nil {
-		return Scenario{}, err
+		return Scenario{}, errors.New("the scenario is not in user scenarios")
 	}
 
 	return sc, nil
@@ -165,6 +166,11 @@ func (s *Scenario) Start() error {
 	log.Println("Preparing scenario to start")
 	err := s.Prepare()
 	if err != nil {
+		return err
+	}
+
+ 	err = legatoDb.CreateHistory(s.ID)
+	 if err != nil {
 		return err
 	}
 
