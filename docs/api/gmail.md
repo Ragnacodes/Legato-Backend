@@ -2,7 +2,7 @@
 - Type = `gmails`
 
 ### Data
-Adding ssh to scenario. There is just one sub type yet.
+Adding gmail to scenario. There is just one sub type yet.
 - Data request to create:
     ```json
     {
@@ -19,7 +19,7 @@ Adding ssh to scenario. There is just one sub type yet.
                 "subject":"test",
                 "to":["mansourikhahreza@gmail.com"],
                 "email":"rezamansourikhah@gmail.com",
-                "password":"------------"
+                "password":"XXXXXXXXXXXXXXXX"
         }
     }
     ```
@@ -41,7 +41,7 @@ Adding ssh to scenario. There is just one sub type yet.
             "data": {
                 "body": "hello",
                 "email": "rezamansourikhah@gmail.com",
-                "password": "-----------",
+                "password": "XXXXXXXXXXXXXXXX",
                 "subject": "test",
                 "to": [
                     "mansourikhahreza@gmail.com"
