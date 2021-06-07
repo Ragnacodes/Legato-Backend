@@ -7,6 +7,7 @@
 - [Webhook](api/webhook.md)
 - [Spotify](api/spotify.md)
 - [Connection](api/connection.md)
+- [Gmail](api/gmail.md)
 - [Github](api/github.md)
 - [Discord](api/discord.md)
 

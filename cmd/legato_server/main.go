@@ -9,6 +9,7 @@ import (
 	scenarioUC "legato_server/scenario/usecase"
 	discordUC "legato_server/services/discord"
 	githubUC "legato_server/services/github"
+	gmailUC "legato_server/services/gmail"
 	httpUC "legato_server/services/http"
 	spotifyUC "legato_server/services/spotify"
 	sshUC "legato_server/services/ssh"
@@ -31,6 +32,7 @@ var httpUseCase domain.HttpUseCase
 var telegramUseCase domain.TelegramUseCase
 var spotifyUseCase domain.SpotifyUseCase
 var sshUseCase domain.SshUseCase
+var gmailUseCase domain.GmailUseCase
 var githubUseCase domain.GitUseCase
 var discordUseCase domain.DiscordUseCase
 var toolBoxUseCase domain.ToolBoxUseCase
@@ -58,17 +60,14 @@ func init() {
 	httpUseCase = httpUC.NewHttpUseCase(appDB, timeoutContext)
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
-	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
+	sshUseCase = sshUC.NewSshUseCase(appDB, timeoutContext)
+	gmailUseCase = gmailUC.NewGmailUseCase(appDB, timeoutContext)
 	githubUseCase = githubUC.NewGithubUseCase(appDB, timeoutContext)
 	discordUseCase = discordUC.NewDiscordUseCase(appDB, timeoutContext)
 	toolBoxUseCase = toolboxUC.NewToolBoxUseCase(appDB, timeoutContext)
 
 	// Defaults
 	_ = userUseCase.CreateDefaultUser()
-
-	// Test single scenario
-	// go scenarioUseCase.TestScenario()
-
 }
 
 func main() {
@@ -82,6 +81,7 @@ func main() {
 		TelegramUseCase: telegramUseCase,
 		SpotifyUseCase:  spotifyUseCase,
 		SshUseCase:      sshUseCase,
+		GmailUseCase:    gmailUseCase,
 		GithubUseCase:   githubUseCase,
 		DiscordUseCase:  discordUseCase,
 		ToolBoxUseCase:  toolBoxUseCase,
