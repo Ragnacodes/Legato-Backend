@@ -159,14 +159,17 @@ func (sp Spotify) Execute(...interface{}) {
 		case getTopTracks:
 
 			nextData = getUserTopTracksHandler(&client)
+			e, err := json.Marshal(nextData.(*spotify.FullTrackPage))
+			if err != nil {
+				fmt.Println(err)
+			}
+			SendLogMessage(string(e), *sp.Service.ScenarioID, &sp.Service.ID)
 			break
 			
 		default:
 			break
 	}
 
-	
-	SendLogMessage(nextData.(string), *sp.Service.ScenarioID, &sp.Service.ID)
 
 	sp.Next(nextData)
 }

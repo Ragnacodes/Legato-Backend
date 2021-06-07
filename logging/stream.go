@@ -20,7 +20,7 @@ func (s serverEvent) Init() {
 }
 
 func (s serverEvent) SendEvent(data string, scid uint){
-    channel := fmt.Sprintf("api/events/%v", scid)
+    channel := fmt.Sprintf("/api/events/%v", scid)
     go s.EventServer.SendMessage(channel, sse.SimpleMessage(data))
     log.Printf(data)
 }
