@@ -66,7 +66,6 @@ func init() {
 	httpUseCase = httpUC.NewHttpUseCase(appDB, timeoutContext)
 	telegramUseCase = telegramUC.NewTelegramUseCase(appDB, timeoutContext)
 	spotifyUseCase = spotifyUC.NewSpotifyUseCase(appDB, timeoutContext)
-	sshUseCase = sshUC.NewHttpUseCase(appDB, timeoutContext)
 	loggerUseCase = logUC.NewLoggerUseCase(appDB, timeoutContext)
 	sshUseCase = sshUC.NewSshUseCase(appDB, timeoutContext)
 	gmailUseCase = gmailUC.NewGmailUseCase(appDB, timeoutContext)
