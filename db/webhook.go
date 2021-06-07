@@ -148,7 +148,7 @@ func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (*Webhook, error) {
 func (ldb *LegatoDB) GetUserWebhooks(u *User) ([]Webhook, error) {
 	var services []Service
 	err := ldb.db.Select("id").Where(&Service{UserID: u.ID}).Find(&services).Error
-	if err != nil {
+	if err != nil || len(services) == 0{
 		return nil, err
 	}
 
