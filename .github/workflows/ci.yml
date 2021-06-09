@@ -131,10 +131,13 @@ jobs:
       - name: Discord notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          DISCORD_EMBEDS: ${{ toJson('{"embeds":[{"title":"Build: success","color":6215936},{"title":"Tests: passed","color":6215936},{"title":"Deployed","color":6215936}]}') }}
         uses: Ilshidur/action-discord@master
         with:
-          args: [
-              'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.',
-              'the trigger commit is {{ GITHUB_SHA }}'
-          ]
+          args: '
+              The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.
+              URL: {{ EVENT_PAYLOAD.check_run.url }}
+              Pull Requests: {{ EVENT_PAYLOAD.check_run.check_run }}
+              The trigger commit is {{ GITHUB_SHA }}
+              Pull requests {{ pulls_url }}
+              To star the project {{ EVENT_PAYLOAD.repository.stargazers_url }}
+              Current stars {{ EVENT_PAYLOAD.repository.stargazers_count }}'
