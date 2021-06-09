@@ -1,0 +1,86 @@
+name: CICD
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SPOTIFY_ID: ${{ secrets.SPOTIFY_ID }}
+      SPOTIFY_SECRET: ${{ secrets.SPOTIFY_SECRET }}
+      DISCORD_SECRET_BOT: ${{ secrets.DISCORD_SECRET_BOT }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+
+      #create required env file
+      - name: Make envfile for spotify
+        run: |
+          echo "SPOTIFY_ID = $SPOTIFY_ID \nSPOTIFY_SECRET = $SPOTIFY_SECRET" \
+          > ${{github.workspace}}/deployments/dev/web.env
+
+        #create required env file
+      - name: Make envfile for discord secret
+        run: |
+          echo "DISCORD_BOT_SECRET = $DISCORD_SECRET_BOT" \
+          > ${{github.workspace}}/env/.env
+
+      # Copy production dockerfile
+      - name: Copy prodproduction dockerfile to ./
+        run: |
+          cp ./deployments/dev/Dockerfile .
+
+      - name: Build the docker file
+        run: |
+          docker build -t legato_server .
+
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      SPOTIFY_ID: ${{ secrets.SPOTIFY_ID }}
+      SPOTIFY_SECRET: ${{ secrets.SPOTIFY_SECRET }}
+      DISCORD_SECRET_BOT: ${{ secrets.DISCORD_SECRET_BOT }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      #create required env file
+      - name: Make envfile for spotify
+        run: |
+          echo "SPOTIFY_ID = $SPOTIFY_ID \nSPOTIFY_SECRET = $SPOTIFY_SECRET" \
+          > ${{github.workspace}}/deployments/dev/web.env
+
+        #create required env file
+      - name: Make envfile for discord secret
+        run: |
+          echo "DISCORD_BOT_SECRET = $DISCORD_SECRET_BOT" \
+          > ${{github.workspace}}/env/.env
+
+      # Setup
+      - name: Build the docker-compose stack
+        run: |
+          docker-compose -f docker-compose-dev.yml up -d
+
+      - name: Inspect images
+        run: |
+          docker image ls -a
+
+      - name: Sleep
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '15s'
+
+      # Run testing on the code
+      - name: Run testing
+        run: |
+          docker exec legato_server go test ./...
+
