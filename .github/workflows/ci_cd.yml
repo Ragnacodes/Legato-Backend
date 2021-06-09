@@ -5,7 +5,6 @@ on:
     branches:
       - master
       - develop
-      - fix/v0.6/github-actions
   pull_request:
     branches:
       - master
@@ -123,7 +122,7 @@ jobs:
           repository: ragnacodes/legato_server
           tags: 0.5.1
 
-  on-deploy-notification:
+  on-deployed-notification:
     needs: [ build, test, deploy ]
     runs-on: ubuntu-latest
     steps:
