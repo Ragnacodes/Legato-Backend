@@ -134,9 +134,12 @@ jobs:
         uses: Ilshidur/action-discord@master
         with:
           args: '
-              The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.
-              URL: {{ EVENT_PAYLOAD.repository.git_url }}
-              Pull Requests: {{ EVENT_PAYLOAD.repository.pulls_url }}
-              The trigger commit is {{ GITHUB_SHA }}
-              To star the project {{ EVENT_PAYLOAD.repository.stargazers_url }}
-              Current stars {{ EVENT_PAYLOAD.repository.stargazers_count }}'
+              The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed. \n
+              URL: {{ EVENT_PAYLOAD.repository.url }} \n
+              Pull Requests: {{ EVENT_PAYLOAD.repository.pulls_url }} \n
+              The trigger commit is {{ GITHUB_SHA }} \n
+              The trigger commit URL is {{ GITHUB_SHA }} \n
+              The trigger commit URL: {{ EVENT_PAYLOAD.repository.commits_url }} \n
+              The trigger commit URL: {{ EVENT_PAYLOAD.repository.git_commits_url }} \n
+              To star the Abstergo: {{ EVENT_PAYLOAD.repository.stargazers_url }} \n
+              Current stars: {{ EVENT_PAYLOAD.repository.stargazers_count }}'
