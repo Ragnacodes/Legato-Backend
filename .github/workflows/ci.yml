@@ -135,7 +135,8 @@ jobs:
         with:
           args: '
               The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.
-              Pull Requests: {{ EVENT_PAYLOAD.check_run.pull_requests }}
+              URL: {{ EVENT_PAYLOAD.repository.git_url }}
+              Pull Requests: {{ EVENT_PAYLOAD.repository.pulls_url }}
               The trigger commit is {{ GITHUB_SHA }}
               To star the project {{ EVENT_PAYLOAD.repository.stargazers_url }}
               Current stars {{ EVENT_PAYLOAD.repository.stargazers_count }}'
