@@ -106,7 +106,7 @@ jobs:
           args: '
               ✅ Tests: Passed
               
-              🔗 Trigger commit: {{ GITHUB_SHA }}
+              🔗 Trigger commit: {{ GITHUB_SHA }}'
 
   deploy:
     needs: [ build, test ]
