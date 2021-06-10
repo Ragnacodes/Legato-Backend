@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - develop
   pull_request:
     branches:
       - master
@@ -42,6 +43,17 @@ jobs:
         run: |
           docker build -t legato_server .
 
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '
+              🔧 🔨 ⚒ 🛠 ⛏ 🔧 🔨 ⚒ 🛠 ⛏
+
+              ✅ Build: Success
+              
+              🔗 Trigger commit: {{ GITHUB_SHA }}'
 
   test:
     needs: build
@@ -86,6 +98,16 @@ jobs:
         run: |
           docker exec legato_server go test ./...
 
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '
+              ✅ Tests: Passed
+              
+              🔗 Trigger commit: {{ GITHUB_SHA }}
+
   deploy:
     needs: [ build, test ]
     runs-on: ubuntu-latest
@@ -120,6 +142,16 @@ jobs:
           repository: ragnacodes/legato_server
           tags: 0.5.1
 
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '
+              ✅ deployed
+              
+              🔗 Trigger commit: {{ GITHUB_SHA }}
+
   on-deployed-notification:
     needs: [ build, test, deploy ]
     runs-on: ubuntu-latest
@@ -132,10 +164,12 @@ jobs:
         uses: Ilshidur/action-discord@master
         with:
           args: '
-              The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.
+              ✅ The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.
 
-              URL: {{ EVENT_PAYLOAD.repository.url }}
+              🔗 URL: {{ EVENT_PAYLOAD.repository.url }}
 
-              Trigger commit: {{ GITHUB_SHA }}
+              🔗 Trigger commit: {{ GITHUB_SHA }}
 
-              Current stars: {{ EVENT_PAYLOAD.repository.stargazers_count }}'
+              ⭐️ Current stars: {{ EVENT_PAYLOAD.repository.stargazers_count }}
+              
+              🔧 🔨 ⚒ 🛠 ⛏ 🔧 🔨 ⚒ 🛠 ⛏ '
