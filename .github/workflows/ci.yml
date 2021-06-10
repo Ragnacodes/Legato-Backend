@@ -41,6 +41,15 @@ jobs:
         run: |
           docker build -t legato_server .
 
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '
+              Build: Success
+              
+              Trigger commit: {{ GITHUB_SHA }}'
 
   test:
     needs: build
@@ -84,3 +93,12 @@ jobs:
         run: |
           docker exec legato_server go test ./...
 
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '
+              Tests: Passed
+              
+              Trigger commit: {{ GITHUB_SHA }}'
