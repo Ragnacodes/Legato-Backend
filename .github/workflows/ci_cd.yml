@@ -150,7 +150,7 @@ jobs:
           args: '
               ✅ deployed
               
-              🔗 Trigger commit: {{ GITHUB_SHA }}
+              🔗 Trigger commit: {{ GITHUB_SHA }}'
 
   on-deployed-notification:
     needs: [ build, test, deploy ]
