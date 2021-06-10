@@ -47,9 +47,11 @@ jobs:
         uses: Ilshidur/action-discord@master
         with:
           args: '
-              Build: Success
+              💢💢💢💢💢💢💢💢💢💢💢💢
+
+              ✅ Build: Success
               
-              Trigger commit: {{ GITHUB_SHA }}'
+              🔗 Trigger commit: {{ GITHUB_SHA }}'
 
   test:
     needs: build
@@ -99,6 +101,8 @@ jobs:
         uses: Ilshidur/action-discord@master
         with:
           args: '
-              Tests: Passed
+              ✅ Tests: Passed
               
-              Trigger commit: {{ GITHUB_SHA }}'
+              🔗 Trigger commit: {{ GITHUB_SHA }}
+
+              💢💢💢💢💢💢💢💢💢💢💢💢'
