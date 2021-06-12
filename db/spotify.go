@@ -34,8 +34,8 @@ func getAuth() spotify.Authenticator{
 
 type Spotify struct {
 	gorm.Model
-	TokenID uint
-	Token   Token
+	ConnectionID uint
+	Connection   *Connection
 	Service Service `gorm:"polymorphic:Owner;"`
 }
 
@@ -78,11 +78,9 @@ func (ldb *LegatoDB)GetSpotifyTokeByUserID(userID uint) (tk Token, err error){
 }
 
 func (ldb *LegatoDB) CreateSpotify(s *Scenario, spotify Spotify) (*Spotify, error) {
-	var tk Token
+	
 	spotify.Service.UserID = s.UserID
 	spotify.Service.ScenarioID = &s.ID
-	ldb.db.Where(&Token{UserID:spotify.Service.UserID}).Find(&tk)
-	spotify.TokenID = tk.ID
 	ldb.db.Create(&spotify)
 	ldb.db.Save(&spotify)
 
@@ -133,7 +131,7 @@ func (ldb *LegatoDB) GetSpotifyByService(serv Service) (*Spotify, error) {
 // Service Interface for Http
 func (sp Spotify) Execute(...interface{}) {
 	
-	err := legatoDb.db.Preload("Service").Preload("Token").Find(&sp).Error
+	err := legatoDb.db.Preload("Service").Preload("Connection").Find(&sp).Error
 	if err != nil {
 		panic(err)
 	}
@@ -143,7 +141,12 @@ func (sp Spotify) Execute(...interface{}) {
 	SendLogMessage(logData, *sp.Service.ScenarioID, nil)
 
 	var nextData interface{}
-	token := DbTokenToOauth2(sp.Token)
+	var tk Token
+	err = json.Unmarshal([]byte(sp.Connection.Data), &tk)
+	if err != nil {
+		log.Fatal(err)
+	}
+	token := DbTokenToOauth2(tk)
 	client := auth().NewClient(&token)
 
 	switch sp.Service.SubType {

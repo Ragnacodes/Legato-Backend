@@ -33,7 +33,7 @@ func (w *Webhook) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 func (w *Webhook) GetURL() string {
-	return fmt.Sprintf("%s:%s/api/services/webhook/%v", env.ENV.WebHost, env.ENV.ServingPort, w.Token)
+	return fmt.Sprintf("%s/api/services/webhook/%v", env.ENV.WebUrl, w.Token)
 }
 
 func (ldb *LegatoDB) CreateWebhookForScenario(s *Scenario, wh Webhook) (*Webhook, error) {
@@ -228,6 +228,11 @@ func (w Webhook) Next(data ...interface{}) {
 	if err != nil {
 		panic(err)
 	}
+
+	// disable webhook after reciving data
+	w.IsEnable = false
+	legatoDb.db.Save(&w)
+
 	logData := fmt.Sprintf("webhook with id %v got payload:", w.Token)
 	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
 
