@@ -124,7 +124,6 @@ func (w *WebhookUseCase) GetUserWebhooks(u *api.UserInfo) ([]api.WebhookInfo, er
 	}
 
 	var whInfos []api.WebhookInfo
-	whInfos = []api.WebhookInfo{}
 	for _, w := range webhooks {
 		whInfos = append(whInfos, converter.WebhookDbToWebhookInfo(w))
 	}

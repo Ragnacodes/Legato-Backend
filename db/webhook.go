@@ -145,25 +145,15 @@ func (ldb *LegatoDB) GetWebhookByUUID(uuid uuid.UUID) (*Webhook, error) {
 }
 
 func (ldb *LegatoDB) GetUserWebhooks(u *User) ([]Webhook, error) {
-	var services []Service
-	err := ldb.db.Select("id").Where(&Service{UserID: u.ID}).Find(&services).Error
-	if err != nil || len(services) == 0{
-		return nil, err
-	}
-
-	// Collect webhook service id
-	var serviceIds []uint
-	serviceIds = []uint{}
-	for _, srv := range services {
-		serviceIds = append(serviceIds, srv.ID)
-	}
-
 	var webhooks []Webhook
-	err = ldb.db.Where(serviceIds).Preload("Service").Find(&webhooks).Error
-	if err != nil {
+	err := ldb.db.Raw(`SELECT webhooks.* FROM webhooks 
+	INNER JOIN services ON (webhooks.id = services.owner_id) 
+	WHERE (services.user_id = ? AND services.owner_type = 'webhooks')
+	ORDER BY webhooks.id ASC`, u.ID).Scan(&webhooks).Error
+
+	if err != nil || len(webhooks) == 0{
 		return nil, err
 	}
-
 	return webhooks, nil
 }
 
