@@ -141,13 +141,13 @@ func (sp Spotify) Execute(...interface{}) {
 	SendLogMessage(logData, *sp.Service.ScenarioID, nil)
 
 	var nextData interface{}
-	var tk Token
+	var tk oauth2.Token
 	err = json.Unmarshal([]byte(sp.Connection.Data), &tk)
 	if err != nil {
 		log.Fatal(err)
 	}
-	token := DbTokenToOauth2(tk)
-	client := auth().NewClient(&token)
+	// token := DbTokenToOauth2(tk)
+	client := auth().NewClient(&tk)
 
 	switch sp.Service.SubType {
 		case addTrackToPlaylist:
