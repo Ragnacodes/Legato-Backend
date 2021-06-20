@@ -82,17 +82,19 @@ func (ldb *LegatoDB) GetToolBoxByService(serv Service) (*ToolBox, error) {
 	return &t, nil
 }
 
-// Service Interface for telegram
+// Service Interface for toolbox
 func (t ToolBox) Execute(...interface{}) {
-	log.Println("*******Starting Toolbox Service*******")
-
 	err := legatoDb.db.Preload("Service").Find(&t).Error
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Executing type (%s) : %s\n", telegramType, t.Service.Name)
+	SendLogMessage("*******Starting Toolbox Service*******", *t.Service.ScenarioID, nil)
+	
+	logData := fmt.Sprintf("Executing type (%s) : %s\n", toolBoxType, t.Service.Name)
+	SendLogMessage(logData, *t.Service.ScenarioID, &t.Service.ID)
 
+	
 	switch t.Service.SubType {
 	case toolBoxSleep:
 		var data toolBoxSleepData
@@ -102,7 +104,9 @@ func (t ToolBox) Execute(...interface{}) {
 		}
 
 		// Goes to sleep for data.Time seconds
-		log.Printf("Sleeping for %d seconds \n", data.Time)
+		logData = fmt.Sprintf("Sleeping for %d seconds \n", data.Time)
+		SendLogMessage(logData, *t.Service.ScenarioID, &t.Service.ID)
+
 		time.Sleep(time.Duration(data.Time) * time.Second)
 
 		break
@@ -115,7 +119,9 @@ func (t ToolBox) Execute(...interface{}) {
 
 		// Repeats the tail for data.Count
 		// There is a t.Next() at end so we specify data.Count - 1
-		log.Printf("Repeating  %d times \n", data.Count)
+		logData = fmt.Sprintf("Repeating  %d times \n", data.Count)
+		SendLogMessage(logData, *t.Service.ScenarioID, &t.Service.ID)
+
 		for i := 1; i < data.Count; i++ {
 			t.Next()
 		}
