@@ -228,11 +228,14 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 	}
 
 	// Log the result
-	bodyBytes, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
+	bodyString := ""
+	if res != nil && res.Body != nil {
+		bodyBytes, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+		bodyString = string(bodyBytes)
 	}
-	bodyString := string(bodyBytes)
 
 	logData = fmt.Sprintf("Got Respose from http request")
 	SendLogMessage(logData, *scenarioId, hId)
