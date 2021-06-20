@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 const httpType string = "https"
@@ -23,6 +24,23 @@ type httpRequestData struct {
 	Url    string
 	Method string
 	Body   map[string]interface{}
+}
+
+type httpGetRequestData struct {
+	Url    string
+	Method string
+	Body   string
+}
+
+func (w *httpRequestData) UnmarshalJSON(data []byte) error {
+	var getData httpGetRequestData
+	if err := json.Unmarshal(data, &httpGetRequestData{}); err == nil {
+	  w.Url = getData.Url
+	  w.Method = getData.Method
+	  w.Body = make(map[string]interface{})
+	  return nil
+	}
+	return nil
 }
 
 func (h *Http) String() string {

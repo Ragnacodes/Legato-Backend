@@ -238,45 +238,59 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 
 }
 
-// Service Interface for telegram
+// Service Interface for ssh
 func (ss Ssh) Execute(...interface{}) {
-	log.Println("*******Starting SSH Service*******")
-
 	err := legatoDb.db.Preload("Service").Find(&ss).Error
 	if err != nil {
 		log.Println(err)
 	}
 
+	SendLogMessage("*******Starting SSH Service*******", *ss.Service.ScenarioID, nil)
+
+	logData := fmt.Sprintf("Executing type (%s) : %s\n", sshType, ss.Service.Name)
+	SendLogMessage(logData, *ss.Service.ScenarioID, nil)
+
+
 	var dataWithPass loginWithPasswordData
-	flag := false
 	mySsh := Ssh{}
 	err = json.Unmarshal([]byte(ss.Service.Data), &dataWithPass)
 
-	if strings.Contains(ss.Service.Data, "password") == true {
-		flag = true
-	}
+	hasPassword := strings.Contains(ss.Service.Data, "password") == true;
+
 
 	var dataWithkey loginWithSshKeyData
 	err1 := json.Unmarshal([]byte(ss.Service.Data), &dataWithkey)
 	if err1 != nil {
 		log.Print(err1)
 	}
-	switch flag {
-	case true:
+	var commands []string
+	if hasPassword{
+		SendLogMessage("Connecting with Password ...", *ss.Service.ScenarioID, &ss.Service.ID)
+		commands = dataWithPass.Commands
 		mySsh.Username = dataWithPass.Username
 		mySsh.Password = dataWithPass.Password
 		mySsh.Host = dataWithPass.Host
 		ConnectWithUserPass(mySsh, dataWithPass.Commands)
 
-	case false:
+	} else{
+		SendLogMessage("Connecting with SSH KEY ...", *ss.Service.ScenarioID, &ss.Service.ID)
+		commands = dataWithkey.Commands
 		mySsh.Username = dataWithkey.Username
 		mySsh.SshKey = dataWithkey.SshKey
 		mySsh.Host = dataWithkey.Host
 		ConnectWithSShKey(mySsh, dataWithkey.Commands)
 
 	}
+
+	logData = fmt.Sprintf("username: %s host: %s", mySsh.Username, mySsh.Host)
+	SendLogMessage(logData, *ss.Service.ScenarioID, &ss.Service.ID)
+
+	logData = fmt.Sprintf("Executing following commands on remote server: %s", commands)
+	SendLogMessage(logData, *ss.Service.ScenarioID, &ss.Service.ID)
+
 	ss.Next()
 }
+
 func (ss Ssh) Post() {
 	log.Printf("Executing type (%s) node in background : %s\n", sshType, ss.Service.Name)
 }
