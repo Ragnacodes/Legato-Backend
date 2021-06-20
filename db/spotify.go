@@ -69,7 +69,7 @@ func (ldb *LegatoDB) NewSpotifyToken(UserID uint, token Token) error{
 }
 
 
-func (ldb *LegatoDB)GetSpotifyTokeByUserID(userID uint) (tk Token, err error){
+func (ldb *LegatoDB) GetSpotifyTokeByUserID(userID uint) (tk Token, err error){
 	err = ldb.db.Where(&Token{UserID:userID}).Find(&tk).Error
 	if err!=nil{
 		return Token{}, err
