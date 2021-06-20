@@ -244,7 +244,7 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 
 	SendLogMessage(bodyString, *scenarioId, hId)
 
-	logData = fmt.Sprintf("service status: %s, %v, service response body: %v", res.Status, res.StatusCode, res.Body)
+	logData = fmt.Sprintf("service status: %s, %v", res.Status, res.StatusCode)
 	SendLogMessage(logData, *scenarioId, hId)
 
 	return res, nil
