@@ -157,7 +157,9 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 			if err != nil {
 				return nil, err
 			}
-			req.Header.Set("Authorization", *authorization)
+			if authorization != nil {
+				req.Header.Set("Authorization", *authorization)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			res, err = client.Do(req)
 			if err != nil {
@@ -174,7 +176,9 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 			if err != nil {
 				return nil, err
 			}
-			req.Header.Set("Authorization", *authorization)
+			if authorization != nil {
+				req.Header.Set("Authorization", *authorization)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			res, err = client.Do(req)
 			if err != nil {
@@ -187,7 +191,9 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 			if err != nil {
 				return nil, err
 			}
-			req.Header.Set("Authorization", *authorization)
+			if authorization != nil {
+				req.Header.Set("Authorization", *authorization)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			res, err = client.Do(req)
 			if err != nil {
