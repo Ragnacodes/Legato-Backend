@@ -33,12 +33,14 @@ type httpGetRequestData struct {
 }
 
 func (w *httpRequestData) UnmarshalJSON(data []byte) error {
-	var getData httpGetRequestData
-	if err := json.Unmarshal(data, &httpGetRequestData{}); err == nil {
+	type superhttpRequestData httpRequestData
+	var getData httpGetRequestData 
+	if err := json.Unmarshal(data, &getData); err == nil {
 	  w.Url = getData.Url
 	  w.Method = getData.Method
 	  w.Body = make(map[string]interface{})
-	  return nil
+	} else{
+		err =  json.Unmarshal(data, (*superhttpRequestData)(w))
 	}
 	return nil
 }
@@ -241,6 +243,9 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 	SendLogMessage(logData, *scenarioId, hId)
 
 	SendLogMessage(bodyString, *scenarioId, hId)
+
+	logData = fmt.Sprintf("service status: %s, %v, service response body: %v", res.Status, res.StatusCode, res.Body)
+	SendLogMessage(logData, *scenarioId, hId)
 
 	return res, nil
 }

@@ -231,6 +231,9 @@ func makeTorifiedHttpRequest(inputUrl string, method string, body []byte, scenar
 
 	SendLogMessage(bodyString, *scenarioId, hId)
 
+	logData = fmt.Sprintf("service status: %s, %v, service response body: %v", res.Status, res.StatusCode, res.Body)
+	SendLogMessage(logData, *scenarioId, hId)
+
 	return res, nil
 
 }
