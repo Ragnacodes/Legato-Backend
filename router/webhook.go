@@ -92,6 +92,7 @@ func handleWebhookData(c *gin.Context) {
 	for k, v := range webhookData {
 		log.Printf("%s : %v\n", k, v)
 	}
+	c.JSON(http.StatusOK, gin.H{})
 	resolvers.WebhookUseCase.TriggerWebhook(param, webhookData)
 }
 
