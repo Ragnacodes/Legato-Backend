@@ -148,7 +148,7 @@ func (ldb *LegatoDB) GetUserWebhooks(u *User) ([]Webhook, error) {
 	var webhooks []Webhook
 	err := ldb.db.Raw(`SELECT webhooks.* FROM webhooks 
 	INNER JOIN services ON (webhooks.id = services.owner_id) 
-	WHERE (services.user_id = ? AND services.owner_type = 'webhooks')
+	WHERE (services.user_id = ? AND services.owner_type = 'webhooks' AND webhooks.deleted_at IS NULL)
 	ORDER BY webhooks.id ASC`, u.ID).Scan(&webhooks).Error
 
 	if err != nil || len(webhooks) == 0{
