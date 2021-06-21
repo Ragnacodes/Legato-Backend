@@ -182,9 +182,13 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 	if wh.ID != wid {
 		return errors.New("the webhook service is not existed")
 	}
-	if wh.Service.UserID != u.ID {
-		return errors.New("the webhook service is not for this user")
+	// if webhook was not deleted in scenario
+	if wh.Service.ID != 0{
+		if wh.Service.UserID != u.ID {
+			return errors.New("the webhook service is not for this user")
+		}
 	}
+
 
 	ldb.db.Delete(&wh)
 	ldb.db.Delete(&wh.Service)
