@@ -34,7 +34,7 @@ func getAuth() spotify.Authenticator{
 
 type Spotify struct {
 	gorm.Model
-	ConnectionID uint
+	ConnectionID *uint
 	Connection   *Connection
 	Service Service `gorm:"polymorphic:Owner;"`
 }
@@ -128,7 +128,7 @@ func (ldb *LegatoDB) GetSpotifyByService(serv Service) (*Spotify, error) {
 	return &t, nil
 }
 
-// Service Interface for Http
+// Service Interface for spotify
 func (sp Spotify) Execute(...interface{}) {
 	
 	err := legatoDb.db.Preload("Service").Preload("Connection").Find(&sp).Error
