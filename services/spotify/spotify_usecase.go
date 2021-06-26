@@ -75,6 +75,9 @@ func (sp *SpotifyUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uin
 	}
 
 	var spotify legatoDb.Spotify
+	if ns.Connection != nil {
+		spotify.ConnectionID = ns.Connection
+	}
 	spotify.Service = converter.NewServiceNodeToServiceDb(ns)
 	
 
