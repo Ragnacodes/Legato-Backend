@@ -114,6 +114,7 @@ func getSpotifyToken(data string) (*oauth2.Token, error) {
 		ClientSecret: "e16695bcd5b5437facda24e30af7f471",
 		Scopes:       []string{"playlist-modify-public", "playlist-modify-private", "user-top-read", "user-read-private"},
 		Endpoint:     spotifyoauth.Endpoint,
+		RedirectURL: "https://abstergo.ir/redirect/spotify",
 	}
 	err := json.Unmarshal([]byte(data), &d)
 	token, err := oauthConf.Exchange(context.Background(), d.Token)
@@ -185,6 +186,7 @@ func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map
 		js, _ := json.Marshal(ut.Data)
 		token, err := getSpotifyToken(string(js))
 		jsonString, err := json.Marshal(token)
+		
 		return string(jsonString), ut.Data, err
 	}
 	return "", nil, nil
