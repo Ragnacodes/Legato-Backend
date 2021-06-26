@@ -148,7 +148,7 @@ func (ldb *LegatoDB) GetUserWebhooks(u *User) ([]Webhook, error) {
 	var webhooks []Webhook
 	err := ldb.db.Raw(`SELECT webhooks.* FROM webhooks 
 	INNER JOIN services ON (webhooks.id = services.owner_id) 
-	WHERE (services.user_id = ? AND services.owner_type = 'webhooks')
+	WHERE (services.user_id = ? AND services.owner_type = 'webhooks' AND webhooks.deleted_at IS NULL)
 	ORDER BY webhooks.id ASC`, u.ID).Scan(&webhooks).Error
 
 	if err != nil || len(webhooks) == 0{
@@ -182,9 +182,13 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 	if wh.ID != wid {
 		return errors.New("the webhook service is not existed")
 	}
-	if wh.Service.UserID != u.ID {
-		return errors.New("the webhook service is not for this user")
+	// if webhook was not deleted in scenario
+	if wh.Service.ID != 0{
+		if wh.Service.UserID != u.ID {
+			return errors.New("the webhook service is not for this user")
+		}
 	}
+
 
 	ldb.db.Delete(&wh)
 	ldb.db.Delete(&wh.Service)
