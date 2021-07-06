@@ -1,10 +1,12 @@
 package usecase
 
 import (
+	"encoding/json"
 	"legato_server/api"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
 	"legato_server/helper/converter"
+	"log"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -22,12 +24,16 @@ func NewSpotifyUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Spot
 	}
 }
 
-func (sp *SpotifyUseCase)GetUserToken(userInfo api.UserInfo) (token *oauth2.Token, err error){
-	tokenDb, err :=  sp.db.GetSpotifyTokeByUserID(userInfo.ID)
+func (sp *SpotifyUseCase)GetUserToken(cid int) (token *oauth2.Token, err error){
+	tokenString, err :=  sp.db.GetSpotifyTokeByUserID(cid)
 	if err!= nil{
 		return nil, err
 	}
-	token = converter.DbTokenToOauth2(tokenDb)
+	var tk oauth2.Token
+	err = json.Unmarshal([]byte(tokenString), &tk)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return token, nil
 }
 
