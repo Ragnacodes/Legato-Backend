@@ -25,12 +25,11 @@ func NewSpotifyUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Spot
 }
 
 func (sp *SpotifyUseCase)GetUserToken(cid int) (token *oauth2.Token, err error){
-	tokenString, err :=  sp.db.GetSpotifyTokeByUserID(cid)
+	tokenString, err :=  sp.db.GetSpotifyTokenByConnectionID(cid)
 	if err!= nil{
 		return nil, err
 	}
-	var tk oauth2.Token
-	err = json.Unmarshal([]byte(tokenString), &tk)
+	err = json.Unmarshal([]byte(tokenString), &token)
 	if err != nil {
 		log.Fatal(err)
 	}

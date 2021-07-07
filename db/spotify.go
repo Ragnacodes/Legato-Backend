@@ -69,7 +69,7 @@ func (ldb *LegatoDB) NewSpotifyToken(UserID uint, token Token) error{
 }
 
 
-func (ldb *LegatoDB) GetSpotifyTokeByUserID(cid int) (cData string, err error){
+func (ldb *LegatoDB) GetSpotifyTokenByConnectionID(cid int) (cData string, err error){
 	var connection Connection
 	err = ldb.db.First(&connection, cid).Error
 	if err!=nil{
