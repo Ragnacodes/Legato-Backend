@@ -55,7 +55,7 @@ var (
 )
 
 func getRedirectURI() string{
-	return fmt.Sprintf("%s/api/callback/", env.ENV.WebUrl)
+	return fmt.Sprintf("%s/redirect/spotify", env.ENV.WebUrl)
 }
  
 func getAuth() spotify.Authenticator{
