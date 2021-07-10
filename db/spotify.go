@@ -191,12 +191,15 @@ func (sp Spotify) Next(...interface{}) {
 	log.Printf("Executing \"%s\" Children \n", sp.Service.Name)
 
 	for _, node := range sp.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	logData := fmt.Sprintf("*******End of \"%s\"*******",sp.Service.Name)

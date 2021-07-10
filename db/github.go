@@ -190,12 +190,15 @@ func (g Github) Next(...interface{}) {
 	log.Printf("Executing \"%s\" Children \n", g.Service.Name)
 
 	for _, node := range g.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	log.Printf("*******End of \"%s\"*******", g.Service.Name)

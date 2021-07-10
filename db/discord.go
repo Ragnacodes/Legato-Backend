@@ -165,13 +165,15 @@ func (d Discord) Next(...interface{}) {
 	log.Printf("Executing \"%s\" Children \n", d.Service.Name)
 
 	for _, node := range d.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
 
-		serv.Execute()
+			serv.Execute()
+		}(node)
 	}
 
 	log.Printf("*******End of \"%s\"*******", d.Service.Name)

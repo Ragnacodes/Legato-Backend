@@ -147,12 +147,15 @@ func (t ToolBox) Next(...interface{}) {
 	log.Printf("Executing \"%s\" Children \n", t.Service.Name)
 
 	for _, node := range t.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	log.Printf("*******End of \"%s\"*******", t.Service.Name)

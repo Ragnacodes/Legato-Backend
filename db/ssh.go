@@ -304,12 +304,15 @@ func (ss Ssh) Next(...interface{}) {
 	log.Printf("Executing \"%s\" Children \n", ss.Service.Name)
 
 	for _, node := range ss.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	log.Printf("*******End of \"%s\"*******", ss.Service.Name)

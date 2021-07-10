@@ -238,12 +238,15 @@ func (w Webhook) Next(data ...interface{}) {
 	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
 
 	for _, node := range w.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	logData = fmt.Sprintf("*******End of \"%s\"*******", w.Service.Name)

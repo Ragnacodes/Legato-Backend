@@ -144,12 +144,15 @@ func (h Http) Next(...interface{}) {
 	SendLogMessage(logData, *h.Service.ScenarioID, nil)
 
 	for _, node := range h.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	logData = fmt.Sprintf("*******End of \"%s\"*******", h.Service.Name)
