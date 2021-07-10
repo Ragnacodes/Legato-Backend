@@ -116,7 +116,7 @@ func loginSpotify(c *gin.Context) {
 	// use the client to make calls that require authorization
 	user, err := client.CurrentUser()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 	message := fmt.Sprintf("You are logged in as: %s", user.ID)
@@ -132,7 +132,7 @@ func completeAuth(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": fmt.Sprintf("Couldn't get token"),
 		})
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 	// if st := c.GetString("state"); st != state {

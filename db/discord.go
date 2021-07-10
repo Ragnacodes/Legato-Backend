@@ -102,8 +102,10 @@ func (d Discord) Execute(...interface{}) {
 
 	err := legatoDb.db.Preload("Service").Find(&d).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
+
 
 	log.Printf("Executing type (%s) : %s\n", discordType, d.Service.Name)
 
@@ -113,36 +115,36 @@ func (d Discord) Execute(...interface{}) {
 		var data discordSendMessageData
 		err = json.Unmarshal([]byte(d.Service.Data), &data)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(d.Service.Data), &token, d.Service.ScenarioID, &d.Service.ID)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 		break
 	case discordPinMessage:
 		var data discordPinMessageData
 		err = json.Unmarshal([]byte(d.Service.Data), &data)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		_, err = makeHttpRequest(fmt.Sprintf(discordPinMessageUrl, data.Channel, data.Message), "put", nil, &token, d.Service.ScenarioID, &d.Service.ID)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 		break
 	case discordReactMessage:
 		var data discordReactMessageData
 		err = json.Unmarshal([]byte(d.Service.Data), &data)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		_, err = makeHttpRequest(fmt.Sprintf(discordReactMessageUrl, data.Channel, data.Message, data.React), "put", nil, &token, d.Service.ScenarioID, &d.Service.ID)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 		break
 	default:
@@ -159,7 +161,8 @@ func (d Discord) Post() {
 func (d Discord) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&d).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", d.Service.Name)

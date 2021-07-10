@@ -298,7 +298,8 @@ func (ss Ssh) Post() {
 func (ss Ssh) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&ss).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", ss.Service.Name)

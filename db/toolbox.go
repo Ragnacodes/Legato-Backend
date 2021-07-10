@@ -86,7 +86,9 @@ func (ldb *LegatoDB) GetToolBoxByService(serv Service) (*ToolBox, error) {
 func (t ToolBox) Execute(...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&t).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		t.Next()
+		return
 	}
 
 	SendLogMessage("*******Starting Toolbox Service*******", *t.Service.ScenarioID, nil)
@@ -100,7 +102,7 @@ func (t ToolBox) Execute(...interface{}) {
 		var data toolBoxSleepData
 		err = json.Unmarshal([]byte(t.Service.Data), &data)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		// Goes to sleep for data.Time seconds
@@ -114,7 +116,7 @@ func (t ToolBox) Execute(...interface{}) {
 		var data toolBoxRepeaterData
 		err = json.Unmarshal([]byte(t.Service.Data), &data)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		// Repeats the tail for data.Count
@@ -141,7 +143,8 @@ func (t ToolBox) Post() {
 func (t ToolBox) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&t).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", t.Service.Name)

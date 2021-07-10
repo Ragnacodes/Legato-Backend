@@ -125,8 +125,11 @@ func (g Github) Execute(...interface{}) {
 	log.Println("*******Starting Git Service*******")
 	err := legatoDb.db.Preload("Service").Find(&g).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		g.Next()
+		return
 	}
+
 	switch g.Service.SubType {
 	case "createIssue":
 		var data createIssueData
@@ -184,7 +187,8 @@ func (g Github) Post() {
 func (g Github) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&g).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", g.Service.Name)

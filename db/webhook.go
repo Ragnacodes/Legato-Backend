@@ -199,8 +199,11 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 func (w Webhook) Execute(...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		w.Next()
+		return
 	}
+
 	SendLogMessage("*******Starting Webhook Service*******", *w.Service.ScenarioID, nil)
 
 	logData := fmt.Sprintf("Executing type (%s) : %s\n", webhookType, w.Service.Name)
@@ -219,7 +222,8 @@ func (w Webhook) Post() {
 func (w Webhook) Next(data ...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&w).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	// disable webhook after reciving data

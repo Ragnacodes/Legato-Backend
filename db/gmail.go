@@ -134,7 +134,9 @@ func (g Gmail) Execute(...interface{}) {
 	log.Println("*******Starting Gmail Service*******")
 	err := legatoDb.db.Preload("Service").Find(&g).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		g.Next()
+		return
 	}
 	switch g.Service.SubType {
 	case "sendEmail":
@@ -157,7 +159,8 @@ func (g Gmail) Post() {
 func (g Gmail) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&g).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", g.Service.Name)
