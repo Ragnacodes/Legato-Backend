@@ -29,7 +29,7 @@ type Scenario struct {
 	Services          []Service
 	ScheduleToken     []byte
 	LastScheduledTime time.Time
-	Histories 		  []History
+	Histories         []History
 }
 
 func (s *Scenario) String() string {
@@ -169,17 +169,17 @@ func (s *Scenario) Start() error {
 		return err
 	}
 
- 	err = legatoDb.CreateHistory(s.ID)
-	 if err != nil {
+	err = legatoDb.CreateHistory(s.ID)
+	if err != nil {
 		return err
 	}
 
 	log.Println("Executing root services of this scenario")
-	go func() {
-		for _, serv := range s.RootServices {
-			serv.Execute()
-		}
-	}()
+	for _, serv := range s.RootServices {
+		go func(s services.Service) {
+			s.Execute()
+		}(serv)
+	}
 	log.Println("Executing finished")
 
 	return nil
