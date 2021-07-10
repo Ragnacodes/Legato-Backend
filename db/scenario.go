@@ -49,7 +49,7 @@ func (ldb *LegatoDB) GetUserScenarios(u *User) ([]Scenario, error) {
 	user, _ := ldb.GetUserByUsername(u.Username)
 
 	var scenarios []Scenario
-	ldb.db.Model(&user).Association("Scenarios").Find(&scenarios)
+	ldb.db.Model(&user).Order("updated_at desc").Association("Scenarios").Find(&scenarios)
 
 	return scenarios, nil
 }
