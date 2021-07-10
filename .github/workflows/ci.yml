@@ -93,6 +93,12 @@ jobs:
       # Run testing on the code
       - name: Run testing
         run: |
+          docker exec legato_server \ 
+            echo "SPOTIFY_ID=$SPOTIFY_ID" > ${{github.workspace}}/deployments/dev/web.env && \
+          docker exec legato_server \ 
+            echo "SPOTIFY_SECRET=$SPOTIFY_SECRET" > ${{github.workspace}}/deployments/dev/web.env && \
+          docker exec legato_server \
+            echo "DISCORD_BOT_SECRET = $DISCORD_SECRET_BOT" > ${{github.workspace}}/env/.env &&
           docker exec legato_server go test ./...
 
       - name: Discord notification
