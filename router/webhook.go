@@ -13,8 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const Webhook = "Webhook"
-
 var webhookRG = routeGroup{
 	name: "Webhook",
 	routes: routes{
@@ -92,8 +90,11 @@ func handleWebhookData(c *gin.Context) {
 	for k, v := range webhookData {
 		log.Printf("%s : %v\n", k, v)
 	}
-	c.JSON(http.StatusOK, gin.H{})
 	resolvers.WebhookUseCase.TriggerWebhook(param, webhookData)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok!",
+	})
 }
 
 func createNewWebhook(c *gin.Context) {
@@ -230,7 +231,6 @@ func deleteUserWebhook(c *gin.Context) {
 	})
 }
 
-
 func webhookExists(WebhookID string) (api.WebhookInfo, error) {
 	if !IsValidUUID(WebhookID) {
 		return api.WebhookInfo{}, errors.New("bad request")
@@ -242,7 +242,7 @@ func webhookExists(WebhookID string) (api.WebhookInfo, error) {
 	return *wh, nil
 }
 
-func getWebhookHistories(c *gin.Context){
+func getWebhookHistories(c *gin.Context) {
 	username := c.Param("username")
 	webhookId, _ := strconv.Atoi(c.Param("webhook_id"))
 
@@ -259,8 +259,8 @@ func getWebhookHistories(c *gin.Context){
 		})
 		return
 	}
-	
-	if logsList == nil{
+
+	if logsList == nil {
 		response := []int{}
 		c.JSON(http.StatusOK, gin.H{
 			"logs": response,
@@ -268,10 +268,8 @@ func getWebhookHistories(c *gin.Context){
 		return
 	}
 
-
 	c.JSON(http.StatusOK, gin.H{
-		
+
 		"logs": logsList,
-		
 	})
 }
