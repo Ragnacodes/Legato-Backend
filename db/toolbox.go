@@ -92,10 +92,11 @@ func (t ToolBox) Execute(...interface{}) {
 	}
 
 	SendLogMessage("*******Starting Toolbox Service*******", *t.Service.ScenarioID, nil)
-
+	
 	logData := fmt.Sprintf("Executing type (%s) : %s\n", toolBoxType, t.Service.Name)
 	SendLogMessage(logData, *t.Service.ScenarioID, &t.Service.ID)
 
+	
 	switch t.Service.SubType {
 	case toolBoxSleep:
 		var data toolBoxSleepData
@@ -123,7 +124,7 @@ func (t ToolBox) Execute(...interface{}) {
 		logData = fmt.Sprintf("Repeating  %d times \n", data.Count)
 		SendLogMessage(logData, *t.Service.ScenarioID, &t.Service.ID)
 
-		for i := 0; i < data.Count; i++ {
+		for i := 1; i < data.Count; i++ {
 			t.Next()
 		}
 
