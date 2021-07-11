@@ -165,7 +165,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PWD }}
           context: .
           repository: ragnacodes/legato_server
-          tags: 0.5.1
+          tags: latest
 
       - name: Discord notification
         if: ${{ success() }}
