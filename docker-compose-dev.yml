@@ -9,6 +9,7 @@ services:
     command: [ "go", "run", "cmd/legato_server/main.go" ]
     env_file:
       - deployments/dev/web.env
+      - env/.env
     ports:
       - "8080:8080"
     container_name: legato_server

@@ -117,7 +117,7 @@ func LoadEnv() {
 
 	discordBotToken := os.Getenv("DISCORD_BOT_SECRET")
 	if discordBotToken == "" {
-		panic("no discord bot secret")
+		log.Println("Warning: no discord bot secret")
 	}
 
 	ENV = env{
