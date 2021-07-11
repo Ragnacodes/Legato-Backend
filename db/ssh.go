@@ -121,7 +121,7 @@ func reverseAny(s interface{}) {
 		swap(i, j)
 	}
 }
-func ConnectWithUserPass(myssh Ssh, commands []string) {
+func ConnectWithUserPass(myssh Ssh, commands []string, scenarioId uint, serviceId uint) {
 	// SSH client config
 	config := &ssh.ClientConfig{
 		User: myssh.Username,
@@ -171,13 +171,15 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Print("Failed to run: " + err.Error())
 	}
+	SendLogMessage(b.String(), scenarioId, &serviceId)
+	log.Print("\n", b.String())
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
 	// Uncomment to store in variable
 
 }
-func ConnectWithSShKey(myssh Ssh, commands []string) {
+func ConnectWithSShKey(myssh Ssh, commands []string, scenarioId uint, serviceId uint) {
 	signer, err := ssh.ParsePrivateKey([]byte(myssh.SshKey))
 
 	if err != nil {
@@ -232,6 +234,7 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Println("Failed to run: " + err.Error())
 	}
+	SendLogMessage(b.String(), scenarioId, &serviceId)
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
@@ -250,13 +253,11 @@ func (ss Ssh) Execute(...interface{}) {
 	logData := fmt.Sprintf("Executing type (%s) : %s\n", sshType, ss.Service.Name)
 	SendLogMessage(logData, *ss.Service.ScenarioID, nil)
 
-
 	var dataWithPass loginWithPasswordData
 	mySsh := Ssh{}
 	err = json.Unmarshal([]byte(ss.Service.Data), &dataWithPass)
 
-	hasPassword := strings.Contains(ss.Service.Data, "password") == true;
-
+	hasPassword := strings.Contains(ss.Service.Data, "password") == true
 
 	var dataWithkey loginWithSshKeyData
 	err1 := json.Unmarshal([]byte(ss.Service.Data), &dataWithkey)
@@ -264,21 +265,21 @@ func (ss Ssh) Execute(...interface{}) {
 		log.Print(err1)
 	}
 	var commands []string
-	if hasPassword{
+	if hasPassword {
 		SendLogMessage("Connecting with Password ...", *ss.Service.ScenarioID, &ss.Service.ID)
 		commands = dataWithPass.Commands
 		mySsh.Username = dataWithPass.Username
 		mySsh.Password = dataWithPass.Password
 		mySsh.Host = dataWithPass.Host
-		ConnectWithUserPass(mySsh, dataWithPass.Commands)
+		ConnectWithUserPass(mySsh, dataWithPass.Commands, *ss.Service.ScenarioID, ss.Service.ID)
 
-	} else{
+	} else {
 		SendLogMessage("Connecting with SSH KEY ...", *ss.Service.ScenarioID, &ss.Service.ID)
 		commands = dataWithkey.Commands
 		mySsh.Username = dataWithkey.Username
 		mySsh.SshKey = dataWithkey.SshKey
 		mySsh.Host = dataWithkey.Host
-		ConnectWithSShKey(mySsh, dataWithkey.Commands)
+		ConnectWithSShKey(mySsh, dataWithkey.Commands, *ss.Service.ScenarioID, ss.Service.ID)
 
 	}
 
