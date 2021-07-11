@@ -58,7 +58,7 @@ func (ldb *LegatoDB) GetScenarioHistoriesByScenarioIds(sids []uint)(historyList 
 
 
 func (ldb *LegatoDB) GetHistoryLogs(historyID uint)(logs []ServiceLog, err error){
-	err = ldb.db.Where(&ServiceLog{HistoryID: uint(historyID)}).Preload("Service").Preload("Messages").Find(&logs).Error
+	err = ldb.db.Where(&ServiceLog{HistoryID: uint(historyID)}).Preload("Service").Preload("Messages").Order("created_at").Find(&logs).Error
 	if err != nil {
 		return nil, err
 	}
