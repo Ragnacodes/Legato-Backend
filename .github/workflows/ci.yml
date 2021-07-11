@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - github-actions
   pull_request:
     branches:
       - develop
@@ -42,6 +43,7 @@ jobs:
           docker build -t legato_server .
 
       - name: Discord notification
+        if: ${{ success() }}
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
@@ -50,6 +52,19 @@ jobs:
               🔧 🔨 ⚒ 🛠 ⛏ 🔧 🔨 ⚒ 🛠 ⛏
 
               ✅ Build: Success
+              
+              🔗 Trigger commit: {{ GITHUB_SHA }}'
+              
+      - name: Discord notification
+        if: ${{ failure() }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '
+              🔧 🔨 ⚒ 🛠 ⛏ 🔧 🔨 ⚒ 🛠 ⛏
+
+              ❌ Build: Failed
               
               🔗 Trigger commit: {{ GITHUB_SHA }}'
 
@@ -95,13 +110,29 @@ jobs:
         run: |
           docker exec legato_server go test ./...
 
+
       - name: Discord notification
+        if: ${{ success() }}
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
           args: '
               ✅ Tests: Passed
+              
+              🔗 Trigger commit: {{ GITHUB_SHA }}
+
+              🔧 🔨 ⚒ 🛠 ⛏ 🔧 🔨 ⚒ 🛠 ⛏'
+
+
+      - name: Discord notification
+        if: ${{ failure() }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '
+              ❌ Tests: Failed
               
               🔗 Trigger commit: {{ GITHUB_SHA }}
 
