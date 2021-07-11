@@ -171,6 +171,7 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Print("Failed to run: " + err.Error())
 	}
+	log.Print("\n", b.String())
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
@@ -232,6 +233,7 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Println("Failed to run: " + err.Error())
 	}
+	log.Print("\n", b.String())
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
@@ -250,13 +252,11 @@ func (ss Ssh) Execute(...interface{}) {
 	logData := fmt.Sprintf("Executing type (%s) : %s\n", sshType, ss.Service.Name)
 	SendLogMessage(logData, *ss.Service.ScenarioID, nil)
 
-
 	var dataWithPass loginWithPasswordData
 	mySsh := Ssh{}
 	err = json.Unmarshal([]byte(ss.Service.Data), &dataWithPass)
 
-	hasPassword := strings.Contains(ss.Service.Data, "password") == true;
-
+	hasPassword := strings.Contains(ss.Service.Data, "password") == true
 
 	var dataWithkey loginWithSshKeyData
 	err1 := json.Unmarshal([]byte(ss.Service.Data), &dataWithkey)
@@ -264,7 +264,7 @@ func (ss Ssh) Execute(...interface{}) {
 		log.Print(err1)
 	}
 	var commands []string
-	if hasPassword{
+	if hasPassword {
 		SendLogMessage("Connecting with Password ...", *ss.Service.ScenarioID, &ss.Service.ID)
 		commands = dataWithPass.Commands
 		mySsh.Username = dataWithPass.Username
@@ -272,7 +272,7 @@ func (ss Ssh) Execute(...interface{}) {
 		mySsh.Host = dataWithPass.Host
 		ConnectWithUserPass(mySsh, dataWithPass.Commands)
 
-	} else{
+	} else {
 		SendLogMessage("Connecting with SSH KEY ...", *ss.Service.ScenarioID, &ss.Service.ID)
 		commands = dataWithkey.Commands
 		mySsh.Username = dataWithkey.Username
