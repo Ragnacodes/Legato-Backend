@@ -151,6 +151,7 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 				"id":       w.ID,
 				"getMethod": w.GetMethod,
 				"getHeaders": w.GetHeaders,
+				"name": s.Name,
 			},
 		}
 

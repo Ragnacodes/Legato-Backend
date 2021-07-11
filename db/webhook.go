@@ -42,7 +42,7 @@ func (ldb *LegatoDB) CreateWebhookForScenario(s *Scenario, wh Webhook) (*Webhook
 
 	ldb.db.Create(&wh)
 	ldb.db.Save(&wh)
-
+	ldb.db.Preload("Service").Find(&wh)
 	return &wh, nil
 }
 
@@ -148,6 +148,9 @@ func (ldb *LegatoDB) GetUserWebhooks(u *User) ([]Webhook, error) {
 	var s []int
 	var webhooks []Webhook
 	err := ldb.db.Model(&Service{}).Where("user_id", u.ID).Where("owner_type", webhookType).Pluck("owner_id", &s).Error
+	if len(s) == 0{
+		return webhooks, nil
+	}
 	err = ldb.db.Preload("Service").Find(&webhooks, s).Error
 	
 	if err != nil || len(webhooks) == 0{

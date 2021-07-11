@@ -16,6 +16,9 @@ type SpotifyUseCase struct {
 	db             *legatoDb.LegatoDB
 	contextTimeout time.Duration
 }
+type connectionJson struct {
+	Connection  *uint `json:"connection"`
+}
 
 func NewSpotifyUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.SpotifyUseCase {
 	return &SpotifyUseCase{
@@ -80,15 +83,23 @@ func (sp *SpotifyUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uin
 	}
 
 	var spotify legatoDb.Spotify
-	if ns.Connection != nil {
-		spotify.ConnectionID = ns.Connection
-	}
 	spotify.Service = converter.NewServiceNodeToServiceDb(ns)
-	
-
-	err = sp.db.UpdateSpotify(&scenario, serviceId, spotify)
-	if err != nil {
-		return err
+	result := make(map[string]interface{}) 
+	err = json.Unmarshal([]byte(spotify.Service.Data), &result)
+	if err == nil {
+		
+		if _, ok := result["connection"]; ok {
+			var data connectionJson
+			err = json.Unmarshal([]byte(spotify.Service.Data), &data)
+			if err != nil {
+				return err
+			}
+			spotify.ConnectionID = data.Connection
+		}
+	}
+		err = sp.db.UpdateSpotify(&scenario, serviceId, spotify)
+		if err != nil {
+			return err
 	}
 
 	return nil

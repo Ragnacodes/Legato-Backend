@@ -22,5 +22,4 @@ type NewServiceNode struct {
 	SubType  *string     `json:"subType"`
 	Position Position    `json:"position"`
 	Data     interface{} `json:"data"`
-	Connection *uint	 `json:"connection"`
 }

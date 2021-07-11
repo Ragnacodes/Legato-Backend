@@ -46,6 +46,7 @@ func WebhookDbToServiceNode(wh legatoDb.Webhook) api.ServiceNode {
 			"id":       wh.ID,
 			"getMethod": wh.GetMethod,
 			"getHeaders": wh.GetHeaders,
+			"name": wh.Service.Name,
 		},
 	}
 	jsonString, _ := json.Marshal(data)
