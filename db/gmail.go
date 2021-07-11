@@ -131,11 +131,15 @@ func (ldb *LegatoDB) GetGmailByService(serv Service) (*Gmail, error) {
 
 // Service Interface for Gmail
 func (g Gmail) Execute(...interface{}) {
-	log.Println("*******Starting Gmail Service*******")
 	err := legatoDb.db.Preload("Service").Find(&g).Error
 	if err != nil {
 		panic(err)
 	}
+	SendLogMessage("*******Starting Gamil Service*******", *g.Service.ScenarioID, nil)
+
+	logData := fmt.Sprintf("Executing type (%s) : %s\n", gmailType, g.Service.Name)
+	SendLogMessage(logData, *g.Service.ScenarioID, nil)
+
 	switch g.Service.SubType {
 	case "sendEmail":
 		var data gmailLoginData
@@ -143,10 +147,17 @@ func (g Gmail) Execute(...interface{}) {
 		if err != nil {
 			log.Print(err)
 		}
+		
+		// send log
+		logData := fmt.Sprintf("Sending email from: (%s)  to: %s\n", data.EmailFrom, data.To)
+		SendLogMessage(logData, *g.Service.ScenarioID, nil)
+
+		logData = fmt.Sprintf("Email Body: (%s)  ", data.Body)
+		SendLogMessage(logData, *g.Service.ScenarioID, nil)
+
 		emailAuth, _ := LoginWithSMTP(data.EmailFrom, data.Password)
 		_, _ = SendEmailSmtp(data.To, data.Body, "smtp.gmail.com", data.EmailFrom, data.Subject, emailAuth)
 	}
-	log.Printf("Executing type (%s) : %s\n", gmailType, g.Service.Name)
 	g.Next()
 }
 
@@ -171,5 +182,6 @@ func (g Gmail) Next(...interface{}) {
 		serv.Execute()
 	}
 
-	log.Printf("*******End of \"%s\"*******", g.Service.Name)
+	logData := fmt.Sprintf("*******End of \"%s\"*******", g.Service.Name)
+	SendLogMessage(logData, *g.Service.ScenarioID, nil)
 }
