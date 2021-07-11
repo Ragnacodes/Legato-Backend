@@ -121,7 +121,7 @@ func reverseAny(s interface{}) {
 		swap(i, j)
 	}
 }
-func ConnectWithUserPass(myssh Ssh, commands []string) {
+func ConnectWithUserPass(myssh Ssh, commands []string, scenarioId uint, serviceId uint) {
 	// SSH client config
 	config := &ssh.ClientConfig{
 		User: myssh.Username,
@@ -171,13 +171,15 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Print("Failed to run: " + err.Error())
 	}
+	SendLogMessage(b.String(), scenarioId, &serviceId)
+	log.Print("\n", b.String())
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
 	// Uncomment to store in variable
 
 }
-func ConnectWithSShKey(myssh Ssh, commands []string) {
+func ConnectWithSShKey(myssh Ssh, commands []string, scenarioId uint, serviceId uint) {
 	signer, err := ssh.ParsePrivateKey([]byte(myssh.SshKey))
 
 	if err != nil {
@@ -232,51 +234,64 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Println("Failed to run: " + err.Error())
 	}
+	SendLogMessage(b.String(), scenarioId, &serviceId)
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
 
 }
 
-// Service Interface for telegram
+// Service Interface for ssh
 func (ss Ssh) Execute(...interface{}) {
-	log.Println("*******Starting SSH Service*******")
-
 	err := legatoDb.db.Preload("Service").Find(&ss).Error
 	if err != nil {
 		log.Println(err)
 	}
 
+	SendLogMessage("*******Starting SSH Service*******", *ss.Service.ScenarioID, nil)
+
+	logData := fmt.Sprintf("Executing type (%s) : %s\n", sshType, ss.Service.Name)
+	SendLogMessage(logData, *ss.Service.ScenarioID, nil)
+
 	var dataWithPass loginWithPasswordData
-	flag := false
 	mySsh := Ssh{}
 	err = json.Unmarshal([]byte(ss.Service.Data), &dataWithPass)
 
-	if strings.Contains(ss.Service.Data, "password") == true {
-		flag = true
-	}
+	hasPassword := strings.Contains(ss.Service.Data, "password") == true
 
 	var dataWithkey loginWithSshKeyData
 	err1 := json.Unmarshal([]byte(ss.Service.Data), &dataWithkey)
 	if err1 != nil {
 		log.Print(err1)
 	}
-	switch flag {
-	case true:
+	var commands []string
+	if hasPassword {
+		SendLogMessage("Connecting with Password ...", *ss.Service.ScenarioID, &ss.Service.ID)
+		commands = dataWithPass.Commands
 		mySsh.Username = dataWithPass.Username
 		mySsh.Password = dataWithPass.Password
 		mySsh.Host = dataWithPass.Host
-		ConnectWithUserPass(mySsh, dataWithPass.Commands)
+		ConnectWithUserPass(mySsh, dataWithPass.Commands, *ss.Service.ScenarioID, ss.Service.ID)
 
-	case false:
+	} else {
+		SendLogMessage("Connecting with SSH KEY ...", *ss.Service.ScenarioID, &ss.Service.ID)
+		commands = dataWithkey.Commands
 		mySsh.Username = dataWithkey.Username
 		mySsh.SshKey = dataWithkey.SshKey
 		mySsh.Host = dataWithkey.Host
-		ConnectWithSShKey(mySsh, dataWithkey.Commands)
+		ConnectWithSShKey(mySsh, dataWithkey.Commands, *ss.Service.ScenarioID, ss.Service.ID)
 
 	}
+
+	logData = fmt.Sprintf("username: %s host: %s", mySsh.Username, mySsh.Host)
+	SendLogMessage(logData, *ss.Service.ScenarioID, &ss.Service.ID)
+
+	logData = fmt.Sprintf("Executing following commands on remote server: %s", commands)
+	SendLogMessage(logData, *ss.Service.ScenarioID, &ss.Service.ID)
+
 	ss.Next()
 }
+
 func (ss Ssh) Post() {
 	log.Printf("Executing type (%s) node in background : %s\n", sshType, ss.Service.Name)
 }
@@ -284,18 +299,22 @@ func (ss Ssh) Post() {
 func (ss Ssh) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&ss).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", ss.Service.Name)
 
 	for _, node := range ss.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	log.Printf("*******End of \"%s\"*******", ss.Service.Name)

@@ -1,17 +1,14 @@
 package router
 
 import (
-	"context"
 	"fmt"
 	"legato_server/env"
 	"log"
 	"net/http"
-	"os"
-
+	"strconv"
 	"github.com/gin-gonic/gin"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
 )
 
 
@@ -35,13 +32,13 @@ var spotifyRG = routeGroup{
 		route{
 			"get user playlists",
 			GET,
-			"/users/:username/spotify/playlists",
+			"/users/:username/spotify/playlists/:connection_id",
 			ReadUserPlaylists,
 		},
 		route{
 			"get a track info",
 			GET,
-			"/services/spotify/track/:id",
+			"/users/:username/services/spotify/:connection_id/track/:track_id",
 			getTrackInfo,
 		},
 	},
@@ -58,7 +55,7 @@ var (
 )
 
 func getRedirectURI() string{
-	return fmt.Sprintf("%s/api/callback/", env.ENV.WebUrl)
+	return fmt.Sprintf("%s/redirect/spotify", env.ENV.WebUrl)
 }
  
 func getAuth() spotify.Authenticator{
@@ -67,13 +64,15 @@ func getAuth() spotify.Authenticator{
 
 func ReadUserPlaylists(c *gin.Context) {
 	username := c.Param("username")
+	connection_id := c.Param("connection_id")
 	// 
 	// Authenticate
 	loginUser := checkAuth(c, []string{username})
 	if loginUser == nil {
 		return
 	}
-	token, err := resolvers.SpotifyUseCase.GetUserToken(*loginUser)
+	cid , _ := strconv.Atoi(connection_id) 
+	token, err := resolvers.SpotifyUseCase.GetUserToken(cid)
 	if err!= nil{
 		c.JSON(http.StatusNotFound, gin.H{
 				"message": err,
@@ -117,7 +116,7 @@ func loginSpotify(c *gin.Context) {
 	// use the client to make calls that require authorization
 	user, err := client.CurrentUser()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 	message := fmt.Sprintf("You are logged in as: %s", user.ID)
@@ -133,7 +132,7 @@ func completeAuth(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": fmt.Sprintf("Couldn't get token"),
 		})
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 	// if st := c.GetString("state"); st != state {
@@ -150,19 +149,26 @@ func completeAuth(c *gin.Context) {
 
 func getTrackInfo(c *gin.Context) {
 
-	config := &clientcredentials.Config{
-		ClientID:     os.Getenv("SPOTIFY_ID"),
-		ClientSecret: os.Getenv("SPOTIFY_SECRET"),
-		TokenURL:     spotify.TokenURL,
+	username := c.Param("username")
+	connection_id := c.Param("connection_id")
+	// 
+	// Authenticate
+	loginUser := checkAuth(c, []string{username})
+	if loginUser == nil {
+		return
 	}
-	token, err := config.Token(context.Background())
-	if err != nil {
-		log.Fatalf("couldn't get token: %v", err)
+	cid , _ := strconv.Atoi(connection_id) 
+	token, err := resolvers.SpotifyUseCase.GetUserToken(cid)
+	if err!= nil{
+		c.JSON(http.StatusNotFound, gin.H{
+				"message": err,
+		})
+		return
 	}
 
-	client := spotify.Authenticator{}.NewClient(token)
+	client := auth().NewClient(token)
 	
-	trackId := c.Param("id")
+	trackId := c.Param("track_id")
 	// handle track info
 	
 	trackInfo, err := client.GetTrack(spotify.ID(trackId))

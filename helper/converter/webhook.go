@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"encoding/json"
 	"legato_server/api"
 	legatoDb "legato_server/db"
 )
@@ -38,8 +39,19 @@ func WebhookDbToServiceNode(wh legatoDb.Webhook) api.ServiceNode {
 	var sn api.ServiceNode
 	sn = ServiceDbToServiceNode(wh.Service)
 	// Webhook data
-	sn.Data = WebhookDbToWebhookInfo(wh)
-
+	data := &map[string]interface{}{
+		"webhook": &map[string]interface{}{
+			"url":      wh.GetURL(),
+			"isEnable": wh.IsEnable,
+			"id":       wh.ID,
+			"getMethod": wh.GetMethod,
+			"getHeaders": wh.GetHeaders,
+			"name": wh.Service.Name,
+		},
+	}
+	jsonString, _ := json.Marshal(data)
+	_ = json.Unmarshal(jsonString, sn.Data)
+	
 	return sn
 }
 

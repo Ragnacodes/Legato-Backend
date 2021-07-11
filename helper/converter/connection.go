@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"legato_server/api"
+	"legato_server/env"
 	"strings"
 
 	"golang.org/x/oauth2"
 	githuboauth "golang.org/x/oauth2/github"
 	"golang.org/x/oauth2/google"
+	spotifyoauth "golang.org/x/oauth2/spotify"
 )
 
 type loginWithPasswordData struct {
@@ -87,10 +89,38 @@ func BindConnectionData(data string, Type string) (map[string]interface{}, error
 		json.Unmarshal([]byte(data), &condata)
 		data := map[string]interface{}{"key": condata.GuildId}
 		return data, err
-
+	case "spotifies":
+		type Tokenaouth struct {
+			Token map[string]interface{} `json:"token"`
+		}
+		token := oauth2.Token{}
+		err := json.Unmarshal([]byte(data), &token)
+		fmt.Println(err)
+		data := &map[string]interface{}{
+			"token": token,
+		}
+		return *data, err
 	}
 	return nil, nil
 }
+
+func getSpotifyToken(data string) (*oauth2.Token, error) {
+	type extractdata struct {
+		Token string `json:"token"`
+	}
+	var d extractdata
+	oauthConf := &oauth2.Config{
+		ClientID:     "74049abbf6784599a1564060e7c9dc12",
+		ClientSecret: "e16695bcd5b5437facda24e30af7f471",
+		Scopes:       []string{"playlist-modify-public", "playlist-modify-private", "user-top-read", "user-read-private"},
+		Endpoint:     spotifyoauth.Endpoint,
+		RedirectURL: "https://abstergo.ir/redirect/spotify",
+	}
+	err := json.Unmarshal([]byte(data), &d)
+	token, err := oauthConf.Exchange(context.Background(), d.Token)
+	return token, err
+}
+
 func getGitToken(data string) (interface{}, error) {
 	type extractdata struct {
 		Token string `json:"token"`
@@ -111,11 +141,12 @@ func getGmailToken(data string) (interface{}, error) {
 		Token string `json:"token"`
 	}
 	var d extractdata
+	gmailRedirect := fmt.Sprintf("http://%s/redirect/gmail", env.ENV.WebUrl)
 	oauthConf := oauth2.Config{
 		ClientID:     "906955768602-u0nu3ruckq6pcjvune1tulkq3n0kfvrl.apps.googleusercontent.com",
 		ClientSecret: "VoXRAy3fWRcqFi10rlo31HB2",
 		Endpoint:     google.Endpoint,
-		RedirectURL:  "http://localhost:3000/redirect/gmail/",
+		RedirectURL:  gmailRedirect,
 	}
 	err := json.Unmarshal([]byte(data), &d)
 	token, err := oauthConf.Exchange(context.Background(), d.Token)
@@ -149,6 +180,13 @@ func ExtractData(data interface{}, Type string, ut *api.Connection) (string, map
 		return string(jsonString), ut.Data, err
 	case "discords":
 		jsonString, err := json.Marshal(ut.Data)
+		return string(jsonString), ut.Data, err
+
+	case "spotifies":
+		js, _ := json.Marshal(ut.Data)
+		token, err := getSpotifyToken(string(js))
+		jsonString, err := json.Marshal(token)
+		
 		return string(jsonString), ut.Data, err
 	}
 	return "", nil, nil

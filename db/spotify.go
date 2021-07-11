@@ -25,7 +25,7 @@ var (
 
 
 func getRedirectURI() string{
-	return fmt.Sprintf("%s/api/callback/", env.ENV.WebUrl)
+	return fmt.Sprintf("%s/redirect/spotify", env.ENV.WebUrl)
 }
  
 func getAuth() spotify.Authenticator{
@@ -34,8 +34,8 @@ func getAuth() spotify.Authenticator{
 
 type Spotify struct {
 	gorm.Model
-	TokenID uint
-	Token   Token
+	ConnectionID *uint
+	Connection   *Connection
 	Service Service `gorm:"polymorphic:Owner;"`
 }
 
@@ -69,20 +69,19 @@ func (ldb *LegatoDB) NewSpotifyToken(UserID uint, token Token) error{
 }
 
 
-func (ldb *LegatoDB)GetSpotifyTokeByUserID(userID uint) (tk Token, err error){
-	err = ldb.db.Where(&Token{UserID:userID}).Find(&tk).Error
+func (ldb *LegatoDB) GetSpotifyTokenByConnectionID(cid int) (cData string, err error){
+	var connection Connection
+	err = ldb.db.First(&connection, cid).Error
 	if err!=nil{
-		return Token{}, err
+		return "", err
 	}
-	return tk, nil
+	return connection.Data, nil
 }
 
 func (ldb *LegatoDB) CreateSpotify(s *Scenario, spotify Spotify) (*Spotify, error) {
-	var tk Token
+	
 	spotify.Service.UserID = s.UserID
 	spotify.Service.ScenarioID = &s.ID
-	ldb.db.Where(&Token{UserID:spotify.Service.UserID}).Find(&tk)
-	spotify.TokenID = tk.ID
 	ldb.db.Create(&spotify)
 	ldb.db.Save(&spotify)
 
@@ -130,28 +129,36 @@ func (ldb *LegatoDB) GetSpotifyByService(serv Service) (*Spotify, error) {
 	return &t, nil
 }
 
-// Service Interface for Http
+// Service Interface for spotify
 func (sp Spotify) Execute(...interface{}) {
-	
-	err := legatoDb.db.Preload("Service").Preload("Token").Find(&sp).Error
+
+	err := legatoDb.db.Preload("Service").Preload("Connection").Find(&sp).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		sp.Next()
+		return
 	}
+
 	SendLogMessage("*******Starting Spotify Service*******", *sp.Service.ScenarioID, nil)
 	
 	logData := fmt.Sprintf("Executing type (%s) : %s\n", spotifyType, sp.Service.Name)
 	SendLogMessage(logData, *sp.Service.ScenarioID, nil)
 
 	var nextData interface{}
-	token := DbTokenToOauth2(sp.Token)
-	client := auth().NewClient(&token)
+	var tk oauth2.Token
+	err = json.Unmarshal([]byte(sp.Connection.Data), &tk)
+	if err != nil {
+		log.Println(err)
+	}
+	// token := DbTokenToOauth2(tk)
+	client := auth().NewClient(&tk)
 
 	switch sp.Service.SubType {
 		case addTrackToPlaylist:
 			var data addToPlaylistData
 			err = json.Unmarshal([]byte(sp.Service.Data), &data)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
 			}
 			addTrackToPlaylistHandler(&client, data)
 			break
@@ -181,18 +188,22 @@ func (sp Spotify) Post() {
 func (sp Spotify) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&sp).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", sp.Service.Name)
 
 	for _, node := range sp.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	logData := fmt.Sprintf("*******End of \"%s\"*******",sp.Service.Name)

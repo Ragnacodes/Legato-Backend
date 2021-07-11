@@ -72,19 +72,19 @@ func connectionAuthUrl(c *gin.Context) {
 	switch service {
 	case "spotify":
 		c.JSON(200, gin.H{
-			"url": env.SpotifyAuthenticateUrl,
+			"url": fmt.Sprintf(env.SpotifyAuthenticateUrl, env.ENV.WebPageUrl),
 		})
 	case "google":
 		c.JSON(200, gin.H{
-			"url": env.GoogleAuthenticateUrl,
+			"url": fmt.Sprintf(env.GoogleAuthenticateUrl, env.ENV.WebPageUrl),
 		})
 	case "github":
 		c.JSON(200, gin.H{
-			"url": env.GitAuthenticateUrl,
+			"url": fmt.Sprintf(env.GitAuthenticateUrl, env.ENV.WebPageUrl),
 		})
 	case "discord":
 		c.JSON(200, gin.H{
-			"url": env.DiscordAuthenticateUrl,
+			"url": fmt.Sprintf(env.DiscordAuthenticateUrl, env.ENV.WebPageUrl),
 		})
 	}
 }

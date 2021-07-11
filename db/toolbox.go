@@ -82,27 +82,33 @@ func (ldb *LegatoDB) GetToolBoxByService(serv Service) (*ToolBox, error) {
 	return &t, nil
 }
 
-// Service Interface for telegram
+// Service Interface for toolbox
 func (t ToolBox) Execute(...interface{}) {
-	log.Println("*******Starting Toolbox Service*******")
-
 	err := legatoDb.db.Preload("Service").Find(&t).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		t.Next()
+		return
 	}
 
-	log.Printf("Executing type (%s) : %s\n", telegramType, t.Service.Name)
+	SendLogMessage("*******Starting Toolbox Service*******", *t.Service.ScenarioID, nil)
+	
+	logData := fmt.Sprintf("Executing type (%s) : %s\n", toolBoxType, t.Service.Name)
+	SendLogMessage(logData, *t.Service.ScenarioID, &t.Service.ID)
 
+	
 	switch t.Service.SubType {
 	case toolBoxSleep:
 		var data toolBoxSleepData
 		err = json.Unmarshal([]byte(t.Service.Data), &data)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		// Goes to sleep for data.Time seconds
-		log.Printf("Sleeping for %d seconds \n", data.Time)
+		logData = fmt.Sprintf("Sleeping for %d seconds \n", data.Time)
+		SendLogMessage(logData, *t.Service.ScenarioID, &t.Service.ID)
+
 		time.Sleep(time.Duration(data.Time) * time.Second)
 
 		break
@@ -110,12 +116,14 @@ func (t ToolBox) Execute(...interface{}) {
 		var data toolBoxRepeaterData
 		err = json.Unmarshal([]byte(t.Service.Data), &data)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		// Repeats the tail for data.Count
 		// There is a t.Next() at end so we specify data.Count - 1
-		log.Printf("Repeating  %d times \n", data.Count)
+		logData = fmt.Sprintf("Repeating  %d times \n", data.Count)
+		SendLogMessage(logData, *t.Service.ScenarioID, &t.Service.ID)
+
 		for i := 1; i < data.Count; i++ {
 			t.Next()
 		}
@@ -135,18 +143,22 @@ func (t ToolBox) Post() {
 func (t ToolBox) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&t).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", t.Service.Name)
 
 	for _, node := range t.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	log.Printf("*******End of \"%s\"*******", t.Service.Name)

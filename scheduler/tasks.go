@@ -28,7 +28,7 @@ func startScenario(scenarioID int, token []byte) error {
 	}
 	body, err := json.Marshal(data)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Make http request to do run this scenario

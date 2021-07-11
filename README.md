@@ -38,5 +38,5 @@
 - Run server with a flag `--build` for the first time.
 
     ```shell script
-    $ docker-compose -f docker-compose-dev.yml up --build
+    $ docker-compose -f docker-compose-dev.yml up --build 
     ```

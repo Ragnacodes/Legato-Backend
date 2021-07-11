@@ -1,10 +1,12 @@
 package usecase
 
 import (
+	"encoding/json"
 	"legato_server/api"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
 	"legato_server/helper/converter"
+	"log"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -14,6 +16,9 @@ type SpotifyUseCase struct {
 	db             *legatoDb.LegatoDB
 	contextTimeout time.Duration
 }
+type connectionJson struct {
+	Connection  *uint `json:"connection"`
+}
 
 func NewSpotifyUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.SpotifyUseCase {
 	return &SpotifyUseCase{
@@ -22,12 +27,15 @@ func NewSpotifyUseCase(db *legatoDb.LegatoDB, timeout time.Duration) domain.Spot
 	}
 }
 
-func (sp *SpotifyUseCase)GetUserToken(userInfo api.UserInfo) (token *oauth2.Token, err error){
-	tokenDb, err :=  sp.db.GetSpotifyTokeByUserID(userInfo.ID)
+func (sp *SpotifyUseCase)GetUserToken(cid int) (token *oauth2.Token, err error){
+	tokenString, err :=  sp.db.GetSpotifyTokenByConnectionID(cid)
 	if err!= nil{
 		return nil, err
 	}
-	token = converter.DbTokenToOauth2(tokenDb)
+	err = json.Unmarshal([]byte(tokenString), &token)
+	if err != nil {
+		log.Println(err)
+	}
 	return token, nil
 }
 
@@ -76,11 +84,22 @@ func (sp *SpotifyUseCase) Update(u *api.UserInfo, scenarioId uint, serviceId uin
 
 	var spotify legatoDb.Spotify
 	spotify.Service = converter.NewServiceNodeToServiceDb(ns)
-	
-
-	err = sp.db.UpdateSpotify(&scenario, serviceId, spotify)
-	if err != nil {
-		return err
+	result := make(map[string]interface{}) 
+	err = json.Unmarshal([]byte(spotify.Service.Data), &result)
+	if err == nil {
+		
+		if _, ok := result["connection"]; ok {
+			var data connectionJson
+			err = json.Unmarshal([]byte(spotify.Service.Data), &data)
+			if err != nil {
+				return err
+			}
+			spotify.ConnectionID = data.Connection
+		}
+	}
+		err = sp.db.UpdateSpotify(&scenario, serviceId, spotify)
+		if err != nil {
+			return err
 	}
 
 	return nil

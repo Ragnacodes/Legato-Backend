@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 const httpType string = "https"
@@ -23,6 +24,25 @@ type httpRequestData struct {
 	Url    string
 	Method string
 	Body   map[string]interface{}
+}
+
+type httpGetRequestData struct {
+	Url    string
+	Method string
+	Body   string
+}
+
+func (w *httpRequestData) UnmarshalJSON(data []byte) error {
+	type superhttpRequestData httpRequestData
+	var getData httpGetRequestData 
+	if err := json.Unmarshal(data, &getData); err == nil {
+	  w.Url = getData.Url
+	  w.Method = getData.Method
+	  w.Body = make(map[string]interface{})
+	} else{
+		err =  json.Unmarshal(data, (*superhttpRequestData)(w))
+	}
+	return nil
 }
 
 func (h *Http) String() string {
@@ -83,8 +103,11 @@ func (ldb *LegatoDB) GetHttpByService(serv Service) (*Http, error) {
 func (h Http) Execute(...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&h).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		h.Next()
+		return
 	}
+
 	SendLogMessage("*******Starting Http Service*******", *h.Service.ScenarioID, nil)
 
 	logData := fmt.Sprintf("Executing type (%s) : %s\n", httpType, h.Service.Name)
@@ -94,16 +117,16 @@ func (h Http) Execute(...interface{}) {
 	var data httpRequestData
 	err = json.Unmarshal([]byte(h.Service.Data), &data)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	requestBody, err := json.Marshal(data.Body)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 	_, err = makeHttpRequest(data.Url, data.Method, requestBody, nil ,h.Service.ScenarioID, &h.Service.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	h.Next()
@@ -117,19 +140,23 @@ func (h Http) Post() {
 func (h Http) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service").Preload("Service.Children").Find(&h).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	logData := fmt.Sprintf("Executing \"%s\" Children \n", h.Service.Name)
 	SendLogMessage(logData, *h.Service.ScenarioID, nil)
 
 	for _, node := range h.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	logData = fmt.Sprintf("*******End of \"%s\"*******", h.Service.Name)
@@ -157,7 +184,9 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 			if err != nil {
 				return nil, err
 			}
-			req.Header.Set("Authorization", *authorization)
+			if authorization != nil {
+				req.Header.Set("Authorization", *authorization)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			res, err = client.Do(req)
 			if err != nil {
@@ -174,7 +203,9 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 			if err != nil {
 				return nil, err
 			}
-			req.Header.Set("Authorization", *authorization)
+			if authorization != nil {
+				req.Header.Set("Authorization", *authorization)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			res, err = client.Do(req)
 			if err != nil {
@@ -187,7 +218,9 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 			if err != nil {
 				return nil, err
 			}
-			req.Header.Set("Authorization", *authorization)
+			if authorization != nil {
+				req.Header.Set("Authorization", *authorization)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			res, err = client.Do(req)
 			if err != nil {
@@ -204,16 +237,22 @@ func makeHttpRequest(url string, method string, body []byte, authorization *stri
 	}
 
 	// Log the result
-	bodyBytes, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
+	bodyString := ""
+	if res != nil && res.Body != nil {
+		bodyBytes, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+		bodyString = string(bodyBytes)
 	}
-	bodyString := string(bodyBytes)
 
 	logData = fmt.Sprintf("Got Respose from http request")
 	SendLogMessage(logData, *scenarioId, hId)
 
 	SendLogMessage(bodyString, *scenarioId, hId)
+
+	logData = fmt.Sprintf("service status: %s, %v", res.Status, res.StatusCode)
+	SendLogMessage(logData, *scenarioId, hId)
 
 	return res, nil
 }
