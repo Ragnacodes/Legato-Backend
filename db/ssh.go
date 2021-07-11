@@ -121,7 +121,7 @@ func reverseAny(s interface{}) {
 		swap(i, j)
 	}
 }
-func ConnectWithUserPass(myssh Ssh, commands []string) {
+func ConnectWithUserPass(myssh Ssh, commands []string, scenarioId uint, serviceId uint) {
 	// SSH client config
 	config := &ssh.ClientConfig{
 		User: myssh.Username,
@@ -171,6 +171,7 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Print("Failed to run: " + err.Error())
 	}
+	SendLogMessage(b.String(), scenarioId, &serviceId)
 	log.Print("\n", b.String())
 	_ = stdIn.Close()
 	_ = session.Close()
@@ -178,7 +179,7 @@ func ConnectWithUserPass(myssh Ssh, commands []string) {
 	// Uncomment to store in variable
 
 }
-func ConnectWithSShKey(myssh Ssh, commands []string) {
+func ConnectWithSShKey(myssh Ssh, commands []string, scenarioId uint, serviceId uint) {
 	signer, err := ssh.ParsePrivateKey([]byte(myssh.SshKey))
 
 	if err != nil {
@@ -233,7 +234,7 @@ func ConnectWithSShKey(myssh Ssh, commands []string) {
 	if err := session.Run(commandsInOneLine); err != nil {
 		log.Println("Failed to run: " + err.Error())
 	}
-	log.Print("\n", b.String())
+	SendLogMessage(b.String(), scenarioId, &serviceId)
 	_ = stdIn.Close()
 	_ = session.Close()
 	_ = client.Close()
@@ -270,7 +271,7 @@ func (ss Ssh) Execute(...interface{}) {
 		mySsh.Username = dataWithPass.Username
 		mySsh.Password = dataWithPass.Password
 		mySsh.Host = dataWithPass.Host
-		ConnectWithUserPass(mySsh, dataWithPass.Commands)
+		ConnectWithUserPass(mySsh, dataWithPass.Commands, *ss.Service.ScenarioID, ss.Service.ID)
 
 	} else {
 		SendLogMessage("Connecting with SSH KEY ...", *ss.Service.ScenarioID, &ss.Service.ID)
@@ -278,7 +279,7 @@ func (ss Ssh) Execute(...interface{}) {
 		mySsh.Username = dataWithkey.Username
 		mySsh.SshKey = dataWithkey.SshKey
 		mySsh.Host = dataWithkey.Host
-		ConnectWithSShKey(mySsh, dataWithkey.Commands)
+		ConnectWithSShKey(mySsh, dataWithkey.Commands, *ss.Service.ScenarioID, ss.Service.ID)
 
 	}
 
