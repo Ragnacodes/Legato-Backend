@@ -103,8 +103,11 @@ func (ldb *LegatoDB) GetHttpByService(serv Service) (*Http, error) {
 func (h Http) Execute(...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&h).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		h.Next()
+		return
 	}
+
 	SendLogMessage("*******Starting Http Service*******", *h.Service.ScenarioID, nil)
 
 	logData := fmt.Sprintf("Executing type (%s) : %s\n", httpType, h.Service.Name)
@@ -114,16 +117,16 @@ func (h Http) Execute(...interface{}) {
 	var data httpRequestData
 	err = json.Unmarshal([]byte(h.Service.Data), &data)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	requestBody, err := json.Marshal(data.Body)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 	_, err = makeHttpRequest(data.Url, data.Method, requestBody, nil ,h.Service.ScenarioID, &h.Service.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	h.Next()
@@ -137,19 +140,23 @@ func (h Http) Post() {
 func (h Http) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service").Preload("Service.Children").Find(&h).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	logData := fmt.Sprintf("Executing \"%s\" Children \n", h.Service.Name)
 	SendLogMessage(logData, *h.Service.ScenarioID, nil)
 
 	for _, node := range h.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	logData = fmt.Sprintf("*******End of \"%s\"*******", h.Service.Name)

@@ -131,11 +131,14 @@ func (ldb *LegatoDB) GetSpotifyByService(serv Service) (*Spotify, error) {
 
 // Service Interface for spotify
 func (sp Spotify) Execute(...interface{}) {
-	
+
 	err := legatoDb.db.Preload("Service").Preload("Connection").Find(&sp).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		sp.Next()
+		return
 	}
+
 	SendLogMessage("*******Starting Spotify Service*******", *sp.Service.ScenarioID, nil)
 	
 	logData := fmt.Sprintf("Executing type (%s) : %s\n", spotifyType, sp.Service.Name)
@@ -145,7 +148,7 @@ func (sp Spotify) Execute(...interface{}) {
 	var tk oauth2.Token
 	err = json.Unmarshal([]byte(sp.Connection.Data), &tk)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	// token := DbTokenToOauth2(tk)
 	client := auth().NewClient(&tk)
@@ -155,7 +158,7 @@ func (sp Spotify) Execute(...interface{}) {
 			var data addToPlaylistData
 			err = json.Unmarshal([]byte(sp.Service.Data), &data)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
 			}
 			addTrackToPlaylistHandler(&client, data)
 			break
@@ -185,18 +188,22 @@ func (sp Spotify) Post() {
 func (sp Spotify) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&sp).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", sp.Service.Name)
 
 	for _, node := range sp.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	logData := fmt.Sprintf("*******End of \"%s\"*******",sp.Service.Name)

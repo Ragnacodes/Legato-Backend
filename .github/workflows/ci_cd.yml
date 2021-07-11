@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - github-actions
   pull_request:
     branches:
       - master
@@ -43,14 +44,26 @@ jobs:
           docker build -t legato_server .
 
       - name: Discord notification
+        if: ${{ success() }}
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
           args: '
               🔧 🔨 ⚒ 🛠 ⛏ 🔧 🔨 ⚒ 🛠 ⛏
-
               ✅ Build: Success
+              
+              🔗 Trigger commit: {{ GITHUB_SHA }}'
+              
+      - name: Discord notification
+        if: ${{ failure() }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '
+              🔧 🔨 ⚒ 🛠 ⛏ 🔧 🔨 ⚒ 🛠 ⛏
+              ❌ Build: Failed
               
               🔗 Trigger commit: {{ GITHUB_SHA }}'
 
@@ -98,12 +111,25 @@ jobs:
           docker exec legato_server go test ./...
 
       - name: Discord notification
+        if: ${{ success() }}
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
           args: '
               ✅ Tests: Passed
+              
+              🔗 Trigger commit: {{ GITHUB_SHA }}'
+
+
+      - name: Discord notification
+        if: ${{ failure() }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '
+              ❌ Tests: Failed
               
               🔗 Trigger commit: {{ GITHUB_SHA }}'
 
@@ -142,12 +168,25 @@ jobs:
           tags: 0.5.1
 
       - name: Discord notification
+        if: ${{ success() }}
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
           args: '
               ✅ deployed
+              
+              🔗 Trigger commit: {{ GITHUB_SHA }}'
+              
+            
+      - name: Discord notification
+        if: ${{ failure() }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '
+              ❌ Canceled
               
               🔗 Trigger commit: {{ GITHUB_SHA }}'
 
@@ -158,6 +197,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Discord notification
+        if: ${{ success() }}
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master

@@ -124,7 +124,9 @@ func (ldb *LegatoDB) GetGitByService(serv Service) (*Github, error) {
 func (g Github) Execute(...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&g).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		g.Next()
+		return
 	}
 	SendLogMessage("*******Starting Github Service*******", *g.Service.ScenarioID, nil)
 
@@ -198,18 +200,22 @@ func (g Github) Post() {
 func (g Github) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&g).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", g.Service.Name)
 
 	for _, node := range g.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	logData := fmt.Sprintf("*******End of \"%s\"*******", g.Service.Name)

@@ -202,8 +202,11 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 func (w Webhook) Execute(...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		w.Next()
+		return
 	}
+
 	SendLogMessage("*******Starting Webhook Service*******", *w.Service.ScenarioID, nil)
 
 	logData := fmt.Sprintf("Executing type (%s) : %s\n", webhookType, w.Service.Name)
@@ -222,7 +225,8 @@ func (w Webhook) Post() {
 func (w Webhook) Next(data ...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&w).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	// disable webhook after reciving data
@@ -241,12 +245,15 @@ func (w Webhook) Next(data ...interface{}) {
 	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
 
 	for _, node := range w.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	logData = fmt.Sprintf("*******End of \"%s\"*******", w.Service.Name)

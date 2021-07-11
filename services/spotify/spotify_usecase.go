@@ -34,7 +34,7 @@ func (sp *SpotifyUseCase)GetUserToken(cid int) (token *oauth2.Token, err error){
 	}
 	err = json.Unmarshal([]byte(tokenString), &token)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	return token, nil
 }

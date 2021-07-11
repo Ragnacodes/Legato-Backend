@@ -100,7 +100,9 @@ func (t Telegram) Execute(...interface{}) {
 
 	err := legatoDb.db.Preload("Service").Find(&t).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		t.Next()
+		return
 	}
 
 	log.Printf("Executing type (%s) : %s\n", telegramType, t.Service.Name)
@@ -110,34 +112,34 @@ func (t Telegram) Execute(...interface{}) {
 		var data sendMessageData
 		err = json.Unmarshal([]byte(t.Service.Data), &data)
 		if err != nil {
-			log.Fatal(err)
+			log.Println("!! CRITICAL ERROR !!", err)
 		}
 
-		if env.ENV.Mode == env.DEVELOPMENT{
+		if env.ENV.Mode == env.DEVELOPMENT {
 			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), nil, t.Service.ScenarioID, &t.Service.ID)
 		} else {
-		_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
+			_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
 		}
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println("!! CRITICAL ERROR !!", err)
 		}
 		break
 	case getChatMember:
 		var data getChatMemberData
 		err = json.Unmarshal([]byte(t.Service.Data), &data)
 		if err != nil {
-			log.Fatal(err)
+			log.Println("!! CRITICAL ERROR !!", err)
 		}
 
-		if env.ENV.Mode == env.DEVELOPMENT{
+		if env.ENV.Mode == env.DEVELOPMENT {
 			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), nil, t.Service.ScenarioID, &t.Service.ID)
 		} else {
 			_, err = makeTorifiedHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
 		}
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println("!! CRITICAL ERROR !!", err)
 		}
 		break
 	default:
@@ -154,18 +156,22 @@ func (t Telegram) Post() {
 func (t Telegram) Next(...interface{}) {
 	err := legatoDb.db.Preload("Service.Children").Find(&t).Error
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	log.Printf("Executing \"%s\" Children \n", t.Service.Name)
 
 	for _, node := range t.Service.Children {
-		serv, err := node.Load()
-		if err != nil {
-			log.Println("error in loading services in Next()")
-			return
-		}
-		serv.Execute()
+		go func(n Service) {
+			serv, err := n.Load()
+			if err != nil {
+				log.Println("error in loading services in Next()")
+				return
+			}
+
+			serv.Execute()
+		}(node)
 	}
 
 	log.Printf("*******End of \"%s\"*******", t.Service.Name)
@@ -183,7 +189,7 @@ func makeTorifiedHttpRequest(inputUrl string, method string, body []byte, scenar
 
 	tbProxyURL, err := url.Parse("socks5://tor:9050")
 	if err != nil {
-			log.Printf("Failed to parse proxy URL: %v\n", err)
+		log.Printf("Failed to parse proxy URL: %v\n", err)
 	}
 
 	// Get a proxy Dialer that will create the connection on our
@@ -192,7 +198,7 @@ func makeTorifiedHttpRequest(inputUrl string, method string, body []byte, scenar
 	// IsolateSOCKSAuth is needed.
 	tbDialer, err := proxy.FromURL(tbProxyURL, proxy.Direct)
 	if err != nil {
-			log.Printf("Failed to obtain proxy dialer: %v\n", err)
+		log.Printf("Failed to obtain proxy dialer: %v\n", err)
 	}
 
 	// Make a http.Transport that uses the proxy dialer, and a
@@ -202,27 +208,27 @@ func makeTorifiedHttpRequest(inputUrl string, method string, body []byte, scenar
 
 	switch method {
 	case strings.ToLower(http.MethodGet):
-			res, err = client.Get(inputUrl)
-			break
+		res, err = client.Get(inputUrl)
+		break
 	case strings.ToLower(http.MethodPost):
-			if body != nil {
-					log.Printf("\nurl: %s\nbody:\n%s\n", inputUrl, string(body))
-					reqBody := bytes.NewBuffer(body)
-					res, err = client.Post(inputUrl, "application/json", reqBody)
-					break
-			}
-			res, err = client.Post(inputUrl, "application/json", nil)
+		if body != nil {
+			log.Printf("\nurl: %s\nbody:\n%s\n", inputUrl, string(body))
+			reqBody := bytes.NewBuffer(body)
+			res, err = client.Post(inputUrl, "application/json", reqBody)
 			break
+		}
+		res, err = client.Post(inputUrl, "application/json", nil)
+		break
 	}
 
 	if err != nil {
-			return nil, err
+		return nil, err
 	}
 
 	// Log the result
 	bodyBytes, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-			return nil, err
+		return nil, err
 	}
 	bodyString := string(bodyBytes)
 

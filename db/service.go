@@ -43,23 +43,32 @@ func (ldb *LegatoDB) GetServiceById(scenario *Scenario, serviceId uint) (*Servic
 
 func (ldb *LegatoDB) DeleteServiceById(scenario *Scenario, serviceId uint) error {
 	var srv *Service
-	ldb.db.Where(&Service{ScenarioID: &scenario.ID}).Where("id = ?", serviceId).Find(&srv)
+	ldb.db.
+		Preload("Children").
+		Where(&Service{ScenarioID: &scenario.ID}).
+		Where("id = ?", serviceId).
+		Find(&srv)
 	if srv.ID != serviceId {
 		return errors.New("the service is not in this scenario")
 	}
 
-	// Note: webhook and http records should be deleted here, too
-	ldb.db.Delete(srv)
-
 	// Attach children to the parent
 	parentId := srv.ParentID
-	ldb.db.Where(&Service{ParentID: &srv.ID}).Updates(Service{ParentID: parentId})
-
-	if parentId == nil {
-		legatoDb.db.Model(&Service{}).
-			Where(&Service{ParentID: parentId, ScenarioID: &scenario.ID}).
-			UpdateColumn("parent_id", nil)
+	children := srv.Children
+	for _, child := range children {
+		ldb.db.
+			Where("id = ?", child.ID).
+			Updates(Service{ParentID: parentId})
+		// This is for the issue that value doesn't get updated
+		if parentId == nil {
+			legatoDb.db.Model(&Service{}).
+				Where("id = ?", child.ID).
+				UpdateColumn("parent_id", nil)
+		}
 	}
+
+	// Note: webhook and http records should be deleted here, too
+	ldb.db.Delete(srv)
 
 	return nil
 }
@@ -146,10 +155,10 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 		w, _ := legatoDb.GetWebhookByService(*s)
 		data := &map[string]interface{}{
 			"webhook": &map[string]interface{}{
-				"url":      w.GetURL(),
-				"isEnable": w.IsEnable,
-				"id":       w.ID,
-				"getMethod": w.GetMethod,
+				"url":        w.GetURL(),
+				"isEnable":   w.IsEnable,
+				"id":         w.ID,
+				"getMethod":  w.GetMethod,
 				"getHeaders": w.GetHeaders,
 				"name": s.Name,
 			},

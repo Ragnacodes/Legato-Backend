@@ -91,7 +91,8 @@ func (du DiscordUseCase) GetGuildTextChannels(guildId string) (channels api.Chan
 	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return
 	}
 
 	allChannels := &api.Channels{}
@@ -128,7 +129,8 @@ func (du DiscordUseCase) GetGuildTextChannelMessages(channelId string) (messages
 	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
-		panic(err)
+		log.Println("!! CRITICAL ERROR !!", err)
+		return nil, err
 	}
 
 	allMessages := &api.Messages{}
