@@ -122,11 +122,15 @@ func (ldb *LegatoDB) GetGitByService(serv Service) (*Github, error) {
 
 // Service Interface for Git
 func (g Github) Execute(...interface{}) {
-	log.Println("*******Starting Git Service*******")
 	err := legatoDb.db.Preload("Service").Find(&g).Error
 	if err != nil {
 		panic(err)
 	}
+	SendLogMessage("*******Starting Github Service*******", *g.Service.ScenarioID, nil)
+
+	logData := fmt.Sprintf("Executing type (%s) : %s\n", gitType, g.Service.Name)
+	SendLogMessage(logData, *g.Service.ScenarioID, nil)
+
 	switch g.Service.SubType {
 	case "createIssue":
 		var data createIssueData
@@ -144,6 +148,12 @@ func (g Github) Execute(...interface{}) {
 			Labels:    &data.Labels,
 			State:     &data.State,
 		}
+		// send log
+		logData := fmt.Sprintf("Creating a new github issue")
+		SendLogMessage(logData, *g.Service.ScenarioID, &g.Service.ID)
+		b, err := json.Marshal(NewIssue)
+		SendLogMessage(string(b), *g.Service.ScenarioID, &g.Service.ID)
+
 		err = createIssue(NewIssue, data.RepoName, client, data.Owner)
 		if err != nil {
 			log.Println(err)
@@ -165,14 +175,18 @@ func (g Github) Execute(...interface{}) {
 			Body:                github.String(data.Body),
 			MaintainerCanModify: github.Bool(true),
 		}
+		// send log
+		logData := fmt.Sprintf("Creating a new pull request")
+		SendLogMessage(logData, *g.Service.ScenarioID, &g.Service.ID)
+		b, err := json.Marshal(newPR)
+		SendLogMessage(string(b), *g.Service.ScenarioID, &g.Service.ID)
+
 		err = CreatePullRequest(newPR, data.RepoName, client, data.Owner)
 		if err != nil {
 			log.Println(err)
 		}
 
 	}
-
-	log.Printf("Executing type (%s) : %s\n", gitType, g.Service.Name)
 
 	g.Next()
 }
@@ -198,7 +212,8 @@ func (g Github) Next(...interface{}) {
 		serv.Execute()
 	}
 
-	log.Printf("*******End of \"%s\"*******", g.Service.Name)
+	logData := fmt.Sprintf("*******End of \"%s\"*******", g.Service.Name)
+	SendLogMessage(logData, *g.Service.ScenarioID, nil)
 }
 func createClientForGit(token *oauth2.Token) *github.Client {
 	oauthConf := &oauth2.Config{
