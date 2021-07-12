@@ -8,7 +8,7 @@
 - [Spotify](api/spotify.md)
 - [Connection](api/connection.md)
 - [Logs](api/logs.md)
-- [Https](api/http.ms)
+- [Https](api/http.md)
 - [Gmail](api/gmail.md)
 - [Github](api/github.md)
 - [Discord](api/discord.md)
