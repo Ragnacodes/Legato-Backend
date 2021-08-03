@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"legato_server/env"
+	"legato_server/services"
 	"log"
 	"net/http"
 	"net/url"
@@ -95,13 +96,13 @@ func (ldb *LegatoDB) GetTelegramByService(serv Service) (*Telegram, error) {
 }
 
 // Service Interface for telegram
-func (t Telegram) Execute(...interface{}) {
+func (t Telegram) Execute(Odata *services.OutputData) {
 	log.Println("*******Starting Telegram Service*******")
 
 	err := legatoDb.db.Preload("Service").Find(&t).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
-		t.Next()
+		t.Next(Odata)
 		return
 	}
 
@@ -146,14 +147,19 @@ func (t Telegram) Execute(...interface{}) {
 		break
 	}
 
-	t.Next()
+	t.Next(Odata)
 }
 
-func (t Telegram) Post() {
+func (t Telegram) Post(Odata *services.OutputData) {
 	log.Printf("Executing type (%s) node in background : %s\n", telegramType, t.Service.Name)
 }
 
-func (t Telegram) Next(...interface{}) {
+
+func (t Telegram) Resume(data ...interface{}){
+
+}
+
+func (t Telegram) Next(Odata *services.OutputData) {
 	err := legatoDb.db.Preload("Service.Children").Find(&t).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -170,7 +176,7 @@ func (t Telegram) Next(...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 

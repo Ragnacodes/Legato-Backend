@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"legato_server/env"
 	"log"
+	"legato_server/services"
 )
 
 const discordType = "discords"
@@ -97,7 +98,7 @@ func (ldb *LegatoDB) GetDiscordByService(serv Service) (*Discord, error) {
 }
 
 // Service Interface for discord
-func (d Discord) Execute(...interface{}) {
+func (d Discord) Execute(Odata *services.OutputData) {
 	log.Println("*******Starting Discord Service*******")
 
 	err := legatoDb.db.Preload("Service").Find(&d).Error
@@ -151,14 +152,18 @@ func (d Discord) Execute(...interface{}) {
 		break
 	}
 
-	d.Next()
+	d.Next(Odata)
 }
 
-func (d Discord) Post() {
+func (d Discord) Post(Odata *services.OutputData) {
 	log.Printf("Executing type (%s) node in background : %s\n", discordType, d.Service.Name)
 }
 
-func (d Discord) Next(...interface{}) {
+func (d Discord) Resume(data ...interface{}){
+
+}
+
+func (d Discord) Next(Odata *services.OutputData) {
 	err := legatoDb.db.Preload("Service.Children").Find(&d).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -175,7 +180,7 @@ func (d Discord) Next(...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 

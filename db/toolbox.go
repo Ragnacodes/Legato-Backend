@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"legato_server/services"
 	"log"
 	"time"
 )
@@ -83,11 +84,11 @@ func (ldb *LegatoDB) GetToolBoxByService(serv Service) (*ToolBox, error) {
 }
 
 // Service Interface for toolbox
-func (t ToolBox) Execute(...interface{}) {
+func (t ToolBox) Execute(Odata *services.OutputData) {
 	err := legatoDb.db.Preload("Service").Find(&t).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
-		t.Next()
+		t.Next(Odata)
 		return
 	}
 
@@ -125,7 +126,7 @@ func (t ToolBox) Execute(...interface{}) {
 		SendLogMessage(logData, *t.Service.ScenarioID, &t.Service.ID)
 
 		for i := 1; i < data.Count; i++ {
-			t.Next()
+			t.Next(Odata)
 		}
 
 		break
@@ -133,14 +134,18 @@ func (t ToolBox) Execute(...interface{}) {
 		break
 	}
 
-	t.Next()
+	t.Next(Odata)
 }
 
-func (t ToolBox) Post() {
+func (t ToolBox) Post(Odata *services.OutputData) {
 	log.Printf("Executing type (%s) node in background : %s\n", toolBoxType, t.Service.Name)
 }
 
-func (t ToolBox) Next(...interface{}) {
+func (t ToolBox) Resume(data ...interface{}) {
+
+}
+
+func (t ToolBox) Next(Odata *services.OutputData) {
 	err := legatoDb.db.Preload("Service.Children").Find(&t).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -157,7 +162,7 @@ func (t ToolBox) Next(...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 
