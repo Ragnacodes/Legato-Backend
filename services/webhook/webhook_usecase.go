@@ -167,7 +167,7 @@ func (w *WebhookUseCase) TriggerWebhook(wid string, data map[string]interface{})
 		return err
 	}
 
-	wh.Next(data)
+	wh.Resume(data)
 
 	return nil
 }
