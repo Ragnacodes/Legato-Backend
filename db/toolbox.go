@@ -84,7 +84,7 @@ func (ldb *LegatoDB) GetToolBoxByService(serv Service) (*ToolBox, error) {
 }
 
 // Service Interface for toolbox
-func (t ToolBox) Execute(Odata *services.OutputData) {
+func (t ToolBox) Execute(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Find(&t).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -137,7 +137,7 @@ func (t ToolBox) Execute(Odata *services.OutputData) {
 	t.Next(Odata)
 }
 
-func (t ToolBox) Post(Odata *services.OutputData) {
+func (t ToolBox) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", toolBoxType, t.Service.Name)
 }
 
@@ -145,7 +145,7 @@ func (t ToolBox) Resume(data ...interface{}) {
 
 }
 
-func (t ToolBox) Next(Odata *services.OutputData) {
+func (t ToolBox) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&t).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)

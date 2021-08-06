@@ -131,7 +131,7 @@ func (ldb *LegatoDB) GetGmailByService(serv Service) (*Gmail, error) {
 }
 
 // Service Interface for Gmail
-func (g Gmail) Execute(Odata *services.OutputData) {
+func (g Gmail) Execute(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Find(&g).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -164,7 +164,7 @@ func (g Gmail) Execute(Odata *services.OutputData) {
 	g.Next(Odata)
 }
 
-func (g Gmail) Post(Odata *services.OutputData) {
+func (g Gmail) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", gmailType, g.Service.Name)
 }
 
@@ -172,7 +172,7 @@ func (g Gmail) Resume(data ...interface{}){
 
 }
 
-func (g Gmail) Next(Odata *services.OutputData) {
+func (g Gmail) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&g).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)

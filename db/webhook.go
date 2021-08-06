@@ -200,7 +200,7 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 }
 
 // Service Interface for Webhook
-func (w Webhook) Execute(Odata *services.OutputData) {
+func (w Webhook) Execute(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -220,7 +220,7 @@ func (w Webhook) Execute(Odata *services.OutputData) {
 
 }
 
-func (w Webhook) Post(Odata *services.OutputData) {
+func (w Webhook) Post(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -243,16 +243,16 @@ func (w Webhook) Resume(data ...interface{}) {
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
-		w.Next(&services.OutputData{})
+		w.Next(&services.Pipe{})
 		return
 	}
 	// Load data from redis and make Outputdata struct to continue scenario
-	var Odata services.OutputData
+	var Odata services.Pipe
 	key := fmt.Sprintf("%s", w.Token)
 	_, err = cache.Cache.Get(key, &Odata)
 	if err!=nil{
 		log.Println("can not get scenario data from redis", err)
-		w.Next(&services.OutputData{})
+		w.Next(&services.Pipe{})
 	}
 	webhookData := data[0]
 	Odata.AddData(w.Service.Name, webhookData)
@@ -260,7 +260,7 @@ func (w Webhook) Resume(data ...interface{}) {
 	w.Next(&Odata)
 }
 
-func (w Webhook) Next(Odata *services.OutputData) {
+func (w Webhook) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Preload("Service.Children").Find(&w).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)

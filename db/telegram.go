@@ -96,7 +96,7 @@ func (ldb *LegatoDB) GetTelegramByService(serv Service) (*Telegram, error) {
 }
 
 // Service Interface for telegram
-func (t Telegram) Execute(Odata *services.OutputData) {
+func (t Telegram) Execute(Odata *services.Pipe) {
 	log.Println("*******Starting Telegram Service*******")
 
 	err := legatoDb.db.Preload("Service").Find(&t).Error
@@ -150,7 +150,7 @@ func (t Telegram) Execute(Odata *services.OutputData) {
 	t.Next(Odata)
 }
 
-func (t Telegram) Post(Odata *services.OutputData) {
+func (t Telegram) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", telegramType, t.Service.Name)
 }
 
@@ -159,7 +159,7 @@ func (t Telegram) Resume(data ...interface{}){
 
 }
 
-func (t Telegram) Next(Odata *services.OutputData) {
+func (t Telegram) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&t).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
