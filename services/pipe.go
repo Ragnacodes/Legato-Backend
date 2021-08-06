@@ -29,3 +29,48 @@ func (p *Pipe) GetData(serviceName string) (interface{}, error) {
 
 	return result, nil
 }
+
+func (p *Pipe) GetValueByNodeVariable(nr NodeVariable) (string, error) {
+	// Get the whole data from node
+	data, err := p.GetData(nr.NodeName)
+	if err != nil {
+		return "", err
+	}
+
+	// Search for the value
+	// Note: for now all of the data types are json
+	// try to cast to map[string]interface{}
+	_, canCast := data.(map[string]interface{})
+	if !canCast {
+		return "", errors.New("data is not json, it can't be cast to map[string]interface{}")
+	}
+
+	// Search for the desire attribute
+	// It is going to search recursively until it find the value
+	json := data
+	for _, attr := range nr.AttributeChain {
+		// Check being null
+		if json == nil {
+			return "", errors.New("there is not such attribute in this data")
+		}
+
+		// Converting and casting to map[string]interface{}
+		// TODO: Here we may have array and we have no idea about it :)
+		converted, canCast := json.(map[string]interface{})
+		if !canCast {
+			return "", errors.New("there is not such attribute in this data")
+		}
+
+		// Grab the attribute
+		json = converted[attr]
+	}
+
+	// Convert json to the string
+	// TODO: we should about this. Is everything end to a string? yes (!)
+	converted, canCast := json.(string)
+	if !canCast {
+		return "", errors.New("can not cast the result to string value")
+	}
+
+	return converted, nil
+}
