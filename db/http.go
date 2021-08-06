@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"legato_server/services"
 	"log"
 	"net/http"
 	"strings"
@@ -100,11 +101,11 @@ func (ldb *LegatoDB) GetHttpByService(serv Service) (*Http, error) {
 }
 
 // Service Interface for Http
-func (h Http) Execute(...interface{}) {
+func (h Http) Execute(Odata *services.OutputData) {
 	err := legatoDb.db.Preload("Service").Find(&h).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
-		h.Next()
+		h.Next(Odata)
 		return
 	}
 
@@ -129,15 +130,20 @@ func (h Http) Execute(...interface{}) {
 		log.Println(err)
 	}
 
-	h.Next()
+	h.Next(Odata)
 }
 
-func (h Http) Post() {
+func (h Http) Post(Odata *services.OutputData) {
 	data := fmt.Sprintf("Executing type (%s) node in background : %s\n", httpType, h.Service.Name)
 	SendLogMessage(data, *h.Service.ScenarioID, nil) 
 }
 
-func (h Http) Next(...interface{}) {
+
+func (h Http) Resume(data ...interface{}){
+
+}
+
+func (h Http) Next(Odata *services.OutputData) {
 	err := legatoDb.db.Preload("Service").Preload("Service.Children").Find(&h).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -155,7 +161,7 @@ func (h Http) Next(...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 

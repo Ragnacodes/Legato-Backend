@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"legato_server/services"
 	"log"
 	"net/smtp"
 
@@ -130,11 +131,11 @@ func (ldb *LegatoDB) GetGmailByService(serv Service) (*Gmail, error) {
 }
 
 // Service Interface for Gmail
-func (g Gmail) Execute(...interface{}) {
+func (g Gmail) Execute(Odata *services.OutputData) {
 	err := legatoDb.db.Preload("Service").Find(&g).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
-		g.Next()
+		g.Next(Odata)
 		return
 	}
 	SendLogMessage("*******Starting Gamil Service*******", *g.Service.ScenarioID, nil)
@@ -160,14 +161,18 @@ func (g Gmail) Execute(...interface{}) {
 		emailAuth, _ := LoginWithSMTP(data.EmailFrom, data.Password)
 		_, _ = SendEmailSmtp(data.To, data.Body, "smtp.gmail.com", data.EmailFrom, data.Subject, emailAuth)
 	}
-	g.Next()
+	g.Next(Odata)
 }
 
-func (g Gmail) Post() {
+func (g Gmail) Post(Odata *services.OutputData) {
 	log.Printf("Executing type (%s) node in background : %s\n", gmailType, g.Service.Name)
 }
 
-func (g Gmail) Next(...interface{}) {
+func (g Gmail) Resume(data ...interface{}){
+
+}
+
+func (g Gmail) Next(Odata *services.OutputData) {
 	err := legatoDb.db.Preload("Service.Children").Find(&g).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -184,7 +189,7 @@ func (g Gmail) Next(...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 

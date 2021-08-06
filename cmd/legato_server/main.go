@@ -20,6 +20,7 @@ import (
 	webhookUC "legato_server/services/webhook"
 	userUC "legato_server/user/usecase"
 	logUC  "legato_server/logging/usecase"
+	"legato_server/cache"
 
 	"time"
 
@@ -50,6 +51,9 @@ func init() {
 	// Make server sent event 
 	logging.SSE.Init()
 
+	// Connect to redis
+	cache.ConnectToRedis()
+	
 	// Connect to database
 	appDB, err := legatoDb.Connect()
 	if err != nil {

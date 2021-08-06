@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"legato_server/cache"
 	"legato_server/env"
+	"legato_server/services"
 	"log"
-
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -199,11 +200,11 @@ func (ldb *LegatoDB) DeleteSeparateWebhookById(u *User, wid uint) error {
 }
 
 // Service Interface for Webhook
-func (w Webhook) Execute(...interface{}) {
+func (w Webhook) Execute(Odata *services.OutputData) {
 	err := legatoDb.db.Preload("Service").Find(&w).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
-		w.Next()
+		w.Next(Odata)
 		return
 	}
 
@@ -215,31 +216,74 @@ func (w Webhook) Execute(...interface{}) {
 	w.IsEnable = true
 	legatoDb.db.Save(&w)
 
+	w.Post(Odata)
+
 }
 
-func (w Webhook) Post() {
+func (w Webhook) Post(Odata *services.OutputData) {
+	err := legatoDb.db.Preload("Service").Find(&w).Error
+	if err != nil {
+		log.Println("!! CRITICAL ERROR !!", err)
+		w.Next(Odata)
+		return
+	}
 	logData := fmt.Sprintf("Executing type (%s) node in background : %s\n", webhookType, w.Service.Name)
 	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
+
+	// Saving scenario data into redis to load whenever webhook got triggered
+	key := fmt.Sprintf("%s", w.Token)
+	err = cache.Cache.Set(key, Odata)
+	if err != nil{
+		log.Println("can not set scenario data in redis", err)
+	}
+	
 }
 
-func (w Webhook) Next(data ...interface{}) {
-	err := legatoDb.db.Preload("Service.Children").Find(&w).Error
+func (w Webhook) Resume(data ...interface{}) {
+	err := legatoDb.db.Preload("Service").Find(&w).Error
+	if err != nil {
+		log.Println("!! CRITICAL ERROR !!", err)
+		w.Next(&services.OutputData{})
+		return
+	}
+	// Load data from redis and make Outputdata struct to continue scenario
+	var Odata services.OutputData
+	key := fmt.Sprintf("%s", w.Token)
+	_, err = cache.Cache.Get(key, &Odata)
+	if err!=nil{
+		log.Println("can not get scenario data from redis", err)
+		w.Next(&services.OutputData{})
+	}
+	webhookData := data[0]
+	Odata.AddData(w.Service.Name, webhookData)
+
+	w.Next(&Odata)
+}
+
+func (w Webhook) Next(Odata *services.OutputData) {
+	err := legatoDb.db.Preload("Service").Preload("Service.Children").Find(&w).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
 		return
 	}
 
-	// disable webhook after reciving data
+	// disable webhook after receiving data
 	w.IsEnable = false
 	legatoDb.db.Save(&w)
 
 	logData := fmt.Sprintf("webhook with id %v got payload:", w.Token)
 	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
 
-	webhookData := data[0].(map[string]interface{})
-	payloadJson, _ := json.Marshal(webhookData)
-	SendLogMessage(string(payloadJson), *w.Service.ScenarioID, &w.Service.ID)
-
+	dataInterface, err := Odata.GetData(w.Service.Name)
+	if err == nil {
+		webhookData, ok := dataInterface.(map[string]interface{})
+		if ok {
+			payloadJson, _ := json.Marshal(webhookData)
+			SendLogMessage(string(payloadJson), *w.Service.ScenarioID, &w.Service.ID)
+		}
+	}else {
+		fmt.Print(err.Error())
+	}
 
 	logData = fmt.Sprintf("Executing \"%s\" Children \n", w.Service.Name)
 	SendLogMessage(logData, *w.Service.ScenarioID, &w.Service.ID)
@@ -252,7 +296,7 @@ func (w Webhook) Next(data ...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 
