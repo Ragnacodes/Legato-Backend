@@ -74,3 +74,44 @@ func (p *Pipe) GetValueByNodeVariable(nr NodeVariable) (string, error) {
 
 	return converted, nil
 }
+
+// Parse looks up the input string and will find all of the
+// values for variables and replace them in the input string.
+// At last it will return output string with no variables.
+func (p *Pipe) Parse(input string) (string, error) {
+	// Get all of string variables
+	stringVars := getStringVariables(input)
+
+	// Create NodeVariable object for each variable
+	// This contains parsing the string Variables' name and attributes
+	var nodeVariables []NodeVariable
+	for _, variable := range stringVars {
+		nodeVariables = append(nodeVariables, parseNodeVariable(variable))
+	}
+
+	// Searching for NodeVariables' real value
+	// In the next step we're gonna replace these values
+	var vars = map[string]string{}
+	for _, nr := range nodeVariables {
+		// Find value of this variable in scenario
+		v, err := p.GetValueByNodeVariable(nr)
+		if err != nil {
+			log.Println("Error:", err)
+		}
+
+		// Add the value to the map
+		vars[nr.String()] = v
+	}
+	// Print all of the variables
+	for _, nr := range nodeVariables {
+		log.Println(nr.String(), "is equal to", vars[nr.String()])
+	}
+
+	// Replace all of the variables with their real values
+	realValue := input
+	for _, nr := range nodeVariables {
+		realValue = strings.ReplaceAll(realValue, nr.String(), vars[nr.String()])
+	}
+
+	return realValue, nil
+}
