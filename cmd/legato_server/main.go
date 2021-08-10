@@ -2,10 +2,13 @@ package main
 
 import (
 	"legato_server/authenticate"
+	"legato_server/cache"
 	legatoDb "legato_server/db"
 	"legato_server/domain"
+	legato_email "legato_server/email"
 	"legato_server/env"
 	"legato_server/logging"
+	logUC "legato_server/logging/usecase"
 	"legato_server/router"
 	scenarioUC "legato_server/scenario/usecase"
 	discordUC "legato_server/services/discord"
@@ -19,8 +22,6 @@ import (
 	serviceUC "legato_server/services/usecase"
 	webhookUC "legato_server/services/webhook"
 	userUC "legato_server/user/usecase"
-	logUC  "legato_server/logging/usecase"
-	"legato_server/cache"
 
 	"time"
 
@@ -47,13 +48,23 @@ func init() {
 
 	// Generate random jwt key
 	authenticate.GenerateRandomKey()
-	
+
 	// Make server sent event 
 	logging.SSE.Init()
 
 	// Connect to redis
 	cache.ConnectToRedis()
-	
+
+	// Initialize gmail
+	_, err := legato_email.InitGmail(legato_email.Config{
+		Username: env.ENV.GmailUsername,
+		Password: env.ENV.GmailPassword,
+		Host:     env.ENV.GmailHost,
+	})
+	if err != nil {
+		panic(err)
+	}
+
 	// Connect to database
 	appDB, err := legatoDb.Connect()
 	if err != nil {
