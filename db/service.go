@@ -57,7 +57,7 @@ func (ldb *LegatoDB) DeleteServiceById(scenario *Scenario, serviceId uint) error
 
 	if parentId == nil {
 		legatoDb.db.Model(&Service{}).
-			Where(&Service{ParentID: parentId, ScenarioID: &scenario.ID}).
+			Where(&Service{ParentID: &srv.ID, ScenarioID: &scenario.ID}).
 			UpdateColumn("parent_id", nil)
 	}
 
@@ -146,12 +146,12 @@ func (s *Service) BindServiceData(serviceData interface{}) error {
 		w, _ := legatoDb.GetWebhookByService(*s)
 		data := &map[string]interface{}{
 			"webhook": &map[string]interface{}{
-				"url":      w.GetURL(),
-				"isEnable": w.IsEnable,
-				"id":       w.ID,
-				"getMethod": w.GetMethod,
+				"url":        w.GetURL(),
+				"isEnable":   w.IsEnable,
+				"id":         w.ID,
+				"getMethod":  w.GetMethod,
 				"getHeaders": w.GetHeaders,
-				"name": s.Name,
+				"name":       s.Name,
 			},
 		}
 
