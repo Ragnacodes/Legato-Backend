@@ -16,6 +16,9 @@ type Pipe struct {
 // AddData is to add some data about a node to the Pipe
 // So that later we can take that data from Pipe
 func (p *Pipe) AddData(serviceName string, serviceData interface{}) {
+	if p.DataByName == nil {
+		p.DataByName = map[string]interface{}{}
+	}
 	p.DataByName[serviceName] = serviceData
 }
 
