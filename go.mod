@@ -3,7 +3,6 @@ module legato_server
 go 1.15
 
 require (
-	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/AfterShip/email-verifier v1.1.0 // indirect
 	github.com/Kesci/gostore v0.0.0-20170911091355-40648d3a0280
 	github.com/alexandrevicenzi/go-sse v1.6.0
@@ -18,6 +17,7 @@ require (
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
 	github.com/jackc/pgx/v4 v4.11.0 // indirect
 	github.com/joho/godotenv v1.3.0
+	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
@@ -35,7 +35,7 @@ require (
 	github.com/zmb3/spotify v1.1.2
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
-	golang.org/x/oauth2 v0.0.0-20210805134026-6f1e6394065a // indirect
+	golang.org/x/oauth2 v0.0.0-20210805134026-6f1e6394065a
 	golang.org/x/sys v0.0.0-20210402192133-700132347e07 // indirect
 	golang.org/x/text v0.3.6 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect

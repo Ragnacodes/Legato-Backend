@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jordan-wright/email"
+	legato_email "legato_server/email"
 	"legato_server/services"
 	"log"
 	"net/smtp"
@@ -22,11 +24,9 @@ type Gmail struct {
 }
 
 type gmailLoginData struct {
-	To        []string `json:"to"`
-	Subject   string   `json:"subject"`
-	Password  string   `json:"password"`
-	EmailFrom string   `json:"email"`
-	Body      string   `json:"body"`
+	To      []string `json:"to"`
+	Subject string   `json:"subject"`
+	Body    string   `json:"body"`
 }
 
 type updateGmailData struct {
@@ -150,16 +150,20 @@ func (g Gmail) Execute(Odata *services.Pipe) {
 		if err != nil {
 			log.Print(err)
 		}
-		
+
 		// send log
-		logData := fmt.Sprintf("Sending email from: (%s)  to: %s\n", data.EmailFrom, data.To)
+		logData := fmt.Sprintf("Sending email to: %s\n", data.To)
 		SendLogMessage(logData, *g.Service.ScenarioID, nil)
 
 		logData = fmt.Sprintf("Email Body: (%s)  ", data.Body)
 		SendLogMessage(logData, *g.Service.ScenarioID, nil)
 
-		emailAuth, _ := LoginWithSMTP(data.EmailFrom, data.Password)
-		_, _ = SendEmailSmtp(data.To, data.Body, "smtp.gmail.com", data.EmailFrom, data.Subject, emailAuth)
+		emailMsg := &email.Email{
+			To:      data.To,
+			Subject: data.Subject,
+			Text:    []byte(data.Body),
+		}
+		_ = legato_email.GetEmailInstance().SendNewGmail(emailMsg)
 	}
 	g.Next(Odata)
 }
@@ -168,7 +172,7 @@ func (g Gmail) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", gmailType, g.Service.Name)
 }
 
-func (g Gmail) Resume(data ...interface{}){
+func (g Gmail) Resume(data ...interface{}) {
 
 }
 
