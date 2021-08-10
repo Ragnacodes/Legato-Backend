@@ -122,7 +122,7 @@ func (ldb *LegatoDB) GetGitByService(serv Service) (*Github, error) {
 }
 
 // Service Interface for Git
-func (g Github) Execute(Odata *services.OutputData) {
+func (g Github) Execute(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Find(&g).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -194,7 +194,7 @@ func (g Github) Execute(Odata *services.OutputData) {
 	g.Next(Odata)
 }
 
-func (g Github) Post(Odata *services.OutputData) {
+func (g Github) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", gitType, g.Service.Name)
 }
 
@@ -203,7 +203,7 @@ func (g Github) Resume(data ...interface{}){
 
 }
 
-func (g Github) Next(Odata *services.OutputData) {
+func (g Github) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&g).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)

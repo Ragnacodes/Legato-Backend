@@ -131,7 +131,7 @@ func (ldb *LegatoDB) GetSpotifyByService(serv Service) (*Spotify, error) {
 }
 
 // Service Interface for spotify
-func (sp Spotify) Execute(Odata *services.OutputData) {
+func (sp Spotify) Execute(Odata *services.Pipe) {
 
 	err := legatoDb.db.Preload("Service").Preload("Connection").Find(&sp).Error
 	if err != nil {
@@ -182,7 +182,7 @@ func (sp Spotify) Execute(Odata *services.OutputData) {
 	sp.Next(Odata)
 }
 
-func (sp Spotify) Post(Odata *services.OutputData) {
+func (sp Spotify) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", spotifyType, sp.Service.Name)
 }
 
@@ -190,7 +190,7 @@ func (sp Spotify) Resume(data ...interface{}){
 
 }
 
-func (sp Spotify) Next(Odata *services.OutputData) {
+func (sp Spotify) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&sp).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)

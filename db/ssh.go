@@ -245,7 +245,7 @@ func ConnectWithSShKey(myssh Ssh, commands []string, scenarioId uint, serviceId 
 }
 
 // Service Interface for ssh
-func (ss Ssh) Execute(Odata *services.OutputData) {
+func (ss Ssh) Execute(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Find(&ss).Error
 	if err != nil {
 		log.Println(err)
@@ -295,7 +295,7 @@ func (ss Ssh) Execute(Odata *services.OutputData) {
 	ss.Next(Odata)
 }
 
-func (ss Ssh) Post(Odata *services.OutputData) {
+func (ss Ssh) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", sshType, ss.Service.Name)
 }
 
@@ -304,7 +304,7 @@ func (ss Ssh) Resume(data ...interface{}){
 
 }
 
-func (ss Ssh) Next(Odata *services.OutputData) {
+func (ss Ssh) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&ss).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)

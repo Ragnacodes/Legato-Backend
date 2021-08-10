@@ -52,7 +52,7 @@ func (sp *SpotifyUseCase) AddToScenario(u *api.UserInfo, scenarioId uint, ns api
 
 	var spotify legatoDb.Spotify
 	spotify.Service = converter.NewServiceNodeToServiceDb(ns)
-	// spotify.Token.Token = ns.Data.(map[string]interface{})["Token"].(string)
+	// spotify.Token.Token = ns.DataByName.(map[string]interface{})["Token"].(string)
 
 	h, err := sp.db.CreateSpotify(&scenario, spotify)
 	if err != nil {

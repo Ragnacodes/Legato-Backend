@@ -101,7 +101,7 @@ func (ldb *LegatoDB) GetHttpByService(serv Service) (*Http, error) {
 }
 
 // Service Interface for Http
-func (h Http) Execute(Odata *services.OutputData) {
+func (h Http) Execute(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Find(&h).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -133,7 +133,7 @@ func (h Http) Execute(Odata *services.OutputData) {
 	h.Next(Odata)
 }
 
-func (h Http) Post(Odata *services.OutputData) {
+func (h Http) Post(Odata *services.Pipe) {
 	data := fmt.Sprintf("Executing type (%s) node in background : %s\n", httpType, h.Service.Name)
 	SendLogMessage(data, *h.Service.ScenarioID, nil) 
 }
@@ -143,7 +143,7 @@ func (h Http) Resume(data ...interface{}){
 
 }
 
-func (h Http) Next(Odata *services.OutputData) {
+func (h Http) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Preload("Service.Children").Find(&h).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)

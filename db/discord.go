@@ -98,7 +98,7 @@ func (ldb *LegatoDB) GetDiscordByService(serv Service) (*Discord, error) {
 }
 
 // Service Interface for discord
-func (d Discord) Execute(Odata *services.OutputData) {
+func (d Discord) Execute(Odata *services.Pipe) {
 	log.Println("*******Starting Discord Service*******")
 
 	err := legatoDb.db.Preload("Service").Find(&d).Error
@@ -155,7 +155,7 @@ func (d Discord) Execute(Odata *services.OutputData) {
 	d.Next(Odata)
 }
 
-func (d Discord) Post(Odata *services.OutputData) {
+func (d Discord) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", discordType, d.Service.Name)
 }
 
@@ -163,7 +163,7 @@ func (d Discord) Resume(data ...interface{}){
 
 }
 
-func (d Discord) Next(Odata *services.OutputData) {
+func (d Discord) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&d).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
