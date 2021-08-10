@@ -106,20 +106,26 @@ func (t Telegram) Execute(Odata *services.Pipe) {
 		return
 	}
 
+	// Parse Data
+	pd, err := Odata.Parse(t.Service.Data)
+	if err != nil {
+		log.Println("Error in parsing", err)
+	}
+
 	log.Printf("Executing type (%s) : %s\n", telegramType, t.Service.Name)
 
 	switch t.Service.SubType {
 	case sendMessage:
 		var data sendMessageData
-		err = json.Unmarshal([]byte(t.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Println("!! CRITICAL ERROR !!", err)
 		}
 
 		if env.ENV.Mode == env.DEVELOPMENT {
-			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), nil, t.Service.ScenarioID, &t.Service.ID)
+			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(pd), nil, t.Service.ScenarioID, &t.Service.ID)
 		} else {
-			_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
+			_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(pd), t.Service.ScenarioID, &t.Service.ID)
 		}
 
 		if err != nil {
@@ -128,15 +134,15 @@ func (t Telegram) Execute(Odata *services.Pipe) {
 		break
 	case getChatMember:
 		var data getChatMemberData
-		err = json.Unmarshal([]byte(t.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Println("!! CRITICAL ERROR !!", err)
 		}
 
 		if env.ENV.Mode == env.DEVELOPMENT {
-			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), nil, t.Service.ScenarioID, &t.Service.ID)
+			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(pd), nil, t.Service.ScenarioID, &t.Service.ID)
 		} else {
-			_, err = makeTorifiedHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
+			_, err = makeTorifiedHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(pd), t.Service.ScenarioID, &t.Service.ID)
 		}
 
 		if err != nil {

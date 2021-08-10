@@ -143,10 +143,16 @@ func (g Gmail) Execute(Odata *services.Pipe) {
 	logData := fmt.Sprintf("Executing type (%s) : %s\n", gmailType, g.Service.Name)
 	SendLogMessage(logData, *g.Service.ScenarioID, nil)
 
+	// Parse Data
+	pd, err := Odata.Parse(g.Service.Data)
+	if err != nil {
+		log.Println("Error in parsing", err)
+	}
+
 	switch g.Service.SubType {
 	case "sendEmail":
 		var data gmailLoginData
-		err = json.Unmarshal([]byte(g.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Print(err)
 		}
