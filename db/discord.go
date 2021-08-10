@@ -107,6 +107,11 @@ func (d Discord) Execute(Odata *services.Pipe) {
 		return
 	}
 
+	// Parse Data
+	pd, err := Odata.Parse(d.Service.Data)
+	if err != nil {
+		log.Println("Error in parsing", err)
+	}
 
 	log.Printf("Executing type (%s) : %s\n", discordType, d.Service.Name)
 
@@ -114,19 +119,19 @@ func (d Discord) Execute(Odata *services.Pipe) {
 	switch d.Service.SubType {
 	case discordSendMessage:
 		var data discordSendMessageData
-		err = json.Unmarshal([]byte(d.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Println(err)
 		}
 
-		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(d.Service.Data), &token, d.Service.ScenarioID, &d.Service.ID)
+		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(pd), &token, d.Service.ScenarioID, &d.Service.ID)
 		if err != nil {
 			log.Println(err)
 		}
 		break
 	case discordPinMessage:
 		var data discordPinMessageData
-		err = json.Unmarshal([]byte(d.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Println(err)
 		}
@@ -138,7 +143,7 @@ func (d Discord) Execute(Odata *services.Pipe) {
 		break
 	case discordReactMessage:
 		var data discordReactMessageData
-		err = json.Unmarshal([]byte(d.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Println(err)
 		}

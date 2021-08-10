@@ -116,7 +116,14 @@ func (h Http) Execute(Odata *services.Pipe) {
 	// Http just has one kind of sub service so we do not need any switch-case statement.
 	// Provide data for make request
 	var data httpRequestData
-	err = json.Unmarshal([]byte(h.Service.Data), &data)
+
+	// Parse Data
+	pd, err := Odata.Parse(h.Service.Data)
+	if err != nil {
+		log.Println("Error in parsing", err)
+	}
+
+	err = json.Unmarshal([]byte(pd), &data)
 	if err != nil {
 		log.Println(err)
 	}
