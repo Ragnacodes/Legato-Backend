@@ -4,11 +4,11 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"github.com/golang-jwt/jwt/v4"
 	"legato_server/api"
 	legatoDb "legato_server/db"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 )
 

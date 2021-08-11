@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"legato_server/env"
 	"log"
+	"legato_server/services"
 )
 
 const discordType = "discords"
@@ -97,7 +98,7 @@ func (ldb *LegatoDB) GetDiscordByService(serv Service) (*Discord, error) {
 }
 
 // Service Interface for discord
-func (d Discord) Execute(...interface{}) {
+func (d Discord) Execute(Odata *services.Pipe) {
 	log.Println("*******Starting Discord Service*******")
 
 	err := legatoDb.db.Preload("Service").Find(&d).Error
@@ -106,6 +107,11 @@ func (d Discord) Execute(...interface{}) {
 		return
 	}
 
+	// Parse Data
+	pd, err := Odata.Parse(d.Service.Data)
+	if err != nil {
+		log.Println("Error in parsing", err)
+	}
 
 	log.Printf("Executing type (%s) : %s\n", discordType, d.Service.Name)
 
@@ -113,19 +119,19 @@ func (d Discord) Execute(...interface{}) {
 	switch d.Service.SubType {
 	case discordSendMessage:
 		var data discordSendMessageData
-		err = json.Unmarshal([]byte(d.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Println(err)
 		}
 
-		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(d.Service.Data), &token, d.Service.ScenarioID, &d.Service.ID)
+		_, err = makeHttpRequest(fmt.Sprintf(discordSendMessageUrl, data.Channel), "post", []byte(pd), &token, d.Service.ScenarioID, &d.Service.ID)
 		if err != nil {
 			log.Println(err)
 		}
 		break
 	case discordPinMessage:
 		var data discordPinMessageData
-		err = json.Unmarshal([]byte(d.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Println(err)
 		}
@@ -137,7 +143,7 @@ func (d Discord) Execute(...interface{}) {
 		break
 	case discordReactMessage:
 		var data discordReactMessageData
-		err = json.Unmarshal([]byte(d.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Println(err)
 		}
@@ -151,14 +157,18 @@ func (d Discord) Execute(...interface{}) {
 		break
 	}
 
-	d.Next()
+	d.Next(Odata)
 }
 
-func (d Discord) Post() {
+func (d Discord) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", discordType, d.Service.Name)
 }
 
-func (d Discord) Next(...interface{}) {
+func (d Discord) Resume(data ...interface{}){
+
+}
+
+func (d Discord) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&d).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -175,7 +185,7 @@ func (d Discord) Next(...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 

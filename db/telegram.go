@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"legato_server/env"
+	"legato_server/services"
 	"log"
 	"net/http"
 	"net/url"
@@ -95,14 +96,20 @@ func (ldb *LegatoDB) GetTelegramByService(serv Service) (*Telegram, error) {
 }
 
 // Service Interface for telegram
-func (t Telegram) Execute(...interface{}) {
+func (t Telegram) Execute(Odata *services.Pipe) {
 	log.Println("*******Starting Telegram Service*******")
 
 	err := legatoDb.db.Preload("Service").Find(&t).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
-		t.Next()
+		t.Next(Odata)
 		return
+	}
+
+	// Parse Data
+	pd, err := Odata.Parse(t.Service.Data)
+	if err != nil {
+		log.Println("Error in parsing", err)
 	}
 
 	log.Printf("Executing type (%s) : %s\n", telegramType, t.Service.Name)
@@ -110,15 +117,15 @@ func (t Telegram) Execute(...interface{}) {
 	switch t.Service.SubType {
 	case sendMessage:
 		var data sendMessageData
-		err = json.Unmarshal([]byte(t.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Println("!! CRITICAL ERROR !!", err)
 		}
 
 		if env.ENV.Mode == env.DEVELOPMENT {
-			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), nil, t.Service.ScenarioID, &t.Service.ID)
+			_, err = makeHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(pd), nil, t.Service.ScenarioID, &t.Service.ID)
 		} else {
-			_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
+			_, err = makeTorifiedHttpRequest(fmt.Sprintf(sendMessageEndpoint, t.Key), "post", []byte(pd), t.Service.ScenarioID, &t.Service.ID)
 		}
 
 		if err != nil {
@@ -127,15 +134,15 @@ func (t Telegram) Execute(...interface{}) {
 		break
 	case getChatMember:
 		var data getChatMemberData
-		err = json.Unmarshal([]byte(t.Service.Data), &data)
+		err = json.Unmarshal([]byte(pd), &data)
 		if err != nil {
 			log.Println("!! CRITICAL ERROR !!", err)
 		}
 
 		if env.ENV.Mode == env.DEVELOPMENT {
-			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), nil, t.Service.ScenarioID, &t.Service.ID)
+			_, err = makeHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(pd), nil, t.Service.ScenarioID, &t.Service.ID)
 		} else {
-			_, err = makeTorifiedHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(t.Service.Data), t.Service.ScenarioID, &t.Service.ID)
+			_, err = makeTorifiedHttpRequest(fmt.Sprintf(getChatMemberEndpoint, t.Key), "post", []byte(pd), t.Service.ScenarioID, &t.Service.ID)
 		}
 
 		if err != nil {
@@ -146,14 +153,19 @@ func (t Telegram) Execute(...interface{}) {
 		break
 	}
 
-	t.Next()
+	t.Next(Odata)
 }
 
-func (t Telegram) Post() {
+func (t Telegram) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", telegramType, t.Service.Name)
 }
 
-func (t Telegram) Next(...interface{}) {
+
+func (t Telegram) Resume(data ...interface{}){
+
+}
+
+func (t Telegram) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&t).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -170,7 +182,7 @@ func (t Telegram) Next(...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 
