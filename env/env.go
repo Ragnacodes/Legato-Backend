@@ -58,6 +58,10 @@ type env struct {
 	SchedulerUrl     string
 	RedisHost        string
 	DiscordBotToken  string
+	// Gmail
+	GmailUsername string
+	GmailPassword string
+	GmailHost     string
 }
 
 var ENV env
@@ -132,6 +136,17 @@ func LoadEnv() {
 		log.Println("Warning: no discord bot secret")
 	}
 
+	envGmailUsername := os.Getenv("EMAIL_USERNAME")
+	envGmailPassword := os.Getenv("EMAIL_PASSWORD")
+	envGmailHost := os.Getenv("EMAIL_HOST")
+	if envGmailUsername == "" {
+		if envGmailPassword == "" {
+			if envGmailHost == "" {
+				log.Println("make sure you provide username, password and host in .env for email functionality.")
+			}
+		}
+	}
+
 	ENV = env{
 		ServingPort: envPort,
 		// Redis
@@ -150,6 +165,11 @@ func LoadEnv() {
 
 		// Applications
 		DiscordBotToken: discordBotToken,
+
+		// Gmail
+		GmailHost:     envGmailHost,
+		GmailUsername: envGmailUsername,
+		GmailPassword: envGmailPassword,
 
 		Mode: envMode,
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"legato_server/services"
 	"log"
 	"reflect"
 	"strings"
@@ -83,14 +84,14 @@ func (ldb *LegatoDB) GetSshByID(id uint, u *User) (Ssh, error) {
 	return s, nil
 }
 func (ldb *LegatoDB) GetUserSsh(u *User) ([]Ssh, error) {
-	var services []Service
-	err := ldb.db.Select("id").Where(&Service{UserID: u.ID}).Find(&services).Error
+	var serviceList []Service
+	err := ldb.db.Select("id").Where(&Service{UserID: u.ID}).Find(&serviceList).Error
 	if err != nil {
 		return nil, err
 	}
 	var serviceIds []uint
 	serviceIds = []uint{}
-	for _, srv := range services {
+	for _, srv := range serviceList {
 		serviceIds = append(serviceIds, srv.ID)
 	}
 
@@ -136,6 +137,7 @@ func ConnectWithUserPass(myssh Ssh, commands []string, scenarioId uint, serviceI
 	client, err := ssh.Dial("tcp", myssh.Host+":"+"22", config)
 	if err != nil {
 		log.Println("unable to authenticate username or password is incorrect")
+		return
 	}
 	defer client.Close()
 
@@ -199,6 +201,7 @@ func ConnectWithSShKey(myssh Ssh, commands []string, scenarioId uint, serviceId 
 	client, err := ssh.Dial("tcp", myssh.Host+":"+"22", config)
 	if err != nil {
 		log.Println("unable to authenticate username or sshkey is incorrect")
+		return
 	}
 	defer client.Close()
 
@@ -242,7 +245,7 @@ func ConnectWithSShKey(myssh Ssh, commands []string, scenarioId uint, serviceId 
 }
 
 // Service Interface for ssh
-func (ss Ssh) Execute(...interface{}) {
+func (ss Ssh) Execute(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Find(&ss).Error
 	if err != nil {
 		log.Println(err)
@@ -289,14 +292,19 @@ func (ss Ssh) Execute(...interface{}) {
 	logData = fmt.Sprintf("Executing following commands on remote server: %s", commands)
 	SendLogMessage(logData, *ss.Service.ScenarioID, &ss.Service.ID)
 
-	ss.Next()
+	ss.Next(Odata)
 }
 
-func (ss Ssh) Post() {
+func (ss Ssh) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", sshType, ss.Service.Name)
 }
 
-func (ss Ssh) Next(...interface{}) {
+
+func (ss Ssh) Resume(data ...interface{}){
+
+}
+
+func (ss Ssh) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&ss).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -313,7 +321,7 @@ func (ss Ssh) Next(...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 

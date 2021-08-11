@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"legato_server/services"
 	"log"
 	"net/http"
 	"strings"
@@ -100,11 +101,11 @@ func (ldb *LegatoDB) GetHttpByService(serv Service) (*Http, error) {
 }
 
 // Service Interface for Http
-func (h Http) Execute(...interface{}) {
+func (h Http) Execute(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Find(&h).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
-		h.Next()
+		h.Next(Odata)
 		return
 	}
 
@@ -115,7 +116,14 @@ func (h Http) Execute(...interface{}) {
 	// Http just has one kind of sub service so we do not need any switch-case statement.
 	// Provide data for make request
 	var data httpRequestData
-	err = json.Unmarshal([]byte(h.Service.Data), &data)
+
+	// Parse Data
+	pd, err := Odata.Parse(h.Service.Data)
+	if err != nil {
+		log.Println("Error in parsing", err)
+	}
+
+	err = json.Unmarshal([]byte(pd), &data)
 	if err != nil {
 		log.Println(err)
 	}
@@ -129,15 +137,20 @@ func (h Http) Execute(...interface{}) {
 		log.Println(err)
 	}
 
-	h.Next()
+	h.Next(Odata)
 }
 
-func (h Http) Post() {
+func (h Http) Post(Odata *services.Pipe) {
 	data := fmt.Sprintf("Executing type (%s) node in background : %s\n", httpType, h.Service.Name)
 	SendLogMessage(data, *h.Service.ScenarioID, nil) 
 }
 
-func (h Http) Next(...interface{}) {
+
+func (h Http) Resume(data ...interface{}){
+
+}
+
+func (h Http) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Preload("Service.Children").Find(&h).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -155,7 +168,7 @@ func (h Http) Next(...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 

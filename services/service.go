@@ -5,7 +5,8 @@ package services
 // Post runs the related actions in the background thread.
 // Next runs the next node(s)
 type Service interface {
-	Execute(attrs ...interface{})
-	Post()
-	Next(attrs ...interface{})
+	Execute(*Pipe)
+	Post(*Pipe)
+	Resume(data ...interface{})
+	Next(*Pipe)
 }

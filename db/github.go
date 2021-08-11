@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"legato_server/services"
 	"log"
 
 	"github.com/google/go-github/github"
@@ -121,11 +122,11 @@ func (ldb *LegatoDB) GetGitByService(serv Service) (*Github, error) {
 }
 
 // Service Interface for Git
-func (g Github) Execute(...interface{}) {
+func (g Github) Execute(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service").Find(&g).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
-		g.Next()
+		g.Next(Odata)
 		return
 	}
 	SendLogMessage("*******Starting Github Service*******", *g.Service.ScenarioID, nil)
@@ -190,14 +191,19 @@ func (g Github) Execute(...interface{}) {
 
 	}
 
-	g.Next()
+	g.Next(Odata)
 }
 
-func (g Github) Post() {
+func (g Github) Post(Odata *services.Pipe) {
 	log.Printf("Executing type (%s) node in background : %s\n", gitType, g.Service.Name)
 }
 
-func (g Github) Next(...interface{}) {
+
+func (g Github) Resume(data ...interface{}){
+
+}
+
+func (g Github) Next(Odata *services.Pipe) {
 	err := legatoDb.db.Preload("Service.Children").Find(&g).Error
 	if err != nil {
 		log.Println("!! CRITICAL ERROR !!", err)
@@ -214,7 +220,7 @@ func (g Github) Next(...interface{}) {
 				return
 			}
 
-			serv.Execute()
+			serv.Execute(Odata)
 		}(node)
 	}
 
