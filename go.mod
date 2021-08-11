@@ -6,11 +6,11 @@ require (
 	github.com/AfterShip/email-verifier v1.1.0 // indirect
 	github.com/Kesci/gostore v0.0.0-20170911091355-40648d3a0280
 	github.com/alexandrevicenzi/go-sse v1.6.0
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/garyburd/redigo v1.6.2 // indirect
-	github.com/gin-gonic/gin v1.6.3
+	github.com/gin-gonic/gin v1.7.3
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/go-redis/redis/v8 v8.8.2
+	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.1.0 // indirect

@@ -8,9 +8,9 @@ import (
 
 var Cache gostore.Store
 
-func ConnectToRedis(){
- option := gostore.StoreOptions{
-	RedisHost: env.ENV.RedisHost,
- }
- Cache.Init(&option)
+func ConnectToRedis() {
+	option := gostore.StoreOptions{
+		RedisHost: env.ENV.RedisHost,
+	}
+	Cache.Init(&option)
 }
